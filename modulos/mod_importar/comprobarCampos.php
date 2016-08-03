@@ -30,7 +30,10 @@ $lineaF = $_POST['lineaF'] ;
 				/* La funcion explode nos ayuda a delimitar los campos, por lo tanto irá 
 				leyendo hasta que encuentre un ; */
 				//~ echo $linea.' '.$Textolinea.'<br/>';
-				$datos = explode(",",$Textolinea);
+				
+				
+				$datos = str_getcsv($Textolinea,"," ,'"');
+				//~ $datos = explode(",",$Textolinea);
 				
 				//Almacenamos los datos que vamos leyendo en una variable
 				$RefDKM = trim($datos[0]);

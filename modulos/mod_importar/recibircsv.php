@@ -173,12 +173,9 @@
 							lineaActual = parseInt(linea) + 400;
 							diferencia= 400; // Para utilizar en bucle
 						} else {
+							// Como ya no hay tanto registros ( 400) ponemos solo la diferencia
 							lineaActual = parseInt(linea) + parseInt(diferencia);
-							// El valor de diferencia es correcto, ya que el final , menos 1000 
 						}
-					//~ alert('Entro If: \n '+ 'Linea Final'+ lineaF + ' \nLinea Actual: '+ lineaActual);
-
-					//~ alert('Entro IF: \n '+ 'Linea Actual'+ lineaActual);
 					// Iniciamos proceso Barra;
 					consultaDatos(linea,lineaActual);
 
@@ -188,6 +185,13 @@
 						if ( parseInt(lineaActual) == parseInt(lineaF) ){
 							alert ( 'terminamos' );
 							clearInterval(ciclo);
+								// Ahora deberíamos hacer una comprobación de como quedo la cosa.
+								// es decir :
+								//     -Comprobar cuantos registros añadio a la base de datos.
+								//     -Comprobar si hay referencias repetidas, tanto RefDKM , como RefFabricante
+								//     -Comprobar cuantos Fabricantes hay y cuanto hay que añadir a Fabricantes.
+								// 	   -Comprobar cuantas Referencias de DKM hay y cuantos hay añadir.
+							
 						}
 					}
 				}
