@@ -156,12 +156,11 @@
 				<p>Ahora vamos a comprobar si hay tres campos en las lineas seleccionadas</p>
 				<!-- Script para ejecutar funcion php -->
 				<script>
+				// La variables lineaActual y lineaF son globales .
 				var lineaActual = 0;
 				var lineaF = 0;
 				var ciclo;
-
-				// Ahora comprobamos si ya inicio proceso entonces los ejecutamos 
-				//~ setInterval(bucleProceso(lineaActual,lineaF),2000);
+				
 				alert('Al iniciar \n Linea Actual: '+ lineaActual + 'Linea Final: '+ lineaF);
 				function bucleProceso (lineaF,linea) {
 					// Si la diferencia es mayor a mi lineas, tomamos esas mil lineas.
@@ -170,9 +169,9 @@
 
 					if (parseInt(linea) < parseInt(lineaF)) {
 						diferencia = parseInt(lineaF) - parseInt(linea)
-						if (parseInt(diferencia) >1000 ) {
-							lineaActual = parseInt(linea) + 1000;
-							diferencia= 1000; // Para utilizar en bucle
+						if (parseInt(diferencia) >400 ) {
+							lineaActual = parseInt(linea) + 400;
+							diferencia= 400; // Para utilizar en bucle
 						} else {
 							lineaActual = parseInt(linea) + parseInt(diferencia);
 							// El valor de diferencia es correcto, ya que el final , menos 1000 
@@ -197,7 +196,7 @@
 				function cicloProcesso () {
 				alert('Iniciamos ciclo');
 				bucleProceso(lineaF,lineaActual)
-				ciclo = setInterval("bucleProceso(lineaF,lineaActual)",30000);
+				ciclo = setInterval("bucleProceso(lineaF,lineaActual)",20000);
 
 				
 				}

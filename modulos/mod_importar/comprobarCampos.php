@@ -24,29 +24,35 @@ $lineaF = $_POST['lineaF'] ;
 		if  ($linea >= $lineaA)
 		{ 
 		   
-		   if($linea <= $lineaF) 
+		   if($linea < $lineaF) 
 		   { 
-			   //abrimos condición, solo entrará en la condición a partir de la segunda pasada del bucle.
-			   /* La funcion explode nos ayuda a delimitar los campos, por lo tanto irá 
-			   leyendo hasta que encuentre un ; */
-			   //~ echo $linea.' '.$Textolinea.'<br/>';
-			   $datos = explode(",",$Textolinea);
-		 
-			   //Almacenamos los datos que vamos leyendo en una variable
+				//abrimos condición, solo entrará en la condición a partir de la segunda pasada del bucle.
+				/* La funcion explode nos ayuda a delimitar los campos, por lo tanto irá 
+				leyendo hasta que encuentre un ; */
+				//~ echo $linea.' '.$Textolinea.'<br/>';
+				$datos = explode(",",$Textolinea);
+				
+				//Almacenamos los datos que vamos leyendo en una variable
 				$RefDKM = trim($datos[0]);
 				$Marca = trim($datos[1]);
 				$RefCruzada = trim($datos[2]);
+			   
+			   // Antes de guardar cuantos campo hay
+				if (count($datos) !== 3){
+				$Estado = 'Campos'.count($datos).' Linea:'.$linea;
+				} else {
+				$Estado = '';
+				}
+			   
 			   //guardamos en base de datos la línea leida
-				//~ mysqli_query($link, "INSERT INTO referenciascruzadas VALUES ('Pedro2', 'Gómez Gómez', '699887766')");
-				//~ echo $RefDKM,$Marca,$RefCruzada;
-			   mysqli_query($link,"INSERT INTO referenciascruzadas VALUES('$RefDKM','$Marca','$RefCruzada')");
+			   mysqli_query($link,"INSERT INTO referenciascruzadas VALUES('$RefDKM','$Marca','$RefCruzada','$Estado')");
 			   
 		 
 			   //cerramos condición
 		   }
 		}
 		 
-		if ( $linea > $lineaF ) {
+		if ( $linea >= $lineaF ) {
 		break;
 		}
 		//cerramos bucle
