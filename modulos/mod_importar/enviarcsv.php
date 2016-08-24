@@ -9,30 +9,64 @@
 
 	<div class="row">
 		<div class="col-md-12 text-center">
-			<h2>Subida de fichero</h2>
+			<h2>Subida de fichero a BD temporal</h2>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-12">
 			<div id="SubidaFicheros">
-				<!-- Ejemplo de http://php.net/manual/es/features.file-upload.post-method.php -->
-				<!-- El tipo de codificación de datos, enctype, DEBE especificarse como sigue -->
-			<form enctype="multipart/form-data" action="recibircsv.php" method="POST">
-				<!-- MAX_FILE_SIZE debe preceder al campo de entrada del fichero -->
-
+			<?php 
+				/* En el form debemos controlar recibircsv.php, es decir aquí cambia según 
+				 * el fichero que subamos, ya que no se procesa de la misma manera, uno u otro.
+				 * */
+			?>
+			<form role="form" enctype="multipart/form-data" action="recibircsv.php" method="POST">
 				<input type="hidden" name="MAX_FILE_SIZE" value="5023834" />
+				<!-- MAX_FILE_SIZE debe preceder al campo de entrada del fichero -->
+				<div class="form-group">
+				<label class="control-label">Seleciona el fichero a subir al servidor:</label>
+				<input name="fichero_usuario" type="file">
 				<!-- El nombre del elemento de entrada determina el nombre en el array $_FILES -->
-				<p>El fichero no puede ser superior a 30MG</p>
-				<label>Seleciona el fichero Referencias Cruzadas:</label>
-				<input name="fichero_usuario" type="file" />
-				<p>Por defecto, los ficheros se almacenan en el directorio temporal predeterminado del servidor, a menos que se haya indicado otra ubicaicón con la directiva upload_tmp_dir en <a href="http://localhost/pruebas/phpInfo/info.php">php.ini</a></p>
-				<h2>EMPEZAR A IMPORTAR FICHERO</h2>
-				<p> El fichero de arriba tiene que ser un csv, sin cabecera de campos, y estos son:</p>
-				<ul>
-				<li> RefDKM</li>
-				</ul>
+				</div>
+				<div class="form-group">
 				<label>Enviar este fichero:</label>
 				<input type="submit" value="Enviar fichero" />
+				</div>
 			</form>
 			</div>	
+			<div>
+				<p> Los nombres de los ficheros que se pueden subir son:</p>
+				<div class="col-md-4">
+				<h4>Ref. Cruzadas</h4>
+				<div class="alert alert-info">
+					<small><strong>Nombre:</strong></small>
+					<small>ReferenciasCruzadas.csv</small>
+				</div>
+				<p>Este fichero es el encargado de indicar las referencias de otros fabricantes.</p>
+				<p>Estos son los los campos que debe contener el fichero.</p>
+				<ul>
+				<li>RefDKM 	(text)</li>
+				<li>Fabr_Recambio (text	)</li>
+				<li>Ref_Fabricante (text)</li>
+				</ul>
+				<p>La tabla temporal tiene un campo más, que le llamamos <strong>Estado</strong>, donde vamos indicar si hay errores en la carga, o si fue importado a la Base de datos de Recambios.</p>
+				
+				</div>
+				<div class="col-md-4">
+				<h4>Ref.Versiones Coches</h4>
+				<div class="alert alert-info">
+					<small><strong>Nombre:</strong></small>
+					<small>ReferenciasCversionesCoches.csv</small>
+				</div>
+				<p>Este fichero es el encargado de indicar las recambios monta cada version de coches.</p>
+				</div>
+				<div class="col-md-4">
+				<h4>Lista Precios</h4>
+				<div class="alert alert-info">
+					<small><strong>Nombre:</strong></small>
+					<small>ListaPreciosProveedor.csv</small>
+				</div>
+				<p>Este fichero es encargado de indicar el precio coste de cada proveedor.</p>
+				</div>
+			</div>
 		</div>
 	</div>
 

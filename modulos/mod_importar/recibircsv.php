@@ -4,6 +4,7 @@
 <?php
 	include './../../head.php';
 ?>
+<script src="/CatalogoProductos/modulos/mod_importar/importar.js"></script>
 </head>
 <body>
 <?php
@@ -148,57 +149,29 @@
 					<label class="control-label col-md-4">Línea Final</label>
 					<input class="control-label col-md-6" type="number" id="LineaFinal" name="linea_final" value="<?php echo $num_lineas;?>">
 					</div>
+					<div class="form-group">
+					<p>Ahora vamos importar los datos csv a base datos de MYSQL</p>
+					</div>
 					<div class="form-group align-right">
-					<input type="button" href="javascript:;" onclick="valoresProceso($('#LineaInicial').val(), $('#LineaFinal').val());return false;" value="Calcula"/>
+					<input type="button" href="javascript:;" onclick="valoresProceso($('#LineaInicial').val(), $('#LineaFinal').val());return false;" value="Importar a MySql"/>
 					</div>
 				</form>
 
-				<p>Ahora vamos a comprobar si hay tres campos en las lineas seleccionadas</p>
 				<!-- Script para ejecutar funcion php -->
 				<script>
 				// La variables lineaActual y lineaF son globales .
+				// Estás variables la lee al cargar la pagina.
 				var lineaActual = 0;
 				var lineaF = 0;
 				var ciclo;
 				
-				alert('Al iniciar \n Linea Actual: '+ lineaActual + 'Linea Final: '+ lineaF);
-				function bucleProceso (lineaF,linea) {
-					// Si la diferencia es mayor a mi lineas, tomamos esas mil lineas.
-					
-					//~ alert('Entro Bucle Proceso: \n '+ 'Linea Final'+ lineaF + ' \nLinea Actual: '+ linea);
-
-					if (parseInt(linea) < parseInt(lineaF)) {
-						diferencia = parseInt(lineaF) - parseInt(linea)
-						if (parseInt(diferencia) >400 ) {
-							lineaActual = parseInt(linea) + 400;
-							diferencia= 400; // Para utilizar en bucle
-						} else {
-							// Como ya no hay tanto registros ( 400) ponemos solo la diferencia
-							lineaActual = parseInt(linea) + parseInt(diferencia);
-						}
-					// Iniciamos proceso Barra;
-					consultaDatos(linea,lineaActual);
-
-					BarraProceso(lineaActual,lineaF);
-					
-					// Ahora si ya son iguales los linea y lineaF entonces terminamos ciclo
-						if ( parseInt(lineaActual) == parseInt(lineaF) ){
-							alert ( 'terminamos' );
-							clearInterval(ciclo);
-								// Ahora deberíamos hacer una comprobación de como quedo la cosa.
-								// es decir :
-								//     -Comprobar cuantos registros añadio a la base de datos.
-								//     -Comprobar si hay referencias repetidas, tanto RefDKM , como RefFabricante
-								//     -Comprobar cuantos Fabricantes hay y cuanto hay que añadir a Fabricantes.
-								// 	   -Comprobar cuantas Referencias de DKM hay y cuantos hay añadir.
-							
-						}
-					}
-				}
 				
 				
 				function cicloProcesso () {
-				alert('Iniciamos ciclo');
+				alert('Vamos eliminar los datos que tenga /n'+
+						' la base de datos importarRecambios');
+						
+						
 				bucleProceso(lineaF,lineaActual)
 				ciclo = setInterval("bucleProceso(lineaF,lineaActual)",20000);
 
@@ -206,38 +179,18 @@
 				}
 				
 				function valoresProceso(valorCaja1, valorCaja2){
+				// Este Script es el que al pulsar el bottom le ponemos 
+				// valores a las variables.
+				// Y ejecutamos cicloProceso() 
 				lineaF= valorCaja2;
 				var lineaI= valorCaja1;
-				// Si lineaI es mayor a Actual entonces debemos igualarla.
-				//~ if (parseInt(lineaI) > parseInt(lineaActual)) {
-					lineaActual = lineaI;
-				//~ }
-				
+				lineaActual = lineaI;
 				alert('Entro valoresProceso: \n '+ 'Linea Actual'+ lineaActual + ' \nLinea Final: '+ lineaF);
-
 				// Iniciar ciclo proceso. ;
 					cicloProcesso ();
 				}
 				
 				
-				function consultaDatos(linea,lineaF) {
-					var parametros = {
-					"lineaI" : linea,
-					"lineaF" : lineaF
-							};
-					$.ajax({
-							data:  parametros,
-							url:   'comprobarCampos.php',
-							type:  'post',
-							beforeSend: function () {
-									$("#resultado").html("Procesando, espere por favor...");
-							},
-							success:  function (response) {
-									$("#resultado").html(response);
-									
-							}
-						});
-				}
 				
 				
 

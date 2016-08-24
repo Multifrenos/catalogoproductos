@@ -74,30 +74,3 @@ function EliminarVersiones() {
    	} 
 }
 
-function BarraProceso(lineaA,lineaF) {
-	// Si la lineaActual es 0 , genera in error por lo que debemos sustituirlo por uno
-	//~ alert(' Linea final es '+lineaF);
-	if (lineaA == 0 ) {
-		lineaA = 1;
-	}
-	if (lineaF == 0) {
-	 alert( 'Linea Final es 0 ');
-	 return;
-	}
-	var progreso =  Math.round(( lineaA *100 )/lineaF);
-	//~ alert('Dentro BarraProceso \n Valor Progreso: '+ progreso + 'Linea Actual: '+ lineaA);
-
-	//~ var progreso = (lineaA*100)/lineaF;
-	  // Aumento en 10 el progeso
-	  $('#bar').css('width', progreso + '%');
-
-	 //  Añadimos numero linea en resultado.
-	 //~ document.getElementById("resultado").innerHTML = lineaA;  // Agrego nueva linea antes 
-	// Ahora debería en que porcentaje va , sustituyendo id = "spanproceso"
-	// pero no funciona
-	 document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
-
-
-	  return;
-		
-}

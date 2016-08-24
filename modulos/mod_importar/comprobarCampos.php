@@ -48,7 +48,7 @@ $lineaF = $_POST['lineaF'] ;
 				}
 			   
 			   //guardamos en base de datos la línea leida
-			   mysqli_query($link,"INSERT INTO referenciascruzadas VALUES('$RefDKM','$Marca','$RefCruzada','$Estado')");
+			   mysqli_query($BDImportRecambios,"INSERT INTO referenciascruzadas VALUES('$RefDKM','$Marca','$RefCruzada','$Estado')");
 			   
 		 
 			   //cerramos condición
@@ -63,7 +63,7 @@ $lineaF = $_POST['lineaF'] ;
 	}
 	
 	fclose($archivo);
-	mysqli_close($link);
+	mysqli_close($BDImportRecambios);
 	$html = 'Añadi de linea '.$lineaA. ' hasta linea '.$lineaF."\n".$RefDKM.'Marca:'.$Marca.'RefCruzada'.$RefCruzada;
 	echo $html ;
 	echo '<br/>'.addslashes($Textolinea).'<br/>';
