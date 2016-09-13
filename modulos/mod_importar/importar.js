@@ -19,7 +19,7 @@ function BarraProceso(lineaA,lineaF) {
 	return;
 	
 }
-function bucleProceso (lineaF,linea) {
+function bucleProceso (lineaF,linea,fichero) {
 	// Este Script es el que utilizamos para que se ejecute cada cierto tiempo.
 	// es decir, es llamado con setInterval("bucleProceso(lineaF,lineaActual)",20000);
 	// desde cicloproceso()
@@ -39,7 +39,7 @@ function bucleProceso (lineaF,linea) {
 			lineaActual = parseInt(linea) + parseInt(diferencia);
 		}
 	// Iniciamos proceso Barra;
-	consultaDatos(linea,lineaActual);
+	consultaDatos(linea,lineaActual,fichero);
 
 	BarraProceso(lineaActual,lineaF);
 	
@@ -58,16 +58,17 @@ function bucleProceso (lineaF,linea) {
 	}
 }
 
-function consultaDatos(linea,lineaF) {
+function consultaDatos(linea,lineaF,fichero) {
 	// Script que utilizamos para ejecutar funcion de php , para importar datos a MySql.
 	// Recuerda que importamos a BD y tabla temporar, me falta un proceso importación final.
 	var parametros = {
 	"lineaI" : linea,
-	"lineaF" : lineaF
+	"lineaF" : lineaF,
+	"Fichero" : fichero
 			};
 	$.ajax({
 			data:  parametros,
-			url:   'comprobarCampos.php',
+			url:   'msql_csv.php',
 			type:  'post',
 			beforeSend: function () {
 					$("#resultado").html("Procesando, espere por favor...");

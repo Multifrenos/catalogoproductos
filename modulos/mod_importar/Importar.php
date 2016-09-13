@@ -13,15 +13,27 @@
 <div class="container">
 	<div class="col-md-4">
 		<h2>Importación de datos a Recambios.</h2>
-		<p> Los ficheros que vamos importar son <strong>csv</strong>, con separador (,) y divisor campos (").</p>
-		<p> Lo que realizamos es añadir datos a la base de datos temporal <strong>(importarRecambios)</strong> y luego indicaremos si queremos o no añadir a la base de datos <strong>RECAMBIOS.</strong></p>
-		<div class="alert alert-danger">
-		<strong>PRECAUCION <br/></strong>
-		Tenga mucho cuidado ya que puede estropear la base datos, recomendable realizar un copia de la base de datos antes de realizar esta operacion.
-		</div>
+		<p> La importación de datos al "Catalogo de Recambios" se hacer en dos fases:</p>
+		<ol>
+		<li> Se añaden datos de ficheros a la <strong>BD importarRecambios</strong></li>
+		<li> Se añaden o se modifican en <strong>BD Recambios </strong>de catalago</li>
+		</ol>
+		
+		<p> El <strong>fichero ListaPrecios</strong> es el encargado de añadir Recambios nuevo y sus referencias de fabricante (marca) correpondiente.</p>
+		
+		<p> El <strong>fichero referencias cruzadas</strong>, se va buscar la referencia del fabricante de recambio en la tabla de recambios, donde comprobaremos si existe o no , sino existe no se añade el registro.</p>
+		<p> EL <strong>fichero referencias cruzadas de Versiones coches</strong>, es el encargado de añadir los coches en los que se aplica ese recambio, por eso es fundamental que exista el recambio.</p>
 		<div>
-		<p> Recueda que los ficheros no pueden ser superiores a <strong>50MG</strong>, el proceso se realiza por trozos para evitar que se bloqué el servidor.</p>
-		<p>Por defecto, los ficheros se almacenan en el <strong>directorio temporal</strong> predeterminado del servidor, a menos que se haya indicado otra ubicación con la directiva upload_tmp_dir en <a href="http://localhost/pruebas/phpInfo/info.php">php.ini</a></p>
+		
+		
+		<h4>Especificaciones Tecnicas</h4>
+			<ul>
+			<li> Los ficheros <strong>csv</strong>, con separador (,) y divisor campos (").</li>
+			<li> Los ficheros se almacenan directament en directorio temporal del servidor, salvo que se lo indiquemos con upload_tmp_dir que no sea así.</li>
+			<li> Los ficheros no pueden ser superiores a 50MG</li>
+			<li> El proceso se hace con AJAX a trozos, para evitar saturar el servidor.</li>
+			<li> Ver más informacion en <a href="http://localhost/pruebas/phpInfo/info.php">php.ini</a></li>
+			</ul>
 		</div>
 		
 	</div>

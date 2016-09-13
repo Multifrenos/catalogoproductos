@@ -9,26 +9,57 @@
 <body>
 <?php
 	include './../../header.php';
+	// Inicio de variables
+			$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
+			$dir_subida = '/tmp/'; // Lugar donde el servidor indica que guarda los tmp
+			$ficheroNombre= $_FILES['fichero_usuario']['name'];
+			//~ $fichero_subido = $dir_subida . basename($_FILES['fichero_usuario']['name']);
+			$fichero_subido = $dir_subida . $ficheroNombre;
+
+			$errorFichero = '';
+			$correcto = '';
+			
 ?>
 	<div class="container">
 		<div class="col-md-12 text-center">
-			<h2>Revisando fichero subido</h2>
+			<h2>Paso 1 : Añadir datos del fichero csv a BD temporal </h2>
 		</div>
 		<?php
-			// En versiones de PHP anteriores a la 4.1.0, debería utilizarse $HTTP_POST_FILES en lugar
-			// de $_FILES.
-			// Lugar donde el servidor indica que guarda los tmp
-			$dir_subida = '/tmp/';
-			$fichero_subido = $dir_subida . basename($_FILES['fichero_usuario']['name']);
-			$correcto = '';
-			$errorFichero = '';
-			// Comprobamos si creo el fichero copio el fichero en el destino
-			if (move_uploaded_file($_FILES['fichero_usuario']['tmp_name'], $fichero_subido)) {
-				$correcto = " - El fichero es válido y se subió con éxito.<br/>";
+			
+			// Si ya enviamos nombre fichero por URL quiere decir:
+			//   - Que ya habíamos subido con anterioridad el fichero
+			//   - Queremos continuar con el proceso pero en otros registros.
+				
+		if (isset( $_GET["fichero"])) {
+			$ficheroNombre= $_GET["fichero"].'.csv';
+			// Ahora comprobamos si existe el fichero en cuestión en /tmp
+			if (file_exists ($dir_subida.$ficheroNombre)){
+			echo '<div class="alert alert-info">';
+			echo 'No se subió fichero se salto ese paso , el fichero que vamos analizar es:'.$ficheroNombre;
+			echo '</div>';
 			} else {
-				$errorFichero= "- Fichero no subido correctamente.<br/>";
-
+				$errorFichero= "- No se subio fichero y tampoco hemos encontrado el fichero en directori ".$dir_subida.$ficheroNombre."<br/>";
 			}
+		
+		} else { 
+			// Caso contrario es que no se paso nombre fichero por url
+			// Movemos fichero recien subido a tmp
+				if (move_uploaded_file($_FILES['fichero_usuario']['tmp_name'], $fichero_subido)) {
+							$correcto = " - El fichero acaba subir y existe en directorio temporal.<br/>";
+					} else {
+							// No debería haber llegado nunca aquí, hay error.
+							$errorFichero= $errorFichero."- Hubo un error en la carga del fichero.<br/>Linea 45 de fichero recibircsv.php mod_importar<br/>AVISAR SERVICIO TECNICO<br/>";
+				}
+		}
+		if (!in_array($ficheroNombre,$ficherosposibles)){
+			// Comprobamos que el nombre del fichero es correcto, para evitar errores, aunque esto 
+			// implica que el usuario tiene que poner los nombres correcto al fichero que suba.
+			// es una forma de evitar problemas.
+			if ($_GET["subida"] == 0) {
+				$errorFichero= $errorFichero."- Fichero ".$ficheroNombre." no es un nombre de fichero correcto.<br/>Los nombre de ficheros que puede utilizar son:<br/>-".implode("<br/>-", $ficherosposibles);
+			}
+		}
+
 		// Este error hacemos que no continue comprobando que salga.
 		if ($errorFichero != ''){
 			?>
@@ -36,9 +67,9 @@
 			<strong>ERRORES <br/></strong>
 				<?php echo $errorFichero;?>
 			</div>	
-	</div> <!-- Cerramos div container ya que no continuamos -->
-</body>
-</html>
+			</div> <!-- Cerramos div container ya que no continuamos -->
+		</body>
+		</html>
 		<?php
 		return;
 		}
@@ -48,29 +79,28 @@
 		
 		<div class="col-md-6">
 			<?php
-			// Comprobamos si es text/csv
-			if ($_FILES['fichero_usuario']['type'] == 'text/csv') {
-				$correcto = $correcto . " - El fichero es text/csv.<br/>";
-			} else {
-				$errorFichero = $errorFichero . "- No es un text/csv.<br/>";
+			// Comprobamos si existe el fichero
+			if (file_exists ($dir_subida.$ficheroNombre)){
+				$correcto = $correcto . " - El fichero encontrado.<br/>";
+				//abro el archivo para lectura
+				$rutafichero= '/tmp/'.$ficheroNombre;
+				$archivo = fopen($rutafichero,'r');
 
+				//inicializo una variable para llevar la cuenta de las líneas y los caracteres
+				$num_lineas = 0;
+				//Hago un bucle para recorrer el archivo línea a línea hasta el final del archivo
+				// Mostramos las primeras 10 lineas registro si las hay claro..	
+			} else {
+				$errorFichero = $errorFichero . "- No encuentro el fichero.<br/>";
+
+				
 			}
 			
-			// Ahora deberíamos comprobar cuanto registros tiene y si los campos son correcto...
-			// Creamos url de fichero csv ( De momento bloqueamos que no sea otro fichero...
-			// es decir que se tiene que llamar ReferenciasCruzadas.csv
-			// Ya que lo normal es que el nombre se pongamos con variable
-			// $_FILES['fichero_usuario']['name']
-						
-			//abro el archivo para lectura
-			$archivo = fopen('/tmp/ReferenciasCruzadas.csv','r');
-
-			//inicializo una variable para llevar la cuenta de las líneas y los caracteres
-			$num_lineas = 0;
+		
 			//Hago un bucle para recorrer el archivo línea a línea hasta el final del archivo
 			// Mostramos las primeras 10 lineas registro si las hay claro..
 			?>
-			<h4>Mostramos las primeras lineas del fichero subido</h4>
+			<h4>Las primeras lineas de <?php echo $ficheroNombre;?></h4>
 			<table class="table table-striped">
 				<thead>
 					<tr>
@@ -79,27 +109,30 @@
 					</tr>
 				</thead>
 				<?php
-				while (!feof ($archivo)) {
-					//si extraigo una línea del archivo y no es false
-					if ($lineactual = fgets($archivo)){
-					   // El contador empieza en 0
-					   if ($num_lineas < 10 ) {
-						?>
-					<tr>
-						<td> <?php echo $num_lineas;?>
-						</td>
-						<td>
-						<?php echo $lineactual; ?>
-						</td>
-					</tr>
-						<?php
+				if (file_exists ($dir_subida.$ficheroNombre)){
+					// Solo se ejecuta si existe el fichero.
+					while (!feof ($archivo)) {
+						//si extraigo una línea del archivo y no es false
+						if ($lineactual = fgets($archivo)){
+						   // El contador empieza en 0
+						   if ($num_lineas < 10 ) {
+							?>
+						<tr>
+							<td> <?php echo $num_lineas;?>
+							</td>
+							<td>
+							<?php echo $lineactual; ?>
+							</td>
+						</tr>
+							<?php
+							}
+						 //acumulo una en la variable número de líneas
+					  $num_lineas++;
+					  
 						}
-					 //acumulo una en la variable número de líneas
-				  $num_lineas++;
-				  
-					}
-					
-				} // Fin de bucle.
+						
+					} // Fin de bucle.
+				}
 				?>
 				</table>
 				<?php
@@ -135,8 +168,6 @@
 			<?php
 			}	else {?>
 			<div>
-				<h4> Ahora necesitamos de tu intervención:</h4>
-				<p>Si la primera lines (0) contiene la cabeceras del csv, es decir los nombres de los campos debes indicarlo: </p>
 				<form class="form-horizontal" role="form" action="action_page.php">
 					<div class="form-group">
 					<legend>¿Desde que línea quiere importar?</legend>
@@ -156,45 +187,40 @@
 					<input type="button" href="javascript:;" onclick="valoresProceso($('#LineaInicial').val(), $('#LineaFinal').val());return false;" value="Importar a MySql"/>
 					</div>
 				</form>
-
+				<div>
+				<a href="paso2<?php echo substr($ficheroNombre,0,-4).'.php' ;?>">Saltar esté paso 1 y al paso 2</a>
+				</div>
 				<!-- Script para ejecutar funcion php -->
 				<script>
 				// La variables lineaActual y lineaF son globales .
 				// Estás variables la lee al cargar la pagina.
+				var fichero = "<?php echo $ficheroNombre;?>";
 				var lineaActual = 0;
 				var lineaF = 0;
 				var ciclo;
-				
-				
-				
+				// Función que inicia el ciclo de proceso, para 
+				// añadir datos mysql, el intervalo de tiempo
+				// puede modificarse en función servidor y hardware que se tenga.
+				// yo de momento le puse 20000, son 20 segundos. 
 				function cicloProcesso () {
-				alert('Vamos eliminar los datos que tenga /n'+
-						' la base de datos importarRecambios');
-						
-						
-				bucleProceso(lineaF,lineaActual)
-				ciclo = setInterval("bucleProceso(lineaF,lineaActual)",20000);
-
-				
+					alert('Recuerda que los registros van a ser sustituidos por los nuevos \n'+
+							' ya campo Linea es primario, por eso nunca creara uno nuevo.');
+					bucleProceso(lineaF,lineaActual,fichero);
+					ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)",20000);
 				}
 				
-				function valoresProceso(valorCaja1, valorCaja2){
-				// Este Script es el que al pulsar el bottom le ponemos 
+				// Función que al pulsar en Importar a MySql pone 
 				// valores a las variables.
-				// Y ejecutamos cicloProceso() 
-				lineaF= valorCaja2;
-				var lineaI= valorCaja1;
-				lineaActual = lineaI;
-				alert('Entro valoresProceso: \n '+ 'Linea Actual'+ lineaActual + ' \nLinea Final: '+ lineaF);
-				// Iniciar ciclo proceso. ;
-					cicloProcesso ();
+				// Y empezamos a EJECUTAR cicloProceso() me modo temporal.
+				function valoresProceso(valorCaja1, valorCaja2){
+					lineaF= valorCaja2;
+					var lineaI= valorCaja1;
+					lineaActual = lineaI;
+					alert('Valores que tenemos ahora: \n '+ 'Linea Actual'+ lineaActual + ' \nLinea Final: '+ lineaF +'\nFichero:'+fichero);
+					// Iniciar ciclo proceso. ;
+						cicloProcesso ();
 				}
-				
-				
-				
-				
-
-				
+				// FIN DE FUNCIONES
 				</script>
 				
 				
