@@ -4,7 +4,7 @@
 <?php
 	include './../../head.php';
 ?>
-<script src="/CatalogoProductos/modulos/mod_importar/importar.js"></script>
+<script src="<?php echo $HostNombre;?>/modulos/mod_importar/importar.js"></script>
 </head>
 <body>
 <?php

@@ -2,7 +2,9 @@
 /* Este fichero es llamo desde funcion javascript consultaDatos
 /* Realizamos conexion a base Datos */
 include ("./../mod_conexion/conexionBaseDatos.php");
-
+if ($BDImportRecambios->connect_errno) {
+    echo "Falló la conexión a MySQL: (" . $BDImportRecambios->connect_errno . ") " . $BDImportRecambios->connect_error;
+}
 
 
 /* Comprobamos si el fichero que queremos enviar tiene 3 campos */

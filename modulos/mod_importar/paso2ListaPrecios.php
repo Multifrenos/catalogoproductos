@@ -18,7 +18,6 @@
 	<div class="container">
 		<div class="col-md-12 text-center">
 			<h2>Paso 2 - Lista Precios: Seleccionar Familia ,Fabricante y buscar referencia </h2>
-		
 		</div>
 		
 		<div class="col-md-6">
@@ -28,41 +27,37 @@
 				</div>
 				<div class="form-group">
 				<?php // Realizamos consulta de Fabricantes
-				$consultaFabricantes = mysqli_query($BDRecambios,"SELECT `id`,`Nombre` FROM `FabricantesRecambios`");
+				$consultaFabricantes = mysqli_query($BDRecambios,"SELECT `id`,`Nombre` FROM `FabricantesRecambios` ORDER BY `Nombre`");
 				// Ahora montamos htmlopciones
 				while ($fila = $consultaFabricantes->fetch_assoc()) {
 					$htmloptiones.='<option value="'.$fila["id"].'">'.$fila["Nombre"].'</option>';
 				}
 				$consultaFabricantes->close();
-
 				?>
-				
 				<label class="control-label col-md-4">Fabricante</label>
-				<select name="manuId" id="manuId">
+				<select name="fabricante" id="IdFabricante">
 					<option value="0">Seleccione Fabricante</option>
 					<?php echo $htmloptiones;?>
                 </select>
 				</div>
 				<div class="form-group">
 				<?php // Realizamos consulta de Fabricantes
-				$consultaFamilias = mysqli_query($BDRecambios,"SELECT `id`,`Familia_es` FROM `FamiliasRecambios`");
+				$consultaFamilias = mysqli_query($BDRecambios,"SELECT `id`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
 				// Ahora montamos htmlopciones
 				while ($fila = $consultaFamilias->fetch_assoc()) {
 					$htmlfamilias.='<option value="'.$fila["id"].'">'.$fila["Familia_es"].'</option>';
 				}
 				$consultaFamilias->close();
-
 				?>
 				<label class="control-label col-md-4">Familia a la que quieres añadir</label>
-				<select name="manuId" id="manuId">
+				<select name="familia" id="IdFamilia">
 					<option value="0">Seleccione Familia</option>
 					<?php echo $htmlfamilias;?>
-
                 </select>
 				</div>
 				
 				<div class="form-group align-right">
-				<input type="button"  value="Comprobar"/>
+				<input type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#LineaInicial').val(), $('#LineaFinal').val());return false;" value="Comprobar"/>
 				</div>
 			</form>
 		<h3>Resumen de comprobación</h3>
