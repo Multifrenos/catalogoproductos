@@ -11,7 +11,7 @@
 	include './../../header.php';
 	// Inicio de variables
 			$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
-			$dir_subida = '/tmp/'; // Lugar donde el servidor indica que guarda los tmp
+			$dir_subida = "C:/xampp/tmp"; // Lugar donde el servidor indica que guarda los tmp
 			$ficheroNombre= $_FILES['fichero_usuario']['name'];
 			//~ $fichero_subido = $dir_subida . basename($_FILES['fichero_usuario']['name']);
 			$fichero_subido = $dir_subida . $ficheroNombre;
@@ -83,7 +83,7 @@
 			if (file_exists ($dir_subida.$ficheroNombre)){
 				$correcto = $correcto . " - El fichero encontrado.<br/>";
 				//abro el archivo para lectura
-				$rutafichero= '/tmp/'.$ficheroNombre;
+				$rutafichero= 'C:/xampp/tmp/'.$ficheroNombre;
 				$archivo = fopen($rutafichero,'r');
 
 				//inicializo una variable para llevar la cuenta de las líneas y los caracteres
