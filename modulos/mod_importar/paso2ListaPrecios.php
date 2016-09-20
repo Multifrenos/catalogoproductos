@@ -42,10 +42,15 @@
 				</div>
 				<div class="form-group">
 				<?php // Realizamos consulta de Fabricantes
-				$consultaFamilias = mysqli_query($BDRecambios,"SELECT `id`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
+				$consultaFamilias = mysqli_query($BDRecambios,"SELECT `id`,`id_Padre`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
 				// Ahora montamos htmlopciones
 				while ($fila = $consultaFamilias->fetch_assoc()) {
-					$htmlfamilias.='<option value="'.$fila["id"].'">'.$fila["Familia_es"].'</option>';
+					if ($fila["id_Padre"]== 0){
+					$familia = $fila["Familia_es"];
+					} else {
+					$familia = '--> '.$fila["Familia_es"];
+					}
+					$htmlfamilias.='<option value="'.$fila["id"].'">'.$familia.'</option>';
 				}
 				$consultaFamilias->close();
 				?>

@@ -3,6 +3,9 @@
 <head>
 <?php
 	include './../../head.php';
+/* Recuerda que el fichero configuracion lo cargamos en al incluir head donde nos carga variables :
+ * $HostNombre
+ * $ConfDir_subida */
 ?>
 <script src="<?php echo $HostNombre;?>/modulos/mod_importar/importar.js"></script>
 </head>
@@ -11,10 +14,10 @@
 	include './../../header.php';
 	// Inicio de variables
 			$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
-			$dir_subida = '/tmp/'; // Lugar donde el servidor indica que guarda los tmp
+			//~ $dir_subida = '/tmp/'; // Lugar donde el servidor indica que guarda los tmp
 			$ficheroNombre= $_FILES['fichero_usuario']['name'];
 			//~ $fichero_subido = $dir_subida . basename($_FILES['fichero_usuario']['name']);
-			$fichero_subido = $dir_subida . $ficheroNombre;
+			$fichero_subido = $ConfDir_subida . $ficheroNombre;
 
 			$errorFichero = '';
 			$correcto = '';
@@ -33,12 +36,12 @@
 		if (isset( $_GET["fichero"])) {
 			$ficheroNombre= $_GET["fichero"].'.csv';
 			// Ahora comprobamos si existe el fichero en cuestión en /tmp
-			if (file_exists ($dir_subida.$ficheroNombre)){
+			if (file_exists ($ConfDir_subida.$ficheroNombre)){
 			echo '<div class="alert alert-info">';
 			echo 'No se subió fichero se salto ese paso , el fichero que vamos analizar es:'.$ficheroNombre;
 			echo '</div>';
 			} else {
-				$errorFichero= "- No se subio fichero y tampoco hemos encontrado el fichero en directori ".$dir_subida.$ficheroNombre."<br/>";
+				$errorFichero= "- No se subio fichero y tampoco hemos encontrado el fichero en directori ".$ConfDir_subida.$ficheroNombre."<br/>";
 			}
 		
 		} else { 
@@ -80,7 +83,7 @@
 		<div class="col-md-6">
 			<?php
 			// Comprobamos si existe el fichero
-			if (file_exists ($dir_subida.$ficheroNombre)){
+			if (file_exists ($ConfDir_subida.$ficheroNombre)){
 				$correcto = $correcto . " - El fichero encontrado.<br/>";
 				//abro el archivo para lectura
 				$rutafichero= '/tmp/'.$ficheroNombre;
@@ -109,7 +112,7 @@
 					</tr>
 				</thead>
 				<?php
-				if (file_exists ($dir_subida.$ficheroNombre)){
+				if (file_exists ($ConfDir_subida.$ficheroNombre)){
 					// Solo se ejecuta si existe el fichero.
 					while (!feof ($archivo)) {
 						//si extraigo una línea del archivo y no es false

@@ -1,4 +1,5 @@
 <?php
+	// Añadimos configuracion
 	include 'configuracion.php';
 ?>
 
@@ -12,4 +13,4 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="<?php echo $HostNombre;?>/roe.js"></script>
+
