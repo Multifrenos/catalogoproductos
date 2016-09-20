@@ -9,6 +9,7 @@
 	include ("./../mod_conexion/conexionBaseDatos.php");
 
 ?>
+    <script src="<?php echo $HostNombre;?>/modulos/mod_importar/comprobar.js"></script>
 </head>
 
 <body>
@@ -57,7 +58,7 @@
 				</div>
 				
 				<div class="form-group align-right">
-				<input type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#LineaInicial').val(), $('#LineaFinal').val());return false;" value="Comprobar"/>
+				<input type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#IdFabricante').val(), $('#IdFamilia').val());return false;" value="Comprobar"/>
 				</div>
 			</form>
 		<h3>Resumen de comprobación</h3>

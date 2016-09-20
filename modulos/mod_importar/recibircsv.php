@@ -3,6 +3,7 @@
 <head>
 <?php
 	include './../../head.php';
+       include './funciones.php'
 ?>
 <script src="<?php echo $HostNombre;?>/modulos/mod_importar/importar.js"></script>
 </head>
@@ -73,7 +74,33 @@
 		<?php
 		return;
 		}
-		?>
+		include ("./../mod_conexion/conexionBaseDatos.php");
+                if ($ficheroNombre == "ReferenciasCruzadas.csv"){
+	$NumeroCamposCsv = 3;
+	$CamposSinCubrir = "0','0";
+	$nombretabla= "referenciascruzadas";
+}
+if ($ficheroNombre == "ReferenciasCversionesCoches.csv"){
+	$NumeroCamposCsv = 3;
+	$nombretabla= "referenciasCversiones";
+}
+if ($ficheroNombre == "ListaPrecios.csv"){
+	$NumeroCamposCsv = 3;
+	$nombretabla= "listaprecios";
+	$CamposSinCubrir = "0";
+
+}
+               $consulta= "SELECT count(linea) as cuenta FROM ".$nombretabla;
+               $consultaContador= mysqli_query($BDImportRecambios,$consulta);
+               $contador=$consultaContador->fetch_assoc();
+               if($contador['cuenta'] == '0'){
+                   $correcto.= "- Tabla temporal sin reguistros <br/>";
+               }else{
+                   $errorFichero.= "- La tabla temporal contiene ".$contador['cuenta']." registros <br/>"
+                           . "- Al pulsar importar se borraran los reguistros de la tabla";
+   
+               }
+                ?>
 		
 		
 		
@@ -144,7 +171,7 @@
 
 			} else {
 				$correcto = $correcto . '- Numero de registros a procesar son '.$num_lineas.'<br/>';
-
+                                
 			}
 			
 			
@@ -157,18 +184,19 @@
 			<strong>COMPROBACIONES BÁSICAS CORRECTAS <br/></strong>
 				<?php echo $correcto;?>
 				
-			</div>	
+			</div>
+                        
 			<?php
-			if ($errorFichero != ''){
+
 			?>
 			<div class="alert alert-danger">
 			<strong>ERRORES <br/></strong>
 				<?php echo $errorFichero;?>
 			</div>	
 			<?php
-			}	else {?>
+?>
 			<div>
-				<form class="form-horizontal" role="form" action="action_page.php">
+				<form class="form-horizontal" role="form" >
 					<div class="form-group">
 					<legend>¿Desde que línea quiere importar?</legend>
 					</div>
@@ -194,7 +222,9 @@
 				<script>
 				// La variables lineaActual y lineaF son globales .
 				// Estás variables la lee al cargar la pagina.
-				var fichero = "<?php echo $ficheroNombre;?>";
+				
+                                var fichero = "<?php echo $ficheroNombre;?>";
+                                var nombretabla = "<?php echo $nombretabla;?>";
 				var lineaActual = 0;
 				var lineaF = 0;
 				var ciclo;
@@ -203,23 +233,44 @@
 				// puede modificarse en función servidor y hardware que se tenga.
 				// yo de momento le puse 20000, son 20 segundos. 
 				function cicloProcesso () {
-					alert('Recuerda que los registros van a ser sustituidos por los nuevos \n'+
+					var respuestaConf = confirm('Recuerda que los registros van a ser sustituidos por los nuevos \n'+
 							' ya campo Linea es primario, por eso nunca creara uno nuevo.');
+                                                if(respuestaConf == true){
+                                                    
 					bucleProceso(lineaF,lineaActual,fichero);
 					ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)",20000);
+                                    }
 				}
 				
 				// Función que al pulsar en Importar a MySql pone 
 				// valores a las variables.
 				// Y empezamos a EJECUTAR cicloProceso() me modo temporal.
-				function valoresProceso(valorCaja1, valorCaja2){
-					lineaF= valorCaja2;
+				function valoresProceso(valorCaja1, valorCaja2,nombretabla){
+                                    console.log(nombretabla);
+                                    var parametros = {
+                                        'nombretabla' : nombretabla
+                                    }
+					$.ajax({
+			data:  parametros,
+			url:   'funciones.php',
+			type:  'post',
+			beforeSend: function () {
+					$("#resultado").html("Procesando, espere por favor...");
+			},
+			success:  function (response) {
+					  lineaF= valorCaja2;
 					var lineaI= valorCaja1;
 					lineaActual = lineaI;
 					alert('Valores que tenemos ahora: \n '+ 'Linea Actual'+ lineaActual + ' \nLinea Final: '+ lineaF +'\nFichero:'+fichero);
 					// Iniciar ciclo proceso. ;
+                                        
 						cicloProcesso ();
-				}
+					
+			}
+		});
+                                        
+                                      
+    }
 				// FIN DE FUNCIONES
 				</script>
 				
@@ -239,7 +290,7 @@
 				</div>
 			</div>	
 			<?php
-			}
+
 			?>
 			
 			
