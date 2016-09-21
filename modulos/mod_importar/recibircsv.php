@@ -224,7 +224,7 @@ if ($ficheroNombre == "ListaPrecios.csv"){
 				// Estás variables la lee al cargar la pagina.
 				
                                 var fichero = "<?php echo $ficheroNombre;?>";
-                                var nombretabla = "<?php echo $nombretabla;?>";
+                               
 				var lineaActual = 0;
 				var lineaF = 0;
 				var ciclo;
@@ -245,13 +245,11 @@ if ($ficheroNombre == "ListaPrecios.csv"){
 				// Función que al pulsar en Importar a MySql pone 
 				// valores a las variables.
 				// Y empezamos a EJECUTAR cicloProceso() me modo temporal.
-				function valoresProceso(valorCaja1, valorCaja2,nombretabla){
-                                    console.log(nombretabla);
-                                    var parametros = {
-                                        'nombretabla' : nombretabla
-                                    }
+				function valoresProceso(valorCaja1, valorCaja2){
+                                      var nombretabla = "<?php echo $nombretabla;?>";
+                                   
 					$.ajax({
-			data:  parametros,
+			data:  'nombretabla='+nombretabla,
 			url:   'funciones.php',
 			type:  'post',
 			beforeSend: function () {
