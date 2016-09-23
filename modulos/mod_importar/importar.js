@@ -36,7 +36,7 @@ function bucleProceso (lineaF,linea,fichero) {
 			diferencia= 400; // Para utilizar en bucle
 		} else {
 			// Como ya no hay tanto registros ( 400) ponemos solo la diferencia
-			lineaActual = parseInt(linea) + parseInt(diferencia);
+			lineaActual = parseInt(linea) + parseInt(diferencia) +1;
 		}
 	// Iniciamos proceso Barra;
 	consultaDatos(linea,lineaActual,fichero);
