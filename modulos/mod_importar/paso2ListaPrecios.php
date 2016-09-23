@@ -62,12 +62,106 @@
 				</div>
 			</form>
 		<h3>Resumen de comprobación</h3>
-		<p>Numero de Registros analizados:</p>
-		<p>Numero de Recambios Nuevos:</p>
-		<p>Numero de Recambios Existentes:</p>
+                <p>Numero de Registros analizados: <span id="total"></span></p>
+		<p>Numero de Recambios Nuevos: <span id="nuevos"></span></p>
+		<p>Numero de Recambios Existentes: <span id="existentes"></span></p>
+                <div id="fin"></div>
 		</div>
 		
 	</div>
-		
+    <script>
+        var e=0;
+        var n=0;
+    var b = 0;    
+    var set;
+    var a;
+    var f;
+    var rs;
+    var fa;
+    function ComprobarPaso2ListaPrecios(fabricante,familia){
+        fa=familia;
+        var nombretabla = "listaprecios";
+                var parametros = {
+                    'nombretabla' : nombretabla,
+                    'pulsado' : 'contarVacios'
+                };
+                $.ajax({
+                    data: parametros,
+                    url: 'funciones.php',
+                    type: 'post',
+                    beforeSend: function () {
+                        $("#resultado").html("Procesando, espere por favor...");
+                    },
+                    success: function (response) {
+                        if(response == null){
+    alert("no hay ficheros que modificar");
+    var campo="<div class='form-group align-right'><input type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/></div>"
+           $("#fin").append(campo);
+}else{
+    a=response.length;
+                       ciclo(response,fabricante);
+                   }
+
+                    }
+                });
+                 
+    }
+  
+   function consulta(){
+       
+       if(b< a){
+           var nombretabla = "listaprecios";
+                var parametros = {
+                    'nombretabla' : nombretabla,
+                    'pulsado' : 'comprobar',
+                    'idrecambio': rs[b].id,
+                    'linea': rs[b].linea,
+                    'fabricante': f
+                };
+                $.ajax({
+                    data: parametros,
+                    url: 'funciones.php',
+                    type: 'post',
+                    datatype: 'json',
+                    beforeSend: function () {
+                        $("#resultado").html("Procesando, espere por favor...");
+                    },
+                    success: function (response) {
+                       
+                        n=n+response[0].n;
+                        e=e+response[0].e;
+                       
+                       $("#total").html(response[0].t);
+                       $("#nuevos").html(n);
+                       $("#existentes").html(e);
+                        b++;
+                      
+                    }
+                });
+           
+           
+       }else{
+        
+           clearInterval(set);
+       }
+        var campo="<div class='form-group align-right'><input type='button' value='terminar'/></div>";
+           $("#fin").append(campo);
+    }
+    function ciclo(response,fabricante){
+        rs=response;
+        f=fabricante;
+        
+       
+    set = setInterval("consulta()",2000);
+      
+
+    
+    }
+    function paso3(){
+        console.log("Fabricante ="+f);
+        console.log("Familia ="+fa);
+    }
+    
+    </script>
 </body>
 </html>
