@@ -3,7 +3,6 @@
     <head>
         <?php
         include './../../head.php';
-      
         ?>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
     </head>
@@ -12,9 +11,9 @@
         include './../../header.php';
         // Inicio de variables
         $ficherosposibles = array("ReferenciasCruzadas.csv", "ReferenciasCversionesCoches.csv", "ListaPrecios.csv");
-        $dir_subida = "C:/xampp/tmp"; // Lugar donde el servidor indica que guarda los tmp
+        $dir_subida = "C:/xampp/tmp/"; // Lugar donde el servidor indica que guarda los tmp
         $ficheroNombre = $_FILES['fichero_usuario']['name'];
-       
+
         //~ $fichero_subido = $dir_subida . basename($_FILES['fichero_usuario']['name']);
         $fichero_subido = $dir_subida . $ficheroNombre;
 
@@ -64,7 +63,7 @@
                 ?>
                 <div class="alert alert-danger">
                     <strong>ERRORES <br/></strong>
-                <?php echo $errorFichero; ?>
+                    <?php echo $errorFichero; ?>
                 </div>	
             </div> <!-- Cerramos div container ya que no continuamos -->
         </body>
@@ -102,26 +101,26 @@ if ($contador['cuenta'] == '0') {
 
 
 <div class="col-md-6">
-<?php
+    <?php
 // Comprobamos si existe el fichero
-if (file_exists($dir_subida . $ficheroNombre)) {
-    $correcto = $correcto . " - El fichero encontrado.<br/>";
-    //abro el archivo para lectura
-    $rutafichero = 'C:/xampp/tmp/' . $ficheroNombre;
-    $archivo = fopen($rutafichero, 'r');
+    if (file_exists($dir_subida . $ficheroNombre)) {
+        $correcto = $correcto . " - El fichero encontrado.<br/>";
+        //abro el archivo para lectura
+        $rutafichero = 'C:/xampp/tmp/' . $ficheroNombre;
+        $archivo = fopen($rutafichero, 'r');
 
-    //inicializo una variable para llevar la cuenta de las líneas y los caracteres
-    $num_lineas = 0;
-    //Hago un bucle para recorrer el archivo línea a línea hasta el final del archivo
-    // Mostramos las primeras 10 lineas registro si las hay claro..	
-} else {
-    $errorFichero = $errorFichero . "- No encuentro el fichero.<br/>";
-}
+        //inicializo una variable para llevar la cuenta de las líneas y los caracteres
+        $num_lineas = 0;
+        //Hago un bucle para recorrer el archivo línea a línea hasta el final del archivo
+        // Mostramos las primeras 10 lineas registro si las hay claro..	
+    } else {
+        $errorFichero = $errorFichero . "- No encuentro el fichero.<br/>";
+    }
 
 
 //Hago un bucle para recorrer el archivo línea a línea hasta el final del archivo
 // Mostramos las primeras 10 lineas registro si las hay claro..
-?>
+    ?>
     <h4>Las primeras lineas de <?php echo $ficheroNombre; ?></h4>
     <table class="table table-striped">
         <thead>
@@ -130,50 +129,50 @@ if (file_exists($dir_subida . $ficheroNombre)) {
                 <th>Contenido</th>
             </tr>
         </thead>
-<?php
-if (file_exists($dir_subida . $ficheroNombre)) {
-    // Solo se ejecuta si existe el fichero.
-    while (!feof($archivo)) {
-        //si extraigo una línea del archivo y no es false
-        if ($lineactual = fgets($archivo)) {
-            // El contador empieza en 0
-            if ($num_lineas < 10) {
-                ?>
+        <?php
+        if (file_exists($dir_subida . $ficheroNombre)) {
+            // Solo se ejecuta si existe el fichero.
+            while (!feof($archivo)) {
+                //si extraigo una línea del archivo y no es false
+                if ($lineactual = fgets($archivo)) {
+                    // El contador empieza en 0
+                    if ($num_lineas < 10) {
+                        ?>
                         <tr>
                             <td> <?php echo $num_lineas; ?>
                             </td>
                             <td>
-                        <?php echo $lineactual; ?>
+                                <?php echo $lineactual; ?>
                             </td>
                         </tr>
-                <?php
-            }
-            //acumulo una en la variable número de líneas
-            $num_lineas++;
+                        <?php
+                    }
+                    //acumulo una en la variable número de líneas
+                    $num_lineas++;
+                }
+            } // Fin de bucle.
         }
-    } // Fin de bucle.
-}
-?>
-    </table>
-        <?php
-        fclose($archivo);
-        // Añadimos numero de lineas a variables de control.
-        // Si solo hay un registro, o ninguno lo ponemos como error
-        if ($num_lineas < 2) {
-            $errorFichero = $errorFichero . '- No tiene registros suficiente para procesar,' . $num_lineas . '<br/>';
-        } else {
-            $correcto = $correcto . '- Numero de registros a procesar son ' . $num_lineas . '<br/>';
-        }
-
-
-        // Ahora imprimimos resultado control de fichero
         ?>
+    </table>
+    <?php
+    fclose($archivo);
+    // Añadimos numero de lineas a variables de control.
+    // Si solo hay un registro, o ninguno lo ponemos como error
+    if ($num_lineas < 2) {
+        $errorFichero = $errorFichero . '- No tiene registros suficiente para procesar,' . $num_lineas . '<br/>';
+    } else {
+        $correcto = $correcto . '- Numero de registros a procesar son ' . $num_lineas . '<br/>';
+    }
+
+
+    // Ahora imprimimos resultado control de fichero
+    ?>
 </div>
 <div class="col-md-6">
     <h4>Comprobamos si el fichero es correcto</h4>
     <div class="alert alert-info">
         <strong>COMPROBACIONES BÁSICAS CORRECTAS <br/></strong>
-    <?php echo $correcto; ?>
+        <?php echo $correcto; ?>
 
     </div>
 
@@ -182,11 +181,11 @@ if (file_exists($dir_subida . $ficheroNombre)) {
         ?>
         <div class="alert alert-danger">
             <strong>ERRORES <br/></strong>
-    <?php echo $errorFichero; ?>
+            <?php echo $errorFichero; ?>
         </div>	
-            <?php
-        }
-        ?>
+        <?php
+    }
+    ?>
     <div>
         <form class="form-horizontal" role="form" >
             <div class="form-group">
@@ -227,44 +226,44 @@ if (file_exists($dir_subida . $ficheroNombre)) {
             function cicloProcesso() {
                 alert('Recuerda que los registros van a ser sustituidos por los nuevos \n' +
                         ' ya campo Linea es primario, por eso nunca creara uno nuevo.');
-                
 
-                    bucleProceso(lineaF, lineaActual, fichero);
-                    ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 20000);
-                
+
+                bucleProceso(lineaF, lineaActual, fichero);
+                ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 20000);
+
             }
 
             // Función que al pulsar en Importar a MySql pone 
             // valores a las variables.
             // Y empezamos a EJECUTAR cicloProceso() me modo temporal.
             function valoresProceso(valorCaja1, valorCaja2) {
-                var respuestaConf= confirm('Vamos a Borrar los registros de la tabla temporal\n\
+                var respuestaConf = confirm('Vamos a Borrar los registros de la tabla temporal\n\
                 Estas seguro');
-        if (respuestaConf == true) {
-                var nombretabla = "<?php echo $nombretabla; ?>";
-                var parametros = {
-                    'nombretabla' : nombretabla,
-                    'pulsado' : 'borrar'
-                };
-                $.ajax({
-                    data: parametros,
-                    url: 'funciones.php',
-                    type: 'post',
-                    beforeSend: function () {
-                        $("#resultado").html("Procesando, espere por favor...");
-                    },
-                    success: function (response) {
-                        lineaF = valorCaja2;
-                        var lineaI = valorCaja1;
-                        lineaActual = lineaI;
-                        alert('Valores que tenemos ahora: \n ' + 'Linea Actual' + lineaActual + ' \nLinea Final: ' + lineaF + '\nFichero:' + fichero);
-                        // Iniciar ciclo proceso. ;
+                if (respuestaConf == true) {
+                    var nombretabla = "<?php echo $nombretabla; ?>";
+                    var parametros = {
+                        'nombretabla': nombretabla,
+                        'pulsado': 'borrar'
+                    };
+                    $.ajax({
+                        data: parametros,
+                        url: 'funciones.php',
+                        type: 'post',
+                        beforeSend: function () {
+                            $("#resultado").html("Procesando, espere por favor...");
+                        },
+                        success: function (response) {
+                            lineaF = valorCaja2;
+                            var lineaI = valorCaja1;
+                            lineaActual = lineaI;
+                            alert('Valores que tenemos ahora: \n ' + 'Linea Actual' + lineaActual + ' \nLinea Final: ' + lineaF + '\nFichero:' + fichero);
+                            // Iniciar ciclo proceso. ;
 
-                        cicloProcesso();
+                            cicloProcesso();
 
-                    }
-                });
-            }
+                        }
+                    });
+                }
 
             }
             // FIN DE FUNCIONES
@@ -285,7 +284,7 @@ if (file_exists($dir_subida . $ficheroNombre)) {
             </div>
         </div>
     </div>	
-<?php ?>
+    <?php ?>
 
 
 
