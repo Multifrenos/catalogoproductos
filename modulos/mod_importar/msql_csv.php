@@ -15,7 +15,7 @@ $lineaF = $_POST['lineaF'] ;
 // Ahora creamos la ruta del fichero.
 // Hay que tener en cuenta que esta ruta puede cambiar según donde guarde los ficheros temporales el servidor.
 $nombrecsv = $_POST['Fichero'];
-$fichero = '/tmp/'.$nombrecsv;
+$fichero = 'C:\xampp\tmp'.$nombrecsv;
 //~ $nombrestabla = substr($nombrecsv, 0,-4);
 // Ante de iniciar debemos saber que cuanto campos va tener, segun el fichero que sea.
 
