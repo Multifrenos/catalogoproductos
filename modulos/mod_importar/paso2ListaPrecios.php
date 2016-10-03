@@ -8,7 +8,6 @@
         include './../../head.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
         ?>
-        <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/comprobar.js"></script>
     </head>
 
     <body>
@@ -42,12 +41,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <?php
-                        // Realizamos consulta de Fabricantes
-                        $consultaFamilias = mysqli_query($BDRecambios, "SELECT `id`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
+				<?php // Realizamos consulta de Fabricantes
+				$consultaFamilias = mysqli_query($BDRecambios,"SELECT `id`,`id_Padre`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
                         // Ahora montamos htmlopciones
                         while ($fila = $consultaFamilias->fetch_assoc()) {
-                            $htmlfamilias.='<option value="' . $fila["id"] . '">' . $fila["Familia_es"] . '</option>';
+					if ($fila["id_Padre"]== 0){
+					$familia = $fila["Familia_es"];
+					} else {
+					$familia = '--> '.$fila["Familia_es"];
+					}
+					$htmlfamilias.='<option value="'.$fila["id"].'">'.$familia.'</option>';
                         }
                         $consultaFamilias->close();
                         ?>
@@ -59,7 +62,7 @@
                     </div>
 
                     <div class="form-group align-right">
-                        <input type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#IdFabricante').val(), $('#IdFamilia').val());return false;" value="Comprobar"/>
+				<input type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#LineaInicial').val(), $('#LineaFinal').val());return false;" value="Comprobar"/>
                     </div>
                 </form>
                 <h3>Resumen de comprobación</h3>
