@@ -227,8 +227,8 @@ if ($contador['cuenta'] == '0') {
                 alert('Recuerda que los registros van a ser sustituidos por los nuevos \n' +
                         ' ya campo Linea es primario, por eso nunca creara uno nuevo.');
 
-
-                bucleProceso(lineaF, lineaActual, fichero);
+                       
+//                bucleProceso(lineaF, lineaActual, fichero);
                 ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 20000);
 
             }
@@ -256,10 +256,10 @@ if ($contador['cuenta'] == '0') {
                             lineaF = valorCaja2;
                             var lineaI = valorCaja1;
                             lineaActual = lineaI;
-                            alert('Valores que tenemos ahora: \n ' + 'Linea Actual' + lineaActual + ' \nLinea Final: ' + lineaF + '\nFichero:' + fichero);
+                            alert('Valores que tenemos ahora: \n ' + 'Linea Actual ' + lineaActual + ' \nLinea Final: ' + lineaF + '\nFichero:' + fichero);
                             // Iniciar ciclo proceso. ;
 
-                            cicloProcesso();
+                         cicloProcesso();
 
                         }
                     });
