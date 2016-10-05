@@ -18,9 +18,6 @@ function contarVacios($nombretabla, $BDImportRecambios) {
         $array[$i]["linea"] = $row_planets['linea'];
         $i++;
     }
-
-
-
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($array);
 }
@@ -31,6 +28,8 @@ function contarVaciosCru($BDImportRecambios){
     while ($row_planets = $consultaContador->fetch_assoc()) {
         $array[$i]["id"] = $row_planets['RefProveedor'];
         $array[$i]["linea"] = $row_planets['linea'];
+        $array[$i]["F_rec"] = $row_planets['Fabr_Recambio'];
+        $array[$i]["Ref_F"] = $row_planets['Ref_Fabricante'];
         $i++;
     }
 
@@ -81,11 +80,11 @@ function comprobar($nombretabla, $BDImportRecambios, $BDRecambios) {
     $f = $_POST['fabricante'];
 
 
-    $consul = "SELECT * FROM referenciascruzadas where RefFabricanteRec ='" . $id . "'";
+    $consul = "SELECT * FROM referenciascruzadas where RefFabricanteCru ='" . $id . "'";
     $consultaReca = mysqli_query($BDRecambios, $consul);
     $consfinal = $consultaReca->fetch_assoc();
 
-    if ($consfinal['RefFabricanteRec'] == $id && $consfinal['IdFabricanteRec'] == $f) {
+    if ($consfinal['RefFabricanteCru'] == $id && $consfinal['IdFabricanteCru'] == $f) {
         $actu = "UPDATE `listaprecios` SET `Estado`='existe',`RecambioID`=" . $consfinal['RecambioID'] . " WHERE `linea` ='" . $l . "'";
         mysqli_query($BDImportRecambios, $actu);
         $existente = 1;
@@ -105,14 +104,14 @@ function comprobarCruzadas($BDImportRecambios,$BDRecambios){
     $ref=$_POST['idrecambio'];
     $l = $_POST['linea'];
     $f = $_POST['fabricante'];
+    $ref_f = $_POST['Ref_fa'];
+    $fab_ref = $_POST['Ref_fa'];
     
-    $consul="SELECT * FROM `referenciascruzadas` where RefFabricanteRec = '".$ref."' and IdFabricanteRec='".$f."'";
+    $consul="SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '".$ref."' and IdFabricanteCru='".$f."'";
     $consultaReca = mysqli_query($BDRecambios, $consul);
       $consfinal = $consultaReca->fetch_assoc();
-      if($consfinal['RefFabricanteRec'] == $id && $consfinal['IdFabricanteRec']== $f){
-          $actu="UPDATE `referenciascruzadas` SET `Estado`='existe',`RecambioID`='".$consfinal['RecambioID']."',`IdFabricanteRec`=".$consfinal['IdFabricanteRec']." WHERE `linea` =".$l;
-           mysqli_query($BDImportRecambios, $actu);
-        $existente = 1;
+      if($consfinal){
+        
       }else{
           $actu="UPDATE `referenciascruzadas` SET `Estado`='nuevo'  WHERE `linea` =".$l;
           mysqli_query($BDImportRecambios, $actu);
@@ -123,7 +122,8 @@ function comprobarCruzadas($BDImportRecambios,$BDRecambios){
     $datos[0]['t'] = $l;
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
-};
+
+}
 
 function BuscarError($BDImportRecambios) {
     $consul="UPDATE `referenciascruzadas` SET `Estado`='ERR:[CampoVacio]' WHERE LENGTH(Fabr_Recambio) < 2 or LENGTH(Ref_Fabricante) < 2";
@@ -156,11 +156,11 @@ function anahirRecam($BDRecambios) {
 
         $pvp = ($coste + (($coste * 40) / 100)) * 1.21;
         $fecha = date('Y-m-d');
-        $consul = "INSERT INTO " . $tab . "(`Descripcion`, `coste`, `margen`, `iva`, `pvp`, `IDFabricante`, `FechaActualiza`) VALUES ('" . $desdef . "'," . $coste . ",40,21," . $pvp . "," . $fabricante . ",'" . $fecha . "')";
+        $consul = "INSERT INTO " . $tab . "( `Descripcion`, `coste`, `margen`, `iva`, `pvp`, `IDFabricante`, `FechaActualiza`) VALUES ('" . $desdef . "'," . $coste . ",40,21," . $pvp . "," . $fabricante . "," . $fecha . ")";
         $BDRecambios->query($consul);
         $resul = $BDRecambios->insert_id;
 
-        $consulta = "INSERT INTO `referenciascruzadas`(`RecambioID`, `IdFabricanteRec`, `FabricanteRecam`, `RefFabricanteRec`) VALUES ('" . $resul . "','" . $fabricante . "','" . $bFa['Nombre'] . "','" . $ref . "')";
+        $consulta = "INSERT INTO `referenciascruzadas`( `IdFabricanteCru`, `RecambioID`, `RefFabricanteCru`) VALUES ('" . $fabricante . "','" . $resul . "','" . $ref . "')";
         $BDRecambios->query($consulta);
         $resFinal = $BDRecambios->insert_id;
 
@@ -222,7 +222,7 @@ switch ($pulsado) {
         comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
         break;
     case 'contarVacios':
-        contarVacios($nombretabla, $BDImportRecambios, $BDRecambios);
+        contarVacios($nombretabla, $BDImportRecambios);
         break;
     case 'verNuevos':
         verNuevosRef($BDImportRecambios);

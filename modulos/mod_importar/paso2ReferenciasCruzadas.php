@@ -69,7 +69,6 @@
                             'pulsado': 'comPro',
                             'fabricante': respuesta[lineaIntermedia].Fabr_Recambio
 
-
                         };
                         $.ajax({
                             data: parametros,
@@ -79,9 +78,8 @@
                                 $("#resultado").html("Procesando, espere por favor...");
                             },
                             success: function (response) {
-                               BarraProceso(lineaIntermedia, lineafinal);
                                     lineaIntermedia++;
-
+                                    BarraProceso(lineaIntermedia, lineafinal);
                             }
 
                         });
@@ -141,12 +139,12 @@
                 if (lineaA == 0) {
                     lineaA = 1;
                 }
-//                if (lineaF == 0) {
-//                    //alert('Linea Final es 0 ');
-//                    return;
-//                }
+                if (lineaF == 0) {
+                    alert('Linea Final es 0 ');
+                    return;
+                }
                 var progreso = Math.round((lineaA * 100) / lineaF);
-
+                
                 $('#bar').css('width', progreso + '%');
                 // Añadimos numero linea en resultado.
                 document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
@@ -249,7 +247,7 @@
                fabricante=fabri;
                
               if(fabricante == 0){
-                  alert("Selecciona un Proveedor")
+                  alert("Selecciona un Fabricante");
               }else{
                 var parametros = {
                     'pulsado': 'contarVacioscruzados'
@@ -274,7 +272,7 @@
                             finallinea = response.length;
                             console.log(response.length);
                             // iniciamos el ciclo
-                            ciclo(response, fabricante);
+                            ciclo(response);
                         }
 
                     }
@@ -294,28 +292,24 @@
                         'pulsado': 'comprobar2cruz',
                         'idrecambio': arrayConsulta[intermedia].id,
                         'linea': arrayConsulta[intermedia].linea,
-                        'fabricante': fabricante
+                        'fabricante': fabricante,
+                        'Ref_fa': arrayConsulta[intermedia].Ref_F,
+                        'Fab_ref': arrayConsulta[intermedia].F_rec
                     };
-                    console.log("REferencia "+arrayConsulta[intermedia].id);
-                    console.log("Linea "+arrayConsulta[intermedia].linea);
-                    console.log("fabricante "+fabricante);
+                    
                     $.ajax({
                         data: parametros,
                         url: 'funciones.php',
                         type: 'post',
-                        datatype: 'json',
+//                        datatype: 'json',
                         beforeSend: function () {
                             $("#resultado").html("<p alert .alert-info>Procesando, espere por favor...</p>");
                            
                         },
                         success: function (response) {
-
-                           
-                           
-                           console.log("linea intermedia "+intermedia);
-                           console.log("linea final"+finallinea);
-//                           console.log(response[0].t);
+                                       
                             intermedia++;
+                          
                             BarraProceso2(intermedia, finallinea);
                               
                         }
@@ -350,7 +344,7 @@
 
                 $('#bar').css('width', progreso + '%');
                 // Añadimos numero linea en resultado.
-                document.getElementById("bar2").innerHTML = progreso + '%';  // Agrego nueva linea antes 
+                document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
                 return;
 
             };

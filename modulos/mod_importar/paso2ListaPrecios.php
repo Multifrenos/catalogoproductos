@@ -111,6 +111,7 @@
                     data: parametros,
                     url: 'funciones.php',
                     type: 'post',
+                    datatype: 'json',
                     beforeSend: function () {
                         $("#resultado").html("Procesando, espere por favor...");
                     },
@@ -145,18 +146,23 @@
                         'fabricante': f
                     };
                     $.ajax({
-                        data: parametros,
+                        
                         url: 'funciones.php',
                         type: 'post',
                         datatype: 'json',
+                        data: parametros,
                         beforeSend: function () {
                             $("#resultado").html("Procesando, espere por favor...");
                         },
                         success: function (response) {
 
-                            n = n + response[0].n;
-                            e = e + response[0].e;
-
+                            n = n + (response[0].n);
+                            e = e + (response[0].e);
+                            console.log("nuevo "+n );
+                            console.log("existe "+e);
+                            console.log("temporal "+b);
+                            console.log("id "+rs[b].id);
+                            console.log("linea "+rs[b].linea);
                             $("#total").html(response[0].t+"/"+a);
                             $("#nuevos").html(n);
                             $("#existentes").html(e);

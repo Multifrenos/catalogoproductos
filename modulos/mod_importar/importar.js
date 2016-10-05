@@ -53,7 +53,16 @@ function bucleProceso (lineaF,linea,fichero) {
 				//     -Comprobar si hay referencias repetidas, tanto RefDKM , como RefFabricante
 				//     -Comprobar cuantos Fabricantes hay y cuanto hay que añadir a Fabricantes.
 				// 	   -Comprobar cuantas Referencias de DKM hay y cuantos hay añadir.
-			window.location.href = 'paso2ListaPrecios.php';
+			
+           switch(fichero){
+               case "ReferenciasCruzadas.csv":
+                   window.location.href=' paso2ReferenciasCruzadas.php';
+                   break;
+               case "ListaPrecios.csv":
+                    window.location.href = 'paso2ListaPrecios.php';
+                break;
+           }
+          
 		}
 	}
 }
