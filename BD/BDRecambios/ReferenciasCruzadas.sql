@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Oct 03, 2016 at 12:41 PM
+-- Generation Time: Oct 05, 2016 at 10:55 AM
 -- Server version: 5.5.52-0+deb8u1
 -- PHP Version: 5.6.24-0+deb8u1
 
@@ -27,11 +27,31 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `ReferenciasCruzadas` (
+`id` int(11) NOT NULL,
   `RecambioID` int(11) NOT NULL,
   `IdFabricanteCru` int(11) NOT NULL,
   `RefFabricanteCru` text CHARACTER SET latin1 COLLATE latin1_spanish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `ReferenciasCruzadas`
+--
+ALTER TABLE `ReferenciasCruzadas`
+ ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `ReferenciasCruzadas`
+--
+ALTER TABLE `ReferenciasCruzadas`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
