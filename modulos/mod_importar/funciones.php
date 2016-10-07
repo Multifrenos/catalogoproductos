@@ -21,10 +21,11 @@ function contarVacios($nombretabla, $BDImportRecambios) {
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($array);
 }
-function contarVaciosCru($BDImportRecambios){
-    $consulta="SELECT * FROM `referenciascruzadas` where Estado = ''";
-    $consultaContador=mysqli_query($BDImportRecambios,$consulta);
-    $i=0;
+
+function contarVaciosCru($BDImportRecambios) {
+    $consulta = "SELECT * FROM `referenciascruzadas` where Estado = '' limit 400";
+    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
+    $i = 0;
     while ($row_planets = $consultaContador->fetch_assoc()) {
         $array[$i]["id"] = $row_planets['RefProveedor'];
         $array[$i]["linea"] = $row_planets['linea'];
@@ -37,7 +38,6 @@ function contarVaciosCru($BDImportRecambios){
 
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($array);
-    
 }
 
 function verNuevosRef($BDImportRecambios) {
@@ -62,18 +62,21 @@ function contador($nombretabla, $BDImportRecambios) {
     $contador = $consultaContador->fetch_assoc();
     echo $contador['cuenta'];
 }
-function BuscarErrorFab($BDImportRecambios){
- $consulta = "SELECT DISTINCT(Fabr_Recambio) FROM `referenciascruzadas` WHERE Estado = ''";
+
+function BuscarErrorFab($BDImportRecambios) {
+    $array = array();
+    $consulta = "SELECT DISTINCT(Fabr_Recambio) FROM `referenciascruzadas` WHERE Estado = ''";
     $conNuevo = mysqli_query($BDImportRecambios, $consulta);
     $i = 0;
     while ($row_planets = $conNuevo->fetch_assoc()) {
         $array[$i]['Fabr_Recambio'] = $row_planets['Fabr_Recambio'];
-       
+
         $i++;
     }
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($array);
 }
+
 function comprobar($nombretabla, $BDImportRecambios, $BDRecambios) {
     $id = $_POST['idrecambio'];
     $l = $_POST['linea'];
@@ -100,34 +103,60 @@ function comprobar($nombretabla, $BDImportRecambios, $BDRecambios) {
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }
-function comprobarCruzadas($BDImportRecambios,$BDRecambios){
-    $ref=$_POST['idrecambio'];
+
+function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
+    $ref = $_POST['idrecambio'];
     $l = $_POST['linea'];
     $f = $_POST['fabricante'];
     $ref_f = $_POST['Ref_fa'];
-    $fab_ref = $_POST['Ref_fa'];
-    
-    $consul="SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '".$ref."' and IdFabricanteCru='".$f."'";
+    $fab_ref = $_POST['Fab_ref'];
+
+    $consul = "SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '" . $ref . "' and IdFabricanteCru='" . $f . "'";
     $consultaReca = mysqli_query($BDRecambios, $consul);
-      $consfinal = $consultaReca->fetch_assoc();
-      if($consfinal){
-        
-      }else{
-          $actu="UPDATE `referenciascruzadas` SET `Estado`='nuevo'  WHERE `linea` =".$l;
-          mysqli_query($BDImportRecambios, $actu);
-        $nuevo = 1;
-      }
-       $datos[0]['n'] = $nuevo;
-    $datos[0]['e'] = $existente;
-    $datos[0]['t'] = $l;
+    $consfinal = $consultaReca->fetch_assoc();
+    if (!empty($consfinal)) {
+        $consFinal;
+        $consultCru = "SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '" . $ref_f . "' and IdFabricanteCru='" . $fab_ref . "'";
+        $consultaCruz = mysqli_query($BDRecambios, $consul);
+        $consFINAL = $consultaCruz->fetch_assoc();
+        if ($consFINAL != '0') {
+            $datos[0]["respuesta"] = "llego al if";
+            $res;
+            $buscarcruces = "SELECT * FROM `crucesreferencias` where idReferenciaCruz =" . $consFinal['id'];
+            $consul = mysqli_query($BDRecambios, $buscarcruces);
+            $res = $consul->fetch_assoc();
+            if ($res == '0') {
+                $busFa = "SELECT id FROM `fabricantesrecambios` WHERE Nombre = " . $ref_f;
+                $id = mysqli_query($BDRecambios, $busFa);
+                $insert = "INSERT INTO `crucesreferencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $consFinal['id'] . "," . $consFinal['RecambioID'] . "," . $id['id'] . ")";
+                $secInser = mysqli_query($BDRecambios, $insert);
+                $consul = "UPDATE `referenciascruzadas` SET `Estado`='Guardada' WHERE RefProveedor ='" . $ref . "'";
+                mysqli_query($BDImportRecambios, $consul);
+            }
+        } else {
+            $busFa = "SELECT id FROM `fabricantesrecambios` WHERE Nombre = " . $ref_f;
+            $id = mysqli_query($BDRecambios, $busFa);
+            $creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id['id'] . "," . $ref_f . ")";
+            mysqli_query($BDRecambios, $creaCru);
+            $consul = "UPDATE `referenciascruzadas` SET `Estado`='Guardada' WHERE RefProveedor ='" . $ref . "'";
+            mysqli_query($BDImportRecambios, $consul);
+            $datos[0]["respuesta"] = "llego al else";
+        }
+    } else {
+        $datos[0]["respuesta"] = "el else de referencia y proveedor";
+        $consul = "UPDATE `referenciascruzadas` SET `Estado`='ERR:[referencia_Principal]' WHERE RefProveedor ='" . $ref . "'";
+        mysqli_query($BDImportRecambios, $consul);
+    }
+//       $datos[0]['n'] = $nuevo;
+//    $datos[0]['e'] = $existente;
+//    $datos[0]['t'] = $l;
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
-
 }
 
 function BuscarError($BDImportRecambios) {
-    $consul="UPDATE `referenciascruzadas` SET `Estado`='ERR:[CampoVacio]' WHERE LENGTH(Fabr_Recambio) < 2 or LENGTH(Ref_Fabricante) < 2";
-    $ConsErr=mysqli_query($BDImportRecambios,$consul);
+    $consul = "UPDATE `referenciascruzadas` SET `Estado`='ERR:[CampoVacio]' WHERE LENGTH(Fabr_Recambio) < 2 or LENGTH(Ref_Fabricante) < 2";
+    $ConsErr = mysqli_query($BDImportRecambios, $consul);
 }
 
 function anahirRecam($BDRecambios) {
@@ -147,11 +176,11 @@ function anahirRecam($BDRecambios) {
         $consulFab = "SELECT * FROM `fabricantesrecambios` where id =" . $fabricante;
         $cFa = mysqli_query($BDRecambios, $consulFab);
         $bFa = $cFa->fetch_assoc();
-        $desdef.=" " . $bFa['Nombre'];
+        $desdef .= " " . $bFa['Nombre'];
 
         $coste = $_POST['coste'];
         $descripcion = $_POST['descrip'];
-        $desdef.=" " . $descripcion;
+        $desdef .= " " . $descripcion;
         $ref = $_POST['referen'];
 
         $pvp = ($coste + (($coste * 40) / 100)) * 1.21;
@@ -180,37 +209,39 @@ function anahirRecam($BDRecambios) {
         mysqli_query($BDRecambios, $modifcoste);
     }
 }
-function errorFab($BDImportRecambios,$BDRecambios){
-    $fab=$_POST['fabricante'];
-    $consul="SELECT * FROM `fabricantesrecambios` WHERE Nombre ='".$fab."'";
+
+function errorFab($BDImportRecambios, $BDRecambios) {
+    $fab = $_POST['fabricante'];
+    $consul = "SELECT * FROM `fabricantesrecambios` WHERE Nombre ='" . $fab . "'";
     $consFa = mysqli_query($BDRecambios, $consul);
-    $consultaFabricante=$consFa->fetch_assoc();
-    if((int)$consultaFabricante['id'] == 0){
-      $con="  UPDATE `referenciascruzadas` SET `Estado`= 'ERR:[RefFabPrin no existe]' WHERE Fabr_Recambio ='".$fab."'";
-      $consFa = mysqli_query($BDImportRecambios, $con);
-        
+    $consultaFabricante = $consFa->fetch_assoc();
+    if ((int) $consultaFabricante['id'] == 0) {
+        $con = "  UPDATE `referenciascruzadas` SET `Estado`= 'ERR:[RefFabPrin no existe]' WHERE Fabr_Recambio ='" . $fab . "'";
+        $consFa = mysqli_query($BDImportRecambios, $con);
     }
 }
-function resumen($BDImportRecambios){
-    
-    $consulta="SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[RefFabPrin no existe]'";
-    $conmys= mysqli_query($BDImportRecambios, $consulta);
-    $efab=$conmys->fetch_assoc();
-    
-    $consulta2="SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[CampoVacio]'";
-    $conmys2= mysqli_query($BDImportRecambios, $consulta2);
-    $eref=$conmys2->fetch_assoc();
-    
-     $consulta3="SELECT count(linea) as total FROM `referenciascruzadas` WHERE Estado = ''";
-    $conmys3= mysqli_query($BDImportRecambios, $consulta3);
-    $conpro=$conmys3->fetch_assoc();
+
+function resumen($BDImportRecambios) {
+
+    $consulta = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[RefFabPrin no existe]'";
+    $conmys = mysqli_query($BDImportRecambios, $consulta);
+    $efab = $conmys->fetch_assoc();
+
+    $consulta2 = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[CampoVacio]'";
+    $conmys2 = mysqli_query($BDImportRecambios, $consulta2);
+    $eref = $conmys2->fetch_assoc();
+
+    $consulta3 = "SELECT count(linea) as total FROM `referenciascruzadas` WHERE Estado = ''";
+    $conmys3 = mysqli_query($BDImportRecambios, $consulta3);
+    $conpro = $conmys3->fetch_assoc();
     $datos[0]['f'] = $efab['total'];
     $datos[0]['e'] = $eref['total'];
     $datos[0]['c'] = $conpro['total'];
-    
+
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }
+
 switch ($pulsado) {
     case 'borrar':
         borrar($nombretabla, $BDImportRecambios);
@@ -237,7 +268,7 @@ switch ($pulsado) {
         BuscarErrorFab($BDImportRecambios);
         break;
     case 'comPro':
-        errorFab($BDImportRecambios,$BDRecambios);
+        errorFab($BDImportRecambios, $BDRecambios);
         break;
     case 'resumen':
         resumen($BDImportRecambios);
@@ -246,7 +277,7 @@ switch ($pulsado) {
         contarVaciosCru($BDImportRecambios);
         break;
     case 'comprobar2cruz':
-        comprobarCruzadas($BDImportRecambios,$BDRecambios);
+        comprobarCruzadas($BDImportRecambios, $BDRecambios);
         break;
 }
 

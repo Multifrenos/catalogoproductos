@@ -88,7 +88,9 @@ if ($ficheroNombre == "ListaPrecios.csv") {
 }
 $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
 $consultaContador = mysqli_query($BDImportRecambios, $consulta);
+if($consultaContador == true){
 $contador = $consultaContador->fetch_assoc();
+}
 mysqli_close($BDImportRecambios);
 if ($contador['cuenta'] == '0') {
     $correcto.= "- Tabla temporal sin reguistros <br/>";

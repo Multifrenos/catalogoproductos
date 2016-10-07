@@ -8,6 +8,7 @@
         include './../../head.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
         ?>
+      
     </head>
 
     <body>
@@ -41,16 +42,12 @@
                         </select>
                     </div>
                     <div class="form-group">
-				<?php // Realizamos consulta de Fabricantes
-				$consultaFamilias = mysqli_query($BDRecambios,"SELECT `id`,`id_Padre`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
+                        <?php
+                        // Realizamos consulta de Fabricantes
+                        $consultaFamilias = mysqli_query($BDRecambios, "SELECT `id`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
                         // Ahora montamos htmlopciones
                         while ($fila = $consultaFamilias->fetch_assoc()) {
-					if ($fila["id_Padre"]== 0){
-					$familia = $fila["Familia_es"];
-					} else {
-					$familia = '--> '.$fila["Familia_es"];
-					}
-					$htmlfamilias.='<option value="'.$fila["id"].'">'.$familia.'</option>';
+                            $htmlfamilias.='<option value="' . $fila["id"] . '">' . $fila["Familia_es"] . '</option>';
                         }
                         $consultaFamilias->close();
                         ?>
@@ -62,7 +59,7 @@
                     </div>
 
                     <div class="form-group align-right">
-				<input type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#LineaInicial').val(), $('#LineaFinal').val());return false;" value="Comprobar"/>
+                        <input type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#IdFabricante').val(), $('#IdFamilia').val());return false;" value="Comprobar"/>
                     </div>
                 </form>
                 <h3>Resumen de comprobación</h3>
@@ -145,6 +142,7 @@
                         'linea': rs[b].linea,
                         'fabricante': f
                     };
+                 
                     $.ajax({
                         
                         url: 'funciones.php',
@@ -155,14 +153,12 @@
                             $("#resultado").html("Procesando, espere por favor...");
                         },
                         success: function (response) {
-
+                           
                             n = n + (response[0].n);
                             e = e + (response[0].e);
-                            console.log("nuevo "+n );
-                            console.log("existe "+e);
-                            console.log("temporal "+b);
-                            console.log("id "+rs[b].id);
-                            console.log("linea "+rs[b].linea);
+                            
+                         
+                            
                             $("#total").html(response[0].t+"/"+a);
                             $("#nuevos").html(n);
                             $("#existentes").html(e);

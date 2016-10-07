@@ -44,7 +44,7 @@ function bucleProceso (lineaF,linea,fichero) {
 	BarraProceso(lineaActual,lineaF);
 	
 	// Ahora si ya son iguales los linea y lineaF entonces terminamos ciclo
-		if ( parseInt(lineaActual) == parseInt(lineaF) ){
+		if ( (parseInt(lineaActual)-1) == parseInt(lineaF) ){
 			alert ( 'terminamos' );
 			clearInterval(ciclo);
 				// Ahora deberíamos hacer una comprobación de como quedo la cosa.
@@ -56,10 +56,10 @@ function bucleProceso (lineaF,linea,fichero) {
 			
            switch(fichero){
                case "ReferenciasCruzadas.csv":
-                   window.location.href=' paso2ReferenciasCruzadas.php';
+                   window.location.href='paso2ReferenciasCruzadas.php';
                    break;
                case "ListaPrecios.csv":
-                    window.location.href = 'paso2ListaPrecios.php';
+                    window.location.href='paso2ListaPrecios.php';
                 break;
            }
           
