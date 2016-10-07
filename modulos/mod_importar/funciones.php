@@ -110,22 +110,25 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     $f = $_POST['fabricante'];
     $ref_f = $_POST['Ref_fa'];
     $fab_ref = $_POST['Fab_ref'];
-
+$consfinal;
     $consul = "SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '" . $ref . "' and IdFabricanteCru='" . $f . "'";
-    $consultaReca = mysqli_query($BDRecambios, $consul);
+
+$consultaReca = mysqli_query($BDRecambios, $consul);
     $consfinal = $consultaReca->fetch_assoc();
-    if (!empty($consfinal)) {
-        $consFinal;
+    $datos[0]['respuesta']=$consfinal;
+    if ($consfinal == null) {
+        $consFINAL;
         $consultCru = "SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '" . $ref_f . "' and IdFabricanteCru='" . $fab_ref . "'";
         $consultaCruz = mysqli_query($BDRecambios, $consul);
         $consFINAL = $consultaCruz->fetch_assoc();
         if ($consFINAL != '0') {
-            $datos[0]["respuesta"] = "llego al if";
+            $datos[0]["respuesta"] = "existe en referencias cruzadas el articulo del proveedor cruzado";
             $res;
             $buscarcruces = "SELECT * FROM `crucesreferencias` where idReferenciaCruz =" . $consFinal['id'];
             $consul = mysqli_query($BDRecambios, $buscarcruces);
             $res = $consul->fetch_assoc();
             if ($res == '0') {
+                $datos[0]["respuesta"]="no existe en referencias cruzadas el articulo del proveedor cruzado";
                 $busFa = "SELECT id FROM `fabricantesrecambios` WHERE Nombre = " . $ref_f;
                 $id = mysqli_query($BDRecambios, $busFa);
                 $insert = "INSERT INTO `crucesreferencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $consFinal['id'] . "," . $consFinal['RecambioID'] . "," . $id['id'] . ")";
@@ -140,16 +143,16 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
             mysqli_query($BDRecambios, $creaCru);
             $consul = "UPDATE `referenciascruzadas` SET `Estado`='Guardada' WHERE RefProveedor ='" . $ref . "'";
             mysqli_query($BDImportRecambios, $consul);
-            $datos[0]["respuesta"] = "llego al else";
+            $datos[0]["respuesta"] = "no existe en referencias curzadas el articulo cruzado";
         }
     } else {
         $datos[0]["respuesta"] = "el else de referencia y proveedor";
         $consul = "UPDATE `referenciascruzadas` SET `Estado`='ERR:[referencia_Principal]' WHERE RefProveedor ='" . $ref . "'";
         mysqli_query($BDImportRecambios, $consul);
     }
-//       $datos[0]['n'] = $nuevo;
-//    $datos[0]['e'] = $existente;
-//    $datos[0]['t'] = $l;
+       $datos[0]['n'] = $nuevo;
+    $datos[0]['e'] = $existente;
+    $datos[0]['t'] = $l;
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }

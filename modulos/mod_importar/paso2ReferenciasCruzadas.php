@@ -57,7 +57,7 @@
                         success: function (response) {
                             // cubrimos la linea final y lanzamos el ciclo
                             lineafinal = response.length;
-                            console.log(response.length);
+                          
                             ciclofabricante(response);
                         }
                     });
@@ -225,7 +225,7 @@
 
                     <div class="form-group align-right">
                         <div  id="compFichero">
-                            <input type="button" href="javascript:;" onclick="ComprobarPaso2RefCruzadas($('#IdFabricante').val());return false;" value="Comprobar" id="cmp" style="display: none;"/>
+                            <input type="button" href="javascript:;" onclick="finalizar($('#IdFabricante').val());return false;" value="Comprobar" id="cmp" style="display: none;"/>
                             <span class="alert alert-success">Analizando Errores del fichero. Esto puede tardar unos minutos .....</span>
                         </div>
                         <br/><br/>
@@ -260,9 +260,9 @@
             ;
 
             function ComprobarPaso2RefCruzadas() {
-                fabricante = fabri;
-                var finalregistros = $("#validos").html();
-                console.log(finalregistros);
+               
+                var finallinea = $("#validos").html();
+                
                 if (fabricante == 0) {
                     alert("Selecciona un Fabricante");
                 } else {
@@ -295,6 +295,7 @@
 //                        }
                             if (response.length != 0) {
                                 arrayConsulta = response;
+                                console.log("respuesta del ajax length "+response.length);
                                 grabar();
                             } else {
 
@@ -341,8 +342,13 @@
                     success: function (response) {
 
                         intermedia++;
-//                         console.log("****************");
-//                         console.log(response[0].respuesta);
+                        console.log( arrayConsulta[intermedia].id);
+                        console.log( arrayConsulta[intermedia].linea);
+                        console.log( fabricante);
+                        console.log( arrayConsulta[intermedia].Ref_F);
+                        console.log( arrayConsulta[intermedia].F_rec);
+                         console.log("****************");
+                         console.log(response[0].respuesta);
                         BarraProceso2(intermedia, finallinea);
                         if (intermedia == arrayConsulta.length) {
                             ComprobarPaso2RefCruzadas();
