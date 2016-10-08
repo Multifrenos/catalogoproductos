@@ -2,7 +2,9 @@
 /* Este fichero es llamo desde funcion javascript consultaDatos
 /* Realizamos conexion a base Datos */
 include ("./../mod_conexion/conexionBaseDatos.php");
-
+if ($BDImportRecambios->connect_errno) {
+    echo "Falló la conexión a MySQL: (" . $BDImportRecambios->connect_errno . ") " . $BDImportRecambios->connect_error;
+}
 
 
 /* Comprobamos si el fichero que queremos enviar tiene 3 campos */
@@ -13,7 +15,7 @@ $lineaF = $_POST['lineaF'] ;
 // Ahora creamos la ruta del fichero.
 // Hay que tener en cuenta que esta ruta puede cambiar según donde guarde los ficheros temporales el servidor.
 $nombrecsv = $_POST['Fichero'];
-$fichero = '/tmp/'.$nombrecsv;
+$fichero = 'C:\xampp\tmp'.'\\'.$nombrecsv;
 //~ $nombrestabla = substr($nombrecsv, 0,-4);
 // Ante de iniciar debemos saber que cuanto campos va tener, segun el fichero que sea.
 
@@ -90,8 +92,10 @@ $num_linea = 0;
 	
 	fclose($archivo);
 	mysqli_close($BDImportRecambios);
-	$html = 'Añadi de linea '.$lineaA. ' hasta linea '.$lineaF."\n".$RefProveedor.'Marca:'.$Marca.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
-	echo $html ;
+	//$html = 'Añadi de linea '.$lineaA. ' hasta linea '.$lineaF."\n".$RefProveedor.'Marca:'.$Marca.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
+	$html = 'fichero '.$fichero. ' hasta linea '.$lineaF."\n".$RefProveedor.'Marca:'.$Marca.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
+
+        echo $html ;
 	echo '<br/>Linea:<br/>'.addslashes($Textolinea).'<br/>';
 
 

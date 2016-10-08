@@ -51,6 +51,10 @@
 				<td><strong>FechaActualiza</strong></td>
 				<td>[date] Fecha de ultima actualización del producto, pero solo de está tabla, no de la tablas relacionadas.</td>
 			</tr>
+			<tr>
+				<td><strong>IDFabricante</strong></td>
+				<td>[int(11))] Es el ID que nos indica a que fabricante pertenece el producto. Ya que tenemos que entender que un recambio aunque pueda ser similar ha otros y ser utilizado igual que otros , en nuestra tabla de RECAMBIOS es distinto ya que vendemos productos por marcas o fabricantes.</td>
+			</tr>
 		</table>
 	</div>
 	<div class="col-md-12">
