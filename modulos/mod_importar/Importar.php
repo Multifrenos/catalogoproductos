@@ -19,16 +19,19 @@
 		<li> Se añaden o se modifican en <strong>BD Recambios </strong>de catalago</li>
 		</ol>
 		
-		<p> El <strong>fichero ListaPrecios</strong> es el encargado de añadir Recambios nuevo y sus referencias de fabricante (marca) correpondiente.</p>
-		
-		<p> El <strong>fichero referencias cruzadas</strong>, se va buscar la referencia del fabricante de recambio en la tabla de recambios, donde comprobaremos si existe o no , sino existe no se añade el registro.</p>
-		<p> EL <strong>fichero referencias cruzadas de Versiones coches</strong>, es el encargado de añadir los coches en los que se aplica ese recambio, por eso es fundamental que exista el recambio.</p>
+		<p> Se pueden añadir solo los ficheros:</p>
+		<ol>
+			<li>ListaPrecios.csv</li>
+			<li>ReferenciasCruzadas.csv</li>
+			<li>ReferenciasCversiones.csv</li>
+		</ol>
+		<p> Recuerda que el primero es el que crea el Recambio, por lo que debe ser el primero en añadir y es uno por familia y fabricante principal.</p>
 		<div>
 		
 		
 		<h4>Especificaciones Tecnicas</h4>
 			<ul>
-			<li> Los ficheros <strong>csv</strong>, con separador (,) y divisor campos (").</li>
+			<li> Los ficheros <strong>csv</strong> tiene para cada fichero unos campos, son generados con separador (,) y divisor campos (").<a href="./estatico/comoHacerCsv.php">Ver como hacer preparar csv</a></li>
 			<li> Los ficheros se almacenan directament en directorio temporal del servidor, salvo que se lo indiquemos con upload_tmp_dir que no sea así.</li>
 			<li> Los ficheros no pueden ser superiores a 50MG</li>
 			<li> El proceso se hace con AJAX a trozos, para evitar saturar el servidor.</li>
