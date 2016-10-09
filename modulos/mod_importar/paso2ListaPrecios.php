@@ -67,6 +67,7 @@
                 <p>Numero de Recambios Nuevos: <span id="nuevos"></span></p>
                 <p>Numero de Recambios Existentes: <span id="existentes"></span></p>
                 <div id="fin"></div>
+                <div id="resultado"></div>
                 <div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
                     0 % completado
                     <!--
@@ -110,7 +111,7 @@
                     type: 'post',
                     datatype: 'json',
                     beforeSend: function () {
-                        $("#resultado").html("Procesando, espere por favor...");
+                        $("#resultado").html("Buscando en table lista precios, espere por favor...");
                     },
                     success: function (response) {
                         if (response == null) {
@@ -150,7 +151,7 @@
                         datatype: 'json',
                         data: parametros,
                         beforeSend: function () {
-                            $("#resultado").html("Procesando, espere por favor...");
+                            $("#resultado").html("Comprobando estado de tabla temporal...");
                         },
                         success: function (response) {
                            
@@ -199,7 +200,7 @@
                     type: 'post',
                     datatype: 'json',
                     beforeSend: function () {
-                        $("#resultado").html("Procesando, espere por favor...");
+                        $("#resultado").html("Iniciamos ciclo de proceso, espere por favor...");
                     },
                     success: function (response) {
                         // cubrimos la linea final y lanzamos el ciclo
@@ -237,16 +238,20 @@
                         'idrecam': rs[b].id
 
                     };
+                    //document.getElementById('resultado').innerHTML='Id='+ rs[b].id;
                     $.ajax({
                         data: parametros,
                         url: 'funciones.php',
                         type: 'post',
                         beforeSend: function () {
-                            $("#resultado").html("Procesando, espere por favor...");
+                           $("#resultado").html("Funcion anahdir ,"+ b +''+a);
                         },
                         success: function (response) {
-                           
                             b++;
+                            document.getElementById('resultado').innerHTML='Repuesta Id='+ rs[b].id;
+
+                            console.log(b);
+                            
                             BarraProceso(b, a);
                         }
 

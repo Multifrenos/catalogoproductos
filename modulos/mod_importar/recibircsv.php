@@ -89,7 +89,7 @@ if ($ficheroNombre == "ListaPrecios.csv") {
 $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
 $consultaContador = mysqli_query($BDImportRecambios, $consulta);
 if($consultaContador == true){
-$contador = $consultaContador->fetch_assoc();
+    $contador = $consultaContador->fetch_assoc();
 }
 mysqli_close($BDImportRecambios);
 if ($contador['cuenta'] == '0') {
@@ -226,8 +226,8 @@ if ($contador['cuenta'] == '0') {
             // puede modificarse en función servidor y hardware que se tenga.
             // yo de momento le puse 20000, son 20 segundos. 
             function cicloProcesso() {
-                alert('Recuerda que los registros van a ser sustituidos por los nuevos \n' +
-                        ' ya campo Linea es primario, por eso nunca creara uno nuevo.');
+                alert('Iniciamo ciclo, recuerda que añade 400 registros y tarda 20 segundo \n' +
+                        ' cada vez que actualiza la barra de proceso.');
 
                        
 //                bucleProceso(lineaF, lineaActual, fichero);

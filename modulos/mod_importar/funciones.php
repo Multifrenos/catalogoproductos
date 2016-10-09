@@ -59,7 +59,9 @@ function verNuevosRef($BDImportRecambios) {
 function contador($nombretabla, $BDImportRecambios) {
     $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
-    $contador = $consultaContador->fetch_assoc();
+    if ($consultaContador == true){
+        $contador = $consultaContador->fetch_assoc();
+    }
     echo $contador['cuenta'];
 }
 
@@ -81,21 +83,26 @@ function comprobar($nombretabla, $BDImportRecambios, $BDRecambios) {
     $id = $_POST['idrecambio'];
     $l = $_POST['linea'];
     $f = $_POST['fabricante'];
-
-
+    // Inicializamos variables
+    $consfinal = 0;
+    $existente = 0;
+    $nuevo = 0;
     $consul = "SELECT * FROM referenciascruzadas where RefFabricanteCru ='" . $id . "'";
     $consultaReca = mysqli_query($BDRecambios, $consul);
-    $consfinal = $consultaReca->fetch_assoc();
-
-    if ($consfinal['RefFabricanteCru'] == $id && $consfinal['IdFabricanteCru'] == $f) {
-        $actu = "UPDATE `listaprecios` SET `Estado`='existe',`RecambioID`=" . $consfinal['RecambioID'] . " WHERE `linea` ='" . $l . "'";
-        mysqli_query($BDImportRecambios, $actu);
-        $existente = 1;
-    } else {
-        $actu = "UPDATE `listaprecios` SET `Estado`='nuevo' WHERE `linea` ='" . $l . "'";
-        mysqli_query($BDImportRecambios, $actu);
-        $nuevo = 1;
+    if ($consultaReca == true) {
+        // Controlamos que la consulta sea correcta, ya que sino lo es genera un error la funcion fetch
+        $consfinal = $consultaReca->fetch_assoc();
     }
+        if ($consfinal['RefFabricanteCru'] == $id && $consfinal['IdFabricanteCru'] == $f) {
+            $actu = "UPDATE `listaprecios` SET `Estado`='existe',`RecambioID`=" . $consfinal['RecambioID'] . " WHERE `linea` ='" . $l . "'";
+            mysqli_query($BDImportRecambios, $actu);
+            $existente = 1;
+        } else {
+            $actu = "UPDATE `listaprecios` SET `Estado`='nuevo' WHERE `linea` ='" . $l . "'";
+            mysqli_query($BDImportRecambios, $actu);
+            $nuevo = 1;
+        }
+
 
     $datos[0]['n'] = $nuevo;
     $datos[0]['e'] = $existente;
@@ -113,20 +120,26 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
 $consfinal;
     $consul = "SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '" . $ref . "' and IdFabricanteCru='" . $f . "'";
 
-$consultaReca = mysqli_query($BDRecambios, $consul);
-    $consfinal = $consultaReca->fetch_assoc();
+    $consultaReca = mysqli_query($BDRecambios, $consul);
+    if ($consulReca == true){
+        $consfinal = $consultaReca->fetch_assoc();
+    }
     $datos[0]['respuesta']=$consfinal;
     if ($consfinal == null) {
         $consFINAL;
         $consultCru = "SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '" . $ref_f . "' and IdFabricanteCru='" . $fab_ref . "'";
         $consultaCruz = mysqli_query($BDRecambios, $consul);
-        $consFINAL = $consultaCruz->fetch_assoc();
+        if ($consultaCruz == true ){
+            $consFINAL = $consultaCruz->fetch_assoc();
+        }
         if ($consFINAL != '0') {
             $datos[0]["respuesta"] = "existe en referencias cruzadas el articulo del proveedor cruzado";
             $res;
             $buscarcruces = "SELECT * FROM `crucesreferencias` where idReferenciaCruz =" . $consFinal['id'];
             $consul = mysqli_query($BDRecambios, $buscarcruces);
-            $res = $consul->fetch_assoc();
+            if ($consul == true) {
+                $res = $consul->fetch_assoc();
+            }
             if ($res == '0') {
                 $datos[0]["respuesta"]="no existe en referencias cruzadas el articulo del proveedor cruzado";
                 $busFa = "SELECT id FROM `fabricantesrecambios` WHERE Nombre = " . $ref_f;
@@ -164,27 +177,40 @@ function BuscarError($BDImportRecambios) {
 
 function anahirRecam($BDRecambios) {
 
+    $id = $_POST['idrecam'];
+    $tab = $_POST['nombretabla'];
+    $familia = $_POST['familia'];
+    $fabricante = $_POST['fabricante'];
     $estado = $_POST['estado'];
     $ref = $_POST['referen'];
     $coste = $_POST['coste'];
+    $descripcion = $_POST['descrip'];
+    // Inicializamos variables: 
+    $fecha = date('Y-m-d');
+    $desdef = ''; //Descripcion
+    $bfa= array() ; // Nombre familia recambio.
+    $bFa= array(); // Nombre fabricante.
+    $contador = array(); // Margen
     if ($estado == "nuevo") {
-        $tab = $_POST['nombretabla'];
-        $familia = $_POST['familia'];
         $cons = "SELECT * FROM `familiasrecambios` WHERE id = " . $familia;
         $consFa = mysqli_query($BDRecambios, $cons);
-        $bfa = $consFa->fetch_assoc();
+        if ($consFa == true){
+            $bfa = $consFa->fetch_assoc();
+        }
+        if (isset($bfa["Familia_es"])== true){
         $desdef = $bfa["Familia_es"];
-
-        $fabricante = $_POST['fabricante'];
+        } else {
+        echo "algo";
+        }
         $consulFab = "SELECT * FROM `fabricantesrecambios` where id =" . $fabricante;
         $cFa = mysqli_query($BDRecambios, $consulFab);
+        if ($cFa == true){
         $bFa = $cFa->fetch_assoc();
+        }
+        if (isset($bFa['Nombre'])== true){
         $desdef .= " " . $bFa['Nombre'];
-
-        $coste = $_POST['coste'];
-        $descripcion = $_POST['descrip'];
+        }
         $desdef .= " " . $descripcion;
-        $ref = $_POST['referen'];
 
         $pvp = ($coste + (($coste * 40) / 100)) * 1.21;
         $fecha = date('Y-m-d');
@@ -200,11 +226,11 @@ function anahirRecam($BDRecambios) {
         $BDRecambios->query($consulta);
         $resFinal2 = $BDRecambios->insert_id;
     } else {
-        $fecha = date('Y-m-d');
-        $id = $_POST['idrecam'];
         $cnsulta = "select * from recambios where id =" . $id;
         $consultaReca = mysqli_query($BDRecambios, $cnsulta);
-        $contador = $consultaReca->fetch_assoc();
+        if ($consultaReca == true){
+            $contador = $consultaReca->fetch_assoc();
+        }
         $margen = $contador['margen'];
         $iva = "1." . $contador['iva'];
         $pvp = ($coste + (($coste * $margen) / 100)) * $iva;
@@ -217,7 +243,9 @@ function errorFab($BDImportRecambios, $BDRecambios) {
     $fab = $_POST['fabricante'];
     $consul = "SELECT * FROM `fabricantesrecambios` WHERE Nombre ='" . $fab . "'";
     $consFa = mysqli_query($BDRecambios, $consul);
+    if ($consFA == true){
     $consultaFabricante = $consFa->fetch_assoc();
+    }
     if ((int) $consultaFabricante['id'] == 0) {
         $con = "  UPDATE `referenciascruzadas` SET `Estado`= 'ERR:[RefFabPrin no existe]' WHERE Fabr_Recambio ='" . $fab . "'";
         $consFa = mysqli_query($BDImportRecambios, $con);
@@ -228,15 +256,20 @@ function resumen($BDImportRecambios) {
 
     $consulta = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[RefFabPrin no existe]'";
     $conmys = mysqli_query($BDImportRecambios, $consulta);
+    if ($conmys == true) {
     $efab = $conmys->fetch_assoc();
-
+    }
+    
     $consulta2 = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[CampoVacio]'";
     $conmys2 = mysqli_query($BDImportRecambios, $consulta2);
-    $eref = $conmys2->fetch_assoc();
-
+    if ($conmys2 == true) {
+        $eref = $conmys2->fetch_assoc();
+    }
     $consulta3 = "SELECT count(linea) as total FROM `referenciascruzadas` WHERE Estado = ''";
     $conmys3 = mysqli_query($BDImportRecambios, $consulta3);
+    if ($conmys3 == true) {
     $conpro = $conmys3->fetch_assoc();
+    }
     $datos[0]['f'] = $efab['total'];
     $datos[0]['e'] = $eref['total'];
     $datos[0]['c'] = $conpro['total'];

@@ -5,17 +5,17 @@ include ("./../mod_conexion/conexionBaseDatos.php");
 if ($BDImportRecambios->connect_errno) {
     echo "Falló la conexión a MySQL: (" . $BDImportRecambios->connect_errno . ") " . $BDImportRecambios->connect_error;
 }
+include ("./../../configuracion.php");
 
-
-/* Comprobamos si el fichero que queremos enviar tiene 3 campos */
-
+/* Comprobamos si el fichero que queremos enviar */
 
 $lineaA = $_POST['lineaI'] ;
 $lineaF = $_POST['lineaF'] ;
 // Ahora creamos la ruta del fichero.
 // Hay que tener en cuenta que esta ruta puede cambiar según donde guarde los ficheros temporales el servidor.
 $nombrecsv = $_POST['Fichero'];
-$fichero = 'C:\xampp\tmp'.'\\'.$nombrecsv;
+//~ $fichero = 'C:\xampp\tmp'.'\\'.$nombrecsv;
+$fichero = $ConfDir_subida.$nombrecsv;
 //~ $nombrestabla = substr($nombrecsv, 0,-4);
 // Ante de iniciar debemos saber que cuanto campos va tener, segun el fichero que sea.
 
