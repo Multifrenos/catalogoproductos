@@ -76,12 +76,30 @@ function verNuevosRef($BDImportRecambios) {
 }
 
 function contador($nombretabla, $BDImportRecambios) {
+    // Contamos los registros que tiene la tabla
     $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
     if ($consultaContador == true){
         $contador = $consultaContador->fetch_assoc();
     }
-    echo $contador['cuenta'];
+    $Tresumen['t'] = $contador;
+	// Contamos los registros que tiene la tabla nuevo
+    $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
+    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
+    if ($consultaContador == true){
+        $contador = $consultaContador->fetch_assoc();
+    }
+    $Tresumen['n'] = $nuevo;
+	// Contamos los registros que tiene la tabla existente
+    $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
+    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
+    if ($consultaContador == true){
+        $contador = $consultaContador->fetch_assoc();
+    }
+
+
+    $Tresumen['e'] = $existente;
+    
 }
 
 function BuscarErrorFab($BDImportRecambios) {

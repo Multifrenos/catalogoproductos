@@ -149,6 +149,7 @@
                             // Al buscar en contar registros en tabla listaprecios ;
                             // no encuentrar ningún registro con el estado vacio.
                             alert("En BDimportarRecambio la tabla "+ nombretabla + "\n no tiene ningún registro con su estado en vacio \n por lo que no se hace comprobación.");
+                            resumen(nombretabla);
                             document.getElementById('Paso3').style.display = 'block';
 
                         } else {
@@ -218,6 +219,34 @@
                 set = setInterval("consulta()", 500);
             }
             
+            function resumen (nombretabla){
+				var nombretabla = "listaprecios";
+				var parametros = {
+					'nombretabla': nombretabla,
+                    'pulsado': 'contar'
+                    };
+                 
+                    $.ajax({
+                        
+                        url: 'funciones.php',
+                        type: 'post',
+                        datatype: 'json',
+                        data: parametros,
+                        beforeSend: function () {
+                            $("#resultado").html('Contando y realizando RESUMEN...<span><img src="./img/ajax-loader.gif"/></span>');
+                        },
+                        success: function (response) {
+                           // n  y e son una varible global
+                           // donde n son los nuevos y e los existentes.
+                            $("#total").html(response[0].t+"/"+a);
+                            $("#nuevos").html(n);
+                            $("#existentes").html(e);
+                            return;
+
+                        }
+                    });
+				
+			}
             
             
             // buscamos el total de referencias que vamos a lanzar el bucle
