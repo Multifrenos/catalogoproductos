@@ -115,14 +115,16 @@
                     },
                     success: function (response) {
                         if (response == null) {
-                            alert("no hay ficheros que modificar");
+                            // Al buscar en contar registros en tabla listaprecios ;
+                            // no encuentrar ningún registro con el estado vacio.
+                            alert("En BDimportarRecambio la tabla "+ nombretabla + "\n no tiene ningún registro con su estado en vacio \n por lo que no se hace comprobación");
                             var campo = "<div class='form-group align-right'><h2>PASO 3</h2><input type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/></div>"
                             $("#fin").append(campo);
                         } else {
-                            // cargamos en la variable a el final de linea qeu es el total de registros del array
+                            // cargamos en la variable a el final de linea que es el total de registros del array
                             a = response.length;
                             // iniciamos el ciclo
-                            ciclo(response, fabricante);
+                            ciclo(response);
                         }
 
                     }
@@ -151,7 +153,7 @@
                         datatype: 'json',
                         data: parametros,
                         beforeSend: function () {
-                            $("#resultado").html("Comprobando estado de tabla temporal...");
+                            $("#resultado").html('Comprobando estado de tabla temporal...<span><img src="./img/ajax-loader.gif"/></span>');
                         },
                         success: function (response) {
                            
@@ -214,7 +216,7 @@
             // lanza el ciclo
             function anhadir(response) {
                 rs = response;
-                set = setInterval("anhadirnuevos()", 500);
+                set = setInterval("anhadirnuevos()", 1000);
 
             }
             // esta función va a hacer el paso definitivo que es el siguientes:
