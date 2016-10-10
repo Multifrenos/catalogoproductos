@@ -31,7 +31,7 @@
                         $consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `FabricantesRecambios` ORDER BY `Nombre`");
                         // Ahora montamos htmlopciones
                         while ($fila = $consultaFabricantes->fetch_assoc()) {
-                            $htmloptiones.='<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';
+                            $htmloptiones.='<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>\n';
                         }
                         $consultaFabricantes->close();
                         ?>
@@ -59,21 +59,29 @@
                     </div>
 
                     <div class="form-group align-right">
-                        <input type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#IdFabricante').val(), $('#IdFamilia').val());return false;" value="Comprobar"/>
+                        <input id="BtnComprobar" type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#IdFabricante').val(), $('#IdFamilia').val());return false;" value="Comprobar"/>
                     </div>
                 </form>
+                <div id="CjaComprobar" style="display:none;">
                 <h3>Resumen de comprobación</h3>
-                <p>Numero de Registros analizados: <span id="total"></span></p>
-                <p>Numero de Recambios Nuevos: <span id="nuevos"></span></p>
-                <p>Numero de Recambios Existentes: <span id="existentes"></span></p>
-                <div id="fin"></div>
-                <div id="resultado"></div>
-                <div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                    0 % completado
-                    <!--
-                                                                    <span id="spanProceso" class="sr-only">0% Complete</span>
-                    -->
+                <p>Total de Registros tabla:<span id="total"></span></p>
+                <p>Registros con Estado Vacio: <span id="total"></span></p>
+                <p>Recambios Nuevos: <span id="nuevos"></span></p>
+                <p>Recambios Existentes: <span id="existentes"></span></p>
                 </div>
+                <div id="Paso3" style="display:none;">
+					<div class='form-group align-right'>
+						<h2>PASO 3</h2>
+						<input type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/>
+					</div>
+                </div>
+                <div class="col-md-12">
+					<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+						0 % completado
+					</div>
+                </div>
+                <div id="resultado"></div>
+
             </div>
 
         </div>
@@ -95,11 +103,34 @@
             var rs;
             // id familia
             var fa;
-            // En este proceso buscamos en la tabla lista precios los que su estado sea vacio 
-            // para el bucle no hacer busquedas ineccesarias
+            // Llegamos a la funcion ComprobarPaso2ListaPrecios --> Al pulsar en comprobar .
+            // Lo que hacemos es comprobar cuantos registros tiene y cuantos tienes el estado vacio.
+            // Si hay vacios , entonces iniciamos ciclo, sino solo presentamos resumen.
             function ComprobarPaso2ListaPrecios(fabricante, familia) {
                 fa = familia;
                 f = fabricante;
+				// Lo primero comprobar que familia y fabricante selecciono alguno, ya no tiene 
+				// sentido continuar si no selecciono nada.
+				if (fa == 0) {
+				  alert( "No selecciono familias");
+				  return;	
+				}
+                if (f == 0) {
+				  alert( "No selecciono fabricante");	
+				  return;
+				}
+                
+                // Desactivamos para evitar posibles cambio y errores:
+                //		btn de comprobar
+                //		select de fabricantes y familias
+                document.getElementById("BtnComprobar").disabled = true;
+                document.getElementById("IdFabricante").disabled = true;
+                document.getElementById("IdFamilia").disabled = true;
+
+                
+                // Mostramos cuadro de Resumen.
+                document.getElementById('CjaComprobar').style.display = 'block';
+               
                 var nombretabla = "listaprecios";
                 var parametros = {
                     'nombretabla': nombretabla,
@@ -117,9 +148,9 @@
                         if (response == null) {
                             // Al buscar en contar registros en tabla listaprecios ;
                             // no encuentrar ningún registro con el estado vacio.
-                            alert("En BDimportarRecambio la tabla "+ nombretabla + "\n no tiene ningún registro con su estado en vacio \n por lo que no se hace comprobación");
-                            var campo = "<div class='form-group align-right'><h2>PASO 3</h2><input type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/></div>"
-                            $("#fin").append(campo);
+                            alert("En BDimportarRecambio la tabla "+ nombretabla + "\n no tiene ningún registro con su estado en vacio \n por lo que no se hace comprobación.");
+                            document.getElementById('Paso3').style.display = 'block';
+
                         } else {
                             // cargamos en la variable a el final de linea que es el total de registros del array
                             a = response.length;
@@ -173,15 +204,15 @@
 
                 } else {
                     // cuando acaba el ciclo creamos el campo terminar y cerramos el bucle
-                    var campo = "<div class='form-group align-right'><h2>PASO 3</h2><input type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/></div>"
-                    $("#fin").append(campo);
+                    document.getElementById('Paso3').style.display = 'block';
+
                     clearInterval(set);
                     b = 0;
 
                 }
 
             }
-            // va a lanzar la el bucle de buscar en cruzadas
+            // Empezamos el ciclo de comprobar si es nuevo, existe o tiene un error
             function ciclo(response) {
                 rs = response;
                 set = setInterval("consulta()", 500);
@@ -194,7 +225,6 @@
                 var parametros = {
                     'pulsado': 'verNuevos',
                     'fabricante': f
-
                 };
                 $.ajax({
                     data: parametros,
@@ -207,6 +237,9 @@
                     success: function (response) {
                         // cubrimos la linea final y lanzamos el ciclo
                         a = response.length;
+                        console.log(a);
+                        $("#resultado").html("Numero filas que devuelve verNuevasRef ="+ a);
+						alert( "Inicio de ciclo enterminar "+a);
                         anhadir(response);
 
                     }

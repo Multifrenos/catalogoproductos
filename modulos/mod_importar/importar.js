@@ -80,7 +80,7 @@ function consultaDatos(linea,lineaF,fichero) {
 			url:   'msql_csv.php',
 			type:  'post',
 			beforeSend: function () {
-					$("#resultado").html("Procesando, espere por favor...");
+					$("#resultado").html('Procesando, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
 			},
 			success:  function (response) {
 					$("#resultado").html(response);

@@ -1,4 +1,23 @@
 <?php
+/* Con el switch al final y variable $pulsado
+ *     	$pulsado = 'borrar'					-> Ejecuta borrar($nombretabla, $BDImportRecambios);
+ *     	$pulsado = 'contar'					-> Ejecuta contador($nombretabla, $BDImportRecambios);
+ * 		$pulsado = 'comprobar'				-> Ejecuta comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
+ * 		$pulsado = 'contarVacios'			-> Ejecuta contarVacios($nombretabla, $BDImportRecambios);
+ * 		$pulsado = 'verNuevos'				-> Ejecuta verNuevosRef($BDImportRecambios);
+ * 		$pulsado = 'anahirRecam'			-> Ejecuta anahirRecam($BDRecambios);
+ * 		$pulsado = 'BuscarError'			-> Ejecuta BuscarError($BDImportRecambios);
+ * 		$pulsado = 'BuscarErrorFab'			-> Ejecuta BuscarErrorFab($BDImportRecambios);
+ * 		$pulsado = 'comPro'					-> Ejecuta errorFab($BDImportRecambios, $BDRecambios);
+ * 		$pulsado = 'resumen'				-> Ejecuta resumen($BDImportRecambios);
+ * 		$pulsado = 'contarVacioscruzados'	-> Ejecuta contarVaciosCru($BDImportRecambios);
+ * 		$pulsado = 'comprobar2cruz'			-> Ejecuta comprobarCruzadas($BDImportRecambios, $BDRecambios);
+ * 
+ * 
+ *  */
+
+
+
 
 include ("./../mod_conexion/conexionBaseDatos.php");
 $nombretabla = $_POST['nombretabla'];
@@ -190,7 +209,10 @@ function anahirRecam($BDRecambios) {
     $desdef = ''; //Descripcion
     $bfa= array() ; // Nombre familia recambio.
     $bFa= array(); // Nombre fabricante.
-    $contador = array(); // Margen
+    $contador = array(); // Donde tomamos Margen y Iva
+    $margen = 0 ;
+    $iva = "1.";
+    $pvp = 0; 
     if ($estado == "nuevo") {
         $cons = "SELECT * FROM `familiasrecambios` WHERE id = " . $familia;
         $consFa = mysqli_query($BDRecambios, $cons);
@@ -211,9 +233,9 @@ function anahirRecam($BDRecambios) {
         $desdef .= " " . $bFa['Nombre'];
         }
         $desdef .= " " . $descripcion;
-
-        $pvp = ($coste + (($coste * 40) / 100)) * 1.21;
-        $fecha = date('Y-m-d');
+		if ($coste != 0 && $margen !=0 && $iva !=0 ){
+			$pvp = ($coste + (($coste * 40) / 100)) * 1.21;
+		}
         $consul = "INSERT INTO " . $tab . "( `Descripcion`, `coste`, `margen`, `iva`, `pvp`, `IDFabricante`, `FechaActualiza`) VALUES ('" . $desdef . "'," . $coste . ",40,21," . $pvp . "," . $fabricante . "," . $fecha . ")";
         $BDRecambios->query($consul);
         $resul = $BDRecambios->insert_id;
@@ -232,8 +254,10 @@ function anahirRecam($BDRecambios) {
             $contador = $consultaReca->fetch_assoc();
         }
         $margen = $contador['margen'];
-        $iva = "1." . $contador['iva'];
+        $iva .= $contador['iva'];
+        if ($coste != 0 && $margen !=0 && $iva !=0 ){
         $pvp = ($coste + (($coste * $margen) / 100)) * $iva;
+		}
         $modifcoste = "UPDATE `recambios` SET `coste`=" . $coste . ",`pvp`=" . $pvp . ",`FechaActualiza`='" . $fecha . "' WHERE `id` =" . $id;
         mysqli_query($BDRecambios, $modifcoste);
     }
