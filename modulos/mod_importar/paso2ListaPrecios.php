@@ -252,7 +252,7 @@
 			}
             
             
-            // buscamos el total de referencias que vamos a lanzar el bucle
+            // buscamos el total de referencias que vamos a lanzar el bucle y las añadimos temporal
             function paso3() {
                 var parametros = {
                     'pulsado': 'verNuevos',
