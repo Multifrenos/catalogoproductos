@@ -240,7 +240,7 @@
                            // donde n son los nuevos y e los existentes.
                        
                             $("#total").html(response['t']);
-                            $("#vacio").html(response['t']);
+                            $("#vacio").html(response['v']);
                             $("#nuevos").html(response['n']);
                             $("#existentes").html(response['e']);
                             $("#resultado").html('Pulsa terminar para empezar añadir en BDRecambios');
