@@ -65,7 +65,7 @@
                 <div id="CjaComprobar" style="display:none;">
                 <h3>Resumen de comprobación</h3>
                 <p>Total de Registros tabla:<span id="total"></span></p>
-                <p>Registros con Estado Vacio: <span id="total"></span></p>
+                <p>Registros con Estado Vacio: <span id="vacio"></span></p>
                 <p>Recambios Nuevos: <span id="nuevos"></span></p>
                 <p>Recambios Existentes: <span id="existentes"></span></p>
                 </div>
@@ -238,9 +238,12 @@
                         success: function (response) {
                            // n  y e son una varible global
                            // donde n son los nuevos y e los existentes.
-                            $("#total").html(response[0].t+"/"+a);
-                            $("#nuevos").html(n);
-                            $("#existentes").html(e);
+                       
+                            $("#total").html(response['t']);
+                            $("#vacio").html(response['t']);
+                            $("#nuevos").html(response['n']);
+                            $("#existentes").html(response['e']);
+                            $("#resultado").html('Pulsa terminar para empezar añadir en BDRecambios');
                             return;
 
                         }

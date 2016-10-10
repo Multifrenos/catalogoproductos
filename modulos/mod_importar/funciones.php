@@ -76,30 +76,42 @@ function verNuevosRef($BDImportRecambios) {
 }
 
 function contador($nombretabla, $BDImportRecambios) {
+	// Inicializamos array
+    $Tresumen['n'] = 0; //nuevo
+    $Tresumen['t'] = 0; //total
+    $Tresumen['e'] = 0; //existe
+	$Tresumen['v'] = 0; //existe
+
+	// Contamos los registros que tiene la tabla
+    $consulta = "SELECT count(linea) as vacio FROM " . $nombretabla. " WHERE Estado = ''";;
+    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
+    if ($consultaContador == true){
+        $contador = $consultaContador->fetch_assoc();
+    }
+    $Tresumen['v'] = $contador['total']; // vacio
     // Contamos los registros que tiene la tabla
-    $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
+    $consulta = "SELECT count(linea) as total FROM " . $nombretabla;
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
     if ($consultaContador == true){
         $contador = $consultaContador->fetch_assoc();
     }
-    $Tresumen['t'] = $contador;
+    $Tresumen['t'] = $contador['total']; // total
 	// Contamos los registros que tiene la tabla nuevo
-    $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
+    $consulta = "SELECT count(linea) as nuevo FROM " . $nombretabla. " WHERE Estado = 'nuevo'";
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
     if ($consultaContador == true){
         $contador = $consultaContador->fetch_assoc();
     }
-    $Tresumen['n'] = $nuevo;
+    $Tresumen['n'] = $contador['nuevo']; //nuevo
 	// Contamos los registros que tiene la tabla existente
-    $consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
+    $consulta = "SELECT count(linea) as existe FROM " . $nombretabla. " WHERE Estado = 'existe'";
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
     if ($consultaContador == true){
         $contador = $consultaContador->fetch_assoc();
     }
-
-
-    $Tresumen['e'] = $existente;
-    
+    $Tresumen['e'] = $contador['existe']; //existe
+    header("Content-Type: application/json;charset=utf-8");
+    echo json_encode($Tresumen);
 }
 
 function BuscarErrorFab($BDImportRecambios) {
