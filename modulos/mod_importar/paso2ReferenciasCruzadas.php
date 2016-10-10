@@ -228,6 +228,7 @@
                             <input type="button" href="javascript:;" onclick="finalizar($('#IdFabricante').val());return false;" value="Comprobar" id="cmp" style="display: none;"/>
                             <span class="alert alert-success">Analizando Errores del fichero. Esto puede tardar unos minutos .....</span>
                         </div>
+                        
                         <br/><br/>
                         <div class="col-md-4">
 
@@ -241,6 +242,7 @@
 
         </div>
         <script>
+            var lineabarra=0;
             var fabricante;
             var finallinea;
             var arrayConsulta;
@@ -297,6 +299,7 @@
                                 arrayConsulta = response;
                                 console.log("respuesta del ajax length "+response.length);
                                 grabar();
+                                
                             } else {
 
                             }
@@ -341,19 +344,23 @@
                     },
                     success: function (response) {
 
-                        intermedia++;
-                        console.log( arrayConsulta[intermedia].id);
-                        console.log( arrayConsulta[intermedia].linea);
-                        console.log( fabricante);
-                        console.log( arrayConsulta[intermedia].Ref_F);
-                        console.log( arrayConsulta[intermedia].F_rec);
+//                        console.log( arrayConsulta[intermedia].id);
+//                        console.log( arrayConsulta[intermedia].linea);
+//                        console.log( fabricante);
+//                        console.log("ref cruzada "+ arrayConsulta[intermedia].Ref_F);
+//                        console.log("prof cruzado"+ arrayConsulta[intermedia].F_rec);
                          console.log("****************");
                          console.log(response[0].respuesta);
-                        BarraProceso2(intermedia, finallinea);
-                        if (intermedia == arrayConsulta.length) {
+                        
+                        if (intermedia == (arrayConsulta.length)-1) {
+                            intermedia=0;
                             ComprobarPaso2RefCruzadas();
                         } else {
-                            intermedia = 0;
+                            console.log("esto es la linea intermedia: "+intermedia);
+                            
+                            intermedia++;
+                            lineabarra+=intermedia;
+                            BarraProceso2(lineabarra,finallinea);
                             grabar();
                         }
                     }

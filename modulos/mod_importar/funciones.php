@@ -168,55 +168,45 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     $f = $_POST['fabricante'];
     $ref_f = $_POST['Ref_fa'];
     $fab_ref = $_POST['Fab_ref'];
-$consfinal;
-    $consul = "SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '" . $ref . "' and IdFabricanteCru='" . $f . "'";
 
-    $consultaReca = mysqli_query($BDRecambios, $consul);
-    if ($consulReca == true){
-        $consfinal = $consultaReca->fetch_assoc();
-    }
-    $datos[0]['respuesta']=$consfinal;
-    if ($consfinal == null) {
-        $consFINAL;
-        $consultCru = "SELECT * FROM `referenciascruzadas` where RefFabricanteCru = '" . $ref_f . "' and IdFabricanteCru='" . $fab_ref . "'";
-        $consultaCruz = mysqli_query($BDRecambios, $consul);
-        if ($consultaCruz == true ){
-            $consFINAL = $consultaCruz->fetch_assoc();
-        }
-        if ($consFINAL != '0') {
-            $datos[0]["respuesta"] = "existe en referencias cruzadas el articulo del proveedor cruzado";
-            $res;
-            $buscarcruces = "SELECT * FROM `crucesreferencias` where idReferenciaCruz =" . $consFinal['id'];
+    $conRefFab = "SELECT * FROM `referenciascruzadas` WHERE RefFabricanteCru = '" . $ref . "' and IdFabricanteCru = '" . $f . "'";
+    $ejconRefFab = mysqli_query($BDRecambios, $conRefFab);
+    $resul = mysqli_fetch_assoc($ejconRefFab);
+    if ($resul) {
+        $datos[0]['respuesta']="exite la referencia principal";
+        $busFacruz = "SELECT id FROM `fabricantesrecambios` WHERE Nombre = '" . $fab_ref . "'";
+        $ejbusFacruz = mysqli_query($BDRecambios, $busFacruz);
+        $resulFabCruz = mysqli_fetch_assoc($ejbusFacruz);
+        $id = $resulFabCruz['id'];
+       
+////         $datos[0]['respuesta']="esta id de proveedor ".$id;
+       $ConCruRefFab = "SELECT * FROM `referenciascruzadas` WHERE RefFabricanteCru = '".$ref_f."' and IdFabricanteCru = '".$id."'";
+       $ejConCruRefFab= mysqli_query($BDRecambios,$ConCruRefFab);
+         $resulCru= mysqli_fetch_assoc($ejConCruRefFab);
+         if($resulCru){
+             $buscarcruces = "SELECT * FROM `crucesreferencias` where idReferenciaCruz =" . $resulCru['id'];
             $consul = mysqli_query($BDRecambios, $buscarcruces);
-            if ($consul == true) {
-                $res = $consul->fetch_assoc();
-            }
-            if ($res == '0') {
-                $datos[0]["respuesta"]="no existe en referencias cruzadas el articulo del proveedor cruzado";
-                $busFa = "SELECT id FROM `fabricantesrecambios` WHERE Nombre = " . $ref_f;
-                $id = mysqli_query($BDRecambios, $busFa);
-                $insert = "INSERT INTO `crucesreferencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $consFinal['id'] . "," . $consFinal['RecambioID'] . "," . $id['id'] . ")";
-                $secInser = mysqli_query($BDRecambios, $insert);
-                $consul = "UPDATE `referenciascruzadas` SET `Estado`='Guardada' WHERE RefProveedor ='" . $ref . "'";
-                mysqli_query($BDImportRecambios, $consul);
-            }
-        } else {
-            $busFa = "SELECT id FROM `fabricantesrecambios` WHERE Nombre = " . $ref_f;
-            $id = mysqli_query($BDRecambios, $busFa);
-            $creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id['id'] . "," . $ref_f . ")";
-            mysqli_query($BDRecambios, $creaCru);
-            $consul = "UPDATE `referenciascruzadas` SET `Estado`='Guardada' WHERE RefProveedor ='" . $ref . "'";
+            if($consul){
+                $consul = "UPDATE `referenciascruzadas` SET `Estado`='ya existia en crueces referencias' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
             mysqli_query($BDImportRecambios, $consul);
-            $datos[0]["respuesta"] = "no existe en referencias curzadas el articulo cruzado";
-        }
+            }else{
+                $insert = "INSERT INTO `crucesreferencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $resulCru['id'] . "," . $resulCru['RecambioID'] . "," . $id. ")";
+                $secInser = mysqli_query($BDRecambios, $insert);
+                $consul = "UPDATE `referenciascruzadas` SET `Estado`='no existia en cruce referencias' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
+            mysqli_query($BDImportRecambios, $consul);
+            }
+         }else{
+             $creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id . "," . $ref_f . ")";
+            mysqli_query($BDRecambios, $creaCru);
+            $consul = "UPDATE `referenciascruzadas` SET `Estado`='Guardada en cruzadas' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
+            mysqli_query($BDImportRecambios, $consul);
+         }
+
     } else {
-        $datos[0]["respuesta"] = "el else de referencia y proveedor";
-        $consul = "UPDATE `referenciascruzadas` SET `Estado`='ERR:[referencia_Principal]' WHERE RefProveedor ='" . $ref . "'";
-        mysqli_query($BDImportRecambios, $consul);
+       $consul = "UPDATE `referenciascruzadas` SET `Estado`='ERROR[Referencia Principal]' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
+            mysqli_query($BDImportRecambios, $consul);
+        $datos[0]['respuesta']='No existe la referencia principal';
     }
-       $datos[0]['n'] = $nuevo;
-    $datos[0]['e'] = $existente;
-    $datos[0]['t'] = $l;
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }
