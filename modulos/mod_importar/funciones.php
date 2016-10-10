@@ -88,7 +88,7 @@ function contador($nombretabla, $BDImportRecambios) {
     if ($consultaContador == true){
         $contador = $consultaContador->fetch_assoc();
     }
-    $Tresumen['v'] = $contador['total']; // vacio
+    $Tresumen['v'] = $contador['vacio']; // vacio
     // Contamos los registros que tiene la tabla
     $consulta = "SELECT count(linea) as total FROM " . $nombretabla;
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
