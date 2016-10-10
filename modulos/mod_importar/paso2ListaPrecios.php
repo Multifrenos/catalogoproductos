@@ -145,7 +145,7 @@
                         $("#resultado").html("Buscando en table lista precios, espere por favor...");
                     },
                     success: function (response) {
-                        if (response == null) {
+                        if (response.length == 0) {
                             // Al buscar en contar registros en tabla listaprecios ;
                             // no encuentrar ningún registro con el estado vacio.
                             alert("En BDimportarRecambio la tabla "+ nombretabla + "\n no tiene ningún registro con su estado en vacio \n por lo que no se hace comprobación.");

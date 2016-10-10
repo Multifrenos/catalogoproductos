@@ -29,16 +29,17 @@ function borrar($nombretabla, $BDImportRecambios) {
 }
 
 function contarVacios($nombretabla, $BDImportRecambios) {
+    $arrayContarVacios = array();
     $consulta = "SELECT RefFabPrin,linea FROM " . $nombretabla . " where Estado = ''";
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
     $i = 0;
     while ($row_planets = $consultaContador->fetch_assoc()) {
-        $array[$i]["id"] = $row_planets['RefFabPrin'];
-        $array[$i]["linea"] = $row_planets['linea'];
+        $arrayContarVacios[$i]["id"] = $row_planets['RefFabPrin'];
+        $arrayContarVacios[$i]["linea"] = $row_planets['linea'];
         $i++;
     }
     header("Content-Type: application/json;charset=utf-8");
-    echo json_encode($array);
+    echo json_encode($arrayContarVacios);
 }
 
 function contarVaciosCru($BDImportRecambios) {
@@ -60,6 +61,7 @@ function contarVaciosCru($BDImportRecambios) {
 }
 
 function verNuevosRef($BDImportRecambios) {
+    $array = array();
     $consulta = "Select * From listaprecios";
     $conNuevo = mysqli_query($BDImportRecambios, $consulta);
     $i = 0;
@@ -283,7 +285,7 @@ function anahirRecam($BDRecambios) {
         if ($consultaReca == true){
             $contador = $consultaReca->fetch_assoc();
         }
-        $margen = $contador['margen'];
+        $margen = $margen + $contador['margen'];
         $iva .= $contador['iva'];
         if ($coste != 0 && $margen !=0 && $iva !=0 ){
         $pvp = ($coste + (($coste * $margen) / 100)) * $iva;

@@ -10,12 +10,13 @@
         <?php
         include './../../header.php';
         // Inicio de variables
-			$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
-			//~ $dir_subida = '/tmp/'; // Lugar donde el servidor indica que guarda los tmp
+		$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
+		// Si se acaba de subir el fichero crea la variable $fichero_subido.. sino NO la crea
+		// Realizamos if porque generaba un error ( servidor )
+		if (isset($_FILES['fichero_usuario']['name'])){ 
 			$ficheroNombre= $_FILES['fichero_usuario']['name'];
-
-        //~ $fichero_subido = $dir_subida . basename($_FILES['fichero_usuario']['name']);
 			$fichero_subido = $ConfDir_subida . $ficheroNombre;
+		} 
 
         $errorFichero = '';
         $correcto = '';
@@ -34,7 +35,7 @@
                 // Ahora comprobamos si existe el fichero en cuestión en /tmp
 			if (file_exists ($ConfDir_subida.$ficheroNombre)){
                     echo '<div class="alert alert-info">';
-                    echo 'No se subió fichero se salto ese paso , el fichero que vamos analizar es:' . $ficheroNombre;
+                    echo $nosesubiofichero.'No se subió fichero se salto ese paso , el fichero que vamos analizar es:' . $ficheroNombre;
                     echo '</div>';
                 } else {
 				$errorFichero= "- No se subio fichero y tampoco hemos encontrado el fichero en directori ".$ConfDir_subida.$ficheroNombre."<br/>";
