@@ -1,25 +1,69 @@
+<?php 
+// Este fichero lo mostramos despues de enviar fichero o saltamos al paso 2 de cualquiera
+// de los tres ficheros que podemos subir.
+// OBJETIVO PRINCIPAL:
+// Poder seleccionar que registros vamos a subir, un intervalo.
+// Antes de nada , es decir antes poder mostrar el formulario debemos hacer una serie de 
+// comprobaciones.
+// 	1.- Identificar si acabamos de subir fichero o no.
+//	2.- Si acabamos de subir el fichero, los guardamos en tmp con el nombre que tiene el fichero recien subido.
+//	3.- Se comprueba que sea correcto nombre del fichero. ( Esto a lo mejor debería cambiarse.... )
+// 		Si produce un error , aquí no se permite continuar.... 
+// 	4.- Creamos variables para cada tipo fichero con el numero campos posibles  y los campos a cubrir vacios o por defecto.
+//	5.- Contamos si la tabla tiene registros o no.
+// 	6.- Contamos las lineas que tiene el fichero...
+//	7.- Mostramos errores y información...y formulario.
+// NOTA: No se muestra formulario de intervalos de lineas y se produce errores graves como:
+// 		1.- No existe fichero en directorio tmp
+// 		2.- No hay conexion a la base de datos.
+
+
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
         <?php
         include './../../head.php';
+		// Realizamos conexión a Base datos
+        include ("./../mod_conexion/conexionBaseDatos.php");
         ?>
-        <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
     </head>
     <body>
         <?php
         include './../../header.php';
         // Inicio de variables
-		$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
-		// Si se acaba de subir el fichero crea la variable $fichero_subido.. sino NO la crea
-		// Realizamos if porque generaba un error ( servidor )
-		if (isset($_FILES['fichero_usuario']['name'])){ 
+			$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
+			$errorFichero = '';
+			$correcto = '';	
+		// Ahora comprobamos si acabamos subir fichero o nos saltamos ese paso.
+        if (isset($_GET["fichero"])) {
+			// Si nos saltamos el paso, entonces ponemos extensión
+            $ficheroNombre = $_GET["fichero"] . '.csv';
+
+		} else {
+			// Quiere decir que se acaba subir... Aunque tiene porque... :-)
 			$ficheroNombre= $_FILES['fichero_usuario']['name'];
 			$fichero_subido = $ConfDir_subida . $ficheroNombre;
-		} 
-
-        $errorFichero = '';
-        $correcto = '';
+		}
+		
+		// Creamos variable numero campos, campos a cubrir, y nombre tabla, segun para que fichero estemos tratando.
+			if ($ficheroNombre == "ReferenciasCruzadas.csv") {
+				$NumeroCamposCsv = 3;
+				$CamposSinCubrir = "0','0";
+				$nombretabla = "referenciascruzadas";
+			}
+			if ($ficheroNombre == "ReferenciasCversionesCoches.csv") {
+				$NumeroCamposCsv = 3;
+				$nombretabla = "referenciasCversiones";
+			}
+			if ($ficheroNombre == "ListaPrecios.csv") {
+				$NumeroCamposCsv = 3;
+				$nombretabla = "listaprecios";
+				$CamposSinCubrir = "0";
+			}
+			
         ?>
         <div class="container">
             <div class="col-md-12 text-center">
@@ -31,14 +75,13 @@
             //   - Queremos continuar con el proceso pero en otros registros.
 
             if (isset($_GET["fichero"])) {
-                $ficheroNombre = $_GET["fichero"] . '.csv';
                 // Ahora comprobamos si existe el fichero en cuestión en /tmp
-			if (file_exists ($ConfDir_subida.$ficheroNombre)){
-                    echo '<div class="alert alert-info">';
-                    echo $nosesubiofichero.'No se subió fichero se salto ese paso , el fichero que vamos analizar es:' . $ficheroNombre;
-                    echo '</div>';
+				if (file_exists ($ConfDir_subida.$ficheroNombre)){
+                    echo '<div class="col-md-12"><div class="alert alert-info">';
+                    echo 'No se subió fichero se salto ese paso , el fichero que vamos analizar es:<strong>' . $ficheroNombre;
+                    echo '</strong></div></div>';
                 } else {
-				$errorFichero= "- No se subio fichero y tampoco hemos encontrado el fichero en directori ".$ConfDir_subida.$ficheroNombre."<br/>";
+				$errorFichero= "- No SE SUBIO fichero y NO EXISTE el fichero en directorio temporal:<strong> ".$ConfDir_subida.$ficheroNombre."</strong><br/>";
                 }
             } else {
                 // Caso contrario es que no se paso nombre fichero por url
@@ -47,7 +90,10 @@
                     $correcto = " - El fichero acaba subir y existe en directorio temporal.<br/>";
                 } else {
                     // No debería haber llegado nunca aquí, hay error.
-                    $errorFichero = $errorFichero . "- Hubo un error en la carga del fichero.<br/>Linea 45 de fichero recibircsv.php mod_importar<br/>AVISAR SERVICIO TECNICO<br/>";
+                    $errorFichero = $errorFichero . "- Hubo un error en la carga del fichero.<br/>
+											Revisa el nombre del fichero,<br/>
+											Error se produce en fichero recibircsv.php mod_importar ( linea 45)<br/>
+											AVISAR SERVICIO TECNICO<br/>";
                 }
             }
             if (!in_array($ficheroNombre, $ficherosposibles)) {
@@ -58,7 +104,23 @@
                     $errorFichero = $errorFichero . "- Fichero " . $ficheroNombre . " no es un nombre de fichero correcto.<br/>Los nombre de ficheros que puede utilizar son:<br/>-" . implode("<br/>-", $ficherosposibles);
                 }
             }
-
+			// Comprobamos si la conexion fue correcta ( include conexion )
+			if ($BDImportRecambios->controlError) {
+				// Comprobamos si fallos la conexión con la base de datos.
+				$errorFichero.= "<strong>Error en conexión:</strong>".$BDImportRecambios->controlError.'<br/>';
+			}
+			// Realizamos conexión para contar si tiene registros. $cuenta
+			$consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
+			$consultaContador = mysqli_query($BDImportRecambios, $consulta);
+			if($consultaContador == true){
+			// Recogemos en variable $contador la variable de la consulta [cuenta]
+			$contador = $consultaContador->fetch_assoc();
+			} else {
+			// Quiere decir que no es correcta la consulta, por lo que se produce un error.
+			$errorFichero.= "<strong>Error en consulta:</strong><br/>".mysqli_error($BDImportRecambios)."<br/>";
+			$errorFichero.= "<strong>Instrucción SQL enviada:</strong><br/>".$consulta."<br/>";
+			
+			}
             // Este error hacemos que no continue comprobando que salga.
             if ($errorFichero != '') {
                 ?>
@@ -66,39 +128,25 @@
                     <strong>ERRORES <br/></strong>
                     <?php echo $errorFichero; ?>
                 </div>	
-            </div> <!-- Cerramos div container ya que no continuamos -->
-        </body>
-    </html>
-    <?php
-    return;
-}
-include ("./../mod_conexion/conexionBaseDatos.php");
-if ($ficheroNombre == "ReferenciasCruzadas.csv") {
-    $NumeroCamposCsv = 3;
-    $CamposSinCubrir = "0','0";
-    $nombretabla = "referenciascruzadas";
-}
-if ($ficheroNombre == "ReferenciasCversionesCoches.csv") {
-    $NumeroCamposCsv = 3;
-    $nombretabla = "referenciasCversiones";
-}
-if ($ficheroNombre == "ListaPrecios.csv") {
-    $NumeroCamposCsv = 3;
-    $nombretabla = "listaprecios";
-    $CamposSinCubrir = "0";
-}
-$consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
-$consultaContador = mysqli_query($BDImportRecambios, $consulta);
-if($consultaContador == true){
-    $contador = $consultaContador->fetch_assoc();
-}
-mysqli_close($BDImportRecambios);
+					</div> <!-- Cerramos div container ya que no continuamos -->
+				</body>
+			</html>
+			<?php
+			return;
+			}
+
+
+
+
+// Creamos advertencia , que tiene o no registros.
 if ($contador['cuenta'] == '0') {
     $correcto.= "- Tabla temporal sin reguistros <br/>";
 } else {
     $errorFichero.= "- La tabla temporal contiene " . $contador['cuenta'] . " registros <br/>"
             . "- Al pulsar importar se borraran los reguistros de la tabla";
 }
+// Cierro conexión... 
+mysqli_close($BDImportRecambios);
 ?>
 
 
