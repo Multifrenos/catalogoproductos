@@ -64,15 +64,19 @@ function verNuevosRef($BDImportRecambios) {
     $array = array();
     $consulta = "Select * From listaprecios";
     $conNuevo = mysqli_query($BDImportRecambios, $consulta);
-    $i = 0;
-    while ($row_planets = $conNuevo->fetch_assoc()) {
-        $array[$i]['coste'] = $row_planets['Coste'];
-        $array[$i]['des'] = $row_planets['Descripcion'];
-        $array[$i]['ref'] = $row_planets['RefFabPrin'];
-        $array[$i]['estado'] = $row_planets['Estado'];
-        $array[$i]['id'] = $row_planets['RecambioID'];
-        $i++;
-    }
+    //~ if ($conNuevo = $BDImportRecambios->query($consulta)){
+		$i = 0;
+		while ($row_planets = $conNuevo->fetch_assoc()) {
+			$array[$i]['coste'] = $row_planets['Coste'];
+			$array[$i]['des'] = $row_planets['Descripcion'];
+			$array[$i]['ref'] = $row_planets['RefFabPrin'];
+			$array[$i]['estado'] = $row_planets['Estado'];
+			$array[$i]['id'] = $row_planets['RecambioID'];
+			$i++;
+		}
+	//~ } else {
+		$array['error'] = ' Error en consulta';
+		//~ }
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($array);
 }
@@ -270,18 +274,20 @@ function anahirRecam($BDRecambios) {
         $BDRecambios->query($consulta);
         $resFinal2 = $BDRecambios->insert_id;
     } else {
-        $cnsulta = "select * from recambios where id =" . $id;
-        $consultaReca = mysqli_query($BDRecambios, $cnsulta);
-        if ($consultaReca == true){
-            $contador = $consultaReca->fetch_assoc();
-        }
-        $margen = $margen + $contador['margen'];
-        $iva .= $contador['iva'];
-        if ($coste != 0 && $margen !=0 && $iva !=0 ){
-        $pvp = ($coste + (($coste * $margen) / 100)) * $iva;
+		if ($estado == "existe") {
+			$cnsulta = "select * from recambios where id =" . $id;
+			$consultaReca = mysqli_query($BDRecambios, $cnsulta);
+			if ($consultaReca == true){
+				$contador = $consultaReca->fetch_assoc();
+			}
+			$margen = $margen + $contador['margen'];
+			$iva .= $contador['iva'];
+			if ($coste != 0 && $margen !=0 && $iva !=0 ){
+			$pvp = ($coste + (($coste * $margen) / 100)) * $iva;
+			}
+			$modifcoste = "UPDATE `recambios` SET `coste`=" . $coste . ",`pvp`=" . $pvp . ",`FechaActualiza`='" . $fecha . "' WHERE `id` =" . $id;
+			mysqli_query($BDRecambios, $modifcoste);
 		}
-        $modifcoste = "UPDATE `recambios` SET `coste`=" . $coste . ",`pvp`=" . $pvp . ",`FechaActualiza`='" . $fecha . "' WHERE `id` =" . $id;
-        mysqli_query($BDRecambios, $modifcoste);
     }
 }
 

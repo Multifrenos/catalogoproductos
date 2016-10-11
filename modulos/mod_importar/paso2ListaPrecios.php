@@ -269,9 +269,13 @@
                     success: function (response) {
                         // cubrimos la linea final y lanzamos el ciclo
                         a = response.length;
-                        console.log(a);
-                        $("#resultado").html("Numero filas que devuelve verNuevasRef ="+ a);
-						alert( "Inicio de ciclo enterminar "+a);
+                        rs = response;
+
+                        console.log(' Voy a funcion anhadir');
+                        $("#resultado").html("<pre>"+rs+"</pre>Numero filas que devuelve verNuevasRef ="+ a);
+						alert( "Inicio de ciclo terminar \n"+ "Id Inicial:"+ b +"\n Id Final" + a);
+                        rs = response;
+                        
                         anhadir(response);
 
                     }
@@ -280,7 +284,11 @@
             }
             // lanza el ciclo
             function anhadir(response) {
+                // Guardamos array con los datos listaprecios temporal
                 rs = response;
+                
+                b = 1;
+                console.log('rs'+ rs[b]);
                 set = setInterval("anhadirnuevos()", 1000);
 
             }
@@ -288,7 +296,13 @@
             // si es nuevo crea el articulo en recambios  a continuación cubre la relación recambio - familia
             // para terminar el proceso de nuevo la relaccion referenciascruzadas
             // existe actualiza el coste
-            function anhadirnuevos() {
+            function anhadirnuevos(rs) {
+				console.log('B:'+ b);
+				console.log('a:'+ a);
+				console.log('Referencia:');
+				//~ console.log(rs[b].ref);
+				console.log('Estado:');
+				console.log(rs[b].estado);
 
                 if (b < a) {
 
