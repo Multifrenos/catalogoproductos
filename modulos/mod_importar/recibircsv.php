@@ -23,12 +23,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-		<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
         <?php
         include './../../head.php';
 		// Realizamos conexión a Base datos
         include ("./../mod_conexion/conexionBaseDatos.php");
         ?>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
     </head>
     <body>
         <?php
@@ -260,6 +260,16 @@ mysqli_close($BDImportRecambios);
         <div>
             <a href="paso2<?php echo substr($ficheroNombre, 0, -4) . '.php'; ?>">Saltar esté paso 1 y al paso 2</a>
         </div>
+         <div class="progress" style="margin:0 100px">
+            <div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                0 % completado
+                <!--
+                                                                <span id="spanProceso" class="sr-only">0% Complete</span>
+                -->
+            </div>
+        </div>
+        <div id="resultado">
+        </div>
         <!-- Script para ejecutar funcion php -->
         <script>
             // La variables lineaActual y lineaF son globales .
@@ -324,16 +334,6 @@ mysqli_close($BDImportRecambios);
 
 
 
-        <div id="resultado">
-        </div>
-        <div class="progress" style="margin:100px">
-            <div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-                0 % completado
-                <!--
-                                                                <span id="spanProceso" class="sr-only">0% Complete</span>
-                -->
-            </div>
-        </div>
     </div>	
     <?php ?>
 
