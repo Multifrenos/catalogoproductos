@@ -2,7 +2,7 @@
 /************************************************************************************************/
 /*************   Realizamos conexion de base de datos de ImportarRecambios.          ************/
 /************************************************************************************************/
-$BDImportRecambios = new mysqli("localhost", "coches", "coches", "iportarrecambios");
+$BDImportRecambios = new mysqli("localhost", "coches", "coches", "importarrecambios");
 // Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 
 // está vacía, si no se produce error.
 if ($BDImportRecambios->connect_errno) {

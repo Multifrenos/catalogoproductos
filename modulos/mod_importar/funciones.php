@@ -1,10 +1,15 @@
 <?php
 /* Con el switch al final y variable $pulsado
  *     	$pulsado = 'borrar'					-> Ejecuta borrar($nombretabla, $BDImportRecambios);
+ * 												Se ejecuta en Paso 1  (todos los ficheros )
  *     	$pulsado = 'contar'					-> Ejecuta contador($nombretabla, $BDImportRecambios);
+ * 												Se ejecuta en Paso 2 de ListaPrecios --->
  * 		$pulsado = 'comprobar'				-> Ejecuta comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
  * 		$pulsado = 'contarVacios'			-> Ejecuta contarVacios($nombretabla, $BDImportRecambios);
+ * 												Se ejecuta en Paso 2 de ListaPrecios --> 
+ * 												Cuando pulsamos en comprobar... despues de seleccionar familia y fabricante.
  * 		$pulsado = 'verNuevos'				-> Ejecuta verNuevosRef($BDImportRecambios);
+ * 												Se ejecuta en Paso 3 de ListaPrecios.
  * 		$pulsado = 'anahirRecam'			-> Ejecuta anahirRecam($BDRecambios);
  * 		$pulsado = 'BuscarError'			-> Ejecuta BuscarError($BDImportRecambios);
  * 		$pulsado = 'BuscarErrorFab'			-> Ejecuta BuscarErrorFab($BDImportRecambios);
@@ -16,19 +21,27 @@
  * 
  *  */
 
-
-
+/* ===============  REALIZAMOS CONEXIONES  ===============*/
 
 include ("./../mod_conexion/conexionBaseDatos.php");
+// creo que esta recogida de datos debe estar antes swich y solo pulsado.
+// la tabla solo en la opción que la necesite.
 $nombretabla = $_POST['nombretabla'];
 $pulsado = $_POST['pulsado'];
 
+/* ===============  FUNCIONES  ===========================*/
+/* Function borrar -> Se ejecuta en PASO 1
+ * 		Todos los ficheros 
+ * */
 function borrar($nombretabla, $BDImportRecambios) {
     $consulta = "Delete from " . $nombretabla;
     mysqli_query($BDImportRecambios, $consulta);
 }
-
+/* Function contarVacios-> Se ejecuta en Paso 2 de ListaPrecios 
+ * Cuando pulsamos en comprobar... despues de seleccionar familia y fabricante.
+ * */
 function contarVacios($nombretabla, $BDImportRecambios) {
+    // En arrayContarVacios traemos RefFabPrin y linea de los que tengan el estado vació.
     $arrayContarVacios = array();
     $consulta = "SELECT RefFabPrin,linea FROM " . $nombretabla . " where Estado = ''";
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
@@ -41,7 +54,9 @@ function contarVacios($nombretabla, $BDImportRecambios) {
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($arrayContarVacios);
 }
-
+ /* Funtion contarVaciosCru
+  * 
+  * */
 function contarVaciosCru($BDImportRecambios) {
     $consulta = "SELECT * FROM `referenciascruzadas` where Estado = '' limit 400";
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
@@ -59,12 +74,15 @@ function contarVaciosCru($BDImportRecambios) {
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($array);
 }
-
+/* Funtion verNuevosRef -->  Ejecuta verNuevosRef($BDImportRecambios);
+ * Se ejecuta en Paso 3 de ListaPrecios.
+ * 
+ * */
 function verNuevosRef($BDImportRecambios) {
     $array = array();
     $consulta = "Select * From listaprecios";
     $conNuevo = mysqli_query($BDImportRecambios, $consulta);
-    //~ if ($conNuevo = $BDImportRecambios->query($consulta)){
+    if ($conNuevo == true){
 		$i = 0;
 		while ($row_planets = $conNuevo->fetch_assoc()) {
 			$array[$i]['coste'] = $row_planets['Coste'];
@@ -74,9 +92,9 @@ function verNuevosRef($BDImportRecambios) {
 			$array[$i]['id'] = $row_planets['RecambioID'];
 			$i++;
 		}
-	//~ } else {
+	} else {
 		$array['error'] = ' Error en consulta';
-		//~ }
+		}
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($array);
 }
@@ -133,7 +151,13 @@ function BuscarErrorFab($BDImportRecambios) {
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($array);
 }
-
+/* =========================  Funcion de consulta  ========================================*/
+   // Encontramos que la tabla listaprecios tiene registros con el estado VACIO, entonces 
+   // comprobamos en la tabla REFERENCIASCRUZADAS de BD de RECAMBIOS, si existe la referencia
+   // 		-Si existe se pone en ESTADO = "existe"
+   // 		-NO existe se pone en ESTADO = "nuevo"
+   // Estos cambios son el campor ESTADO de la tabla LISTAPRECIOS de BD IMPORTARRECAMBIOS.
+            
 function comprobar($nombretabla, $BDImportRecambios, $BDRecambios) {
     $id = $_POST['idrecambio'];
     $l = $_POST['linea'];
@@ -304,7 +328,7 @@ function errorFab($BDImportRecambios, $BDRecambios) {
     }
 }
 
-function resumen($BDImportRecambios) {
+function resumenCruz($BDImportRecambios) {
 
     $consulta = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[RefFabPrin no existe]'";
     $conmys = mysqli_query($BDImportRecambios, $consulta);
@@ -329,6 +353,7 @@ function resumen($BDImportRecambios) {
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }
+/* ===============  SWICH PARA EJECUTAR FUNCIONES SEGUN OPCION (PULSADO) ===============*/
 
 switch ($pulsado) {
     case 'borrar':
@@ -359,7 +384,7 @@ switch ($pulsado) {
         errorFab($BDImportRecambios, $BDRecambios);
         break;
     case 'resumen':
-        resumen($BDImportRecambios);
+        resumenCru($BDImportRecambios);
         break;
     case 'contarVacioscruzados':
         contarVaciosCru($BDImportRecambios);
@@ -369,6 +394,7 @@ switch ($pulsado) {
         break;
 }
 
+/* ===============  CERRAMOS CONEXIONES  ===============*/
 
 mysqli_close($BDImportRecambios);
 mysqli_close($BDRecambios);

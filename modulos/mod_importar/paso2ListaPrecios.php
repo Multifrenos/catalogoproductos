@@ -87,6 +87,7 @@
         </div>
 
         <script>
+			/* =====================  DEFINIMOS VARIABLES GLOBALES DE JAVASCRIPT ===================== */
             // Referencias existentes
             var e = 0;
             // Referencias nuevas
@@ -103,9 +104,17 @@
             var rs;
             // id familia
             var fa;
-            // Llegamos a la funcion ComprobarPaso2ListaPrecios --> Al pulsar en comprobar .
-            // Lo que hacemos es comprobar cuantos registros tiene y cuantos tienes el estado vacio.
-            // Si hay vacios , entonces iniciamos ciclo, sino solo presentamos resumen.
+			// Nombre de la tabla 
+            var nombretabla = "listaprecios";
+            
+            
+            /* ===================== Funcion de ComprobarPaso2ListaPrecios   ========================*/
+            // Llegamos a esta funcion al pulsar comprobar, si tabla tiene algún campo vacio.
+            // Lo que hacemos :
+            // 		1.- Comprobar si selecciono familias y fabricante.
+            //		2.-	Contar registros tiene y cuantos tienes el estado vacio.
+            // Y si hay vacios entonces iniciamos el ciclo, para que comprueb si son nuevos o existentes.
+            // Si NO hay vacios , entonces solo presentamos resumen y presentamos bottom comprobar.
             function ComprobarPaso2ListaPrecios(fabricante, familia) {
                 fa = familia;
                 f = fabricante;
@@ -131,7 +140,6 @@
                 // Mostramos cuadro de Resumen.
                 document.getElementById('CjaComprobar').style.display = 'block';
                
-                var nombretabla = "listaprecios";
                 var parametros = {
                     'nombretabla': nombretabla,
                     'pulsado': 'contarVacios'
@@ -145,16 +153,20 @@
                         $("#resultado").html("Buscando en table lista precios, espere por favor...");
                     },
                     success: function (response) {
-                        if (response.length == 0) {
+						if (response.length == 0) {
                             // Al buscar en contar registros en tabla listaprecios ;
                             // no encuentrar ningún registro con el estado vacio.
                             alert("En BDimportarRecambio la tabla "+ nombretabla + "\n no tiene ningún registro con su estado en vacio \n por lo que no se hace comprobación.");
+                            // Contamos registros que tiene la tabla. ( nuevos, existentes y erroneos. )
+	
                             resumen(nombretabla);
                             document.getElementById('Paso3').style.display = 'block';
 
                         } else {
+							// Registros vacio.
+							a = response.length;
+							alert ( "Hemos encontrador"+ a + " vacios");	
                             // cargamos en la variable a el final de linea que es el total de registros del array
-                            a = response.length;
                             // iniciamos el ciclo
                             ciclo(response);
                         }
@@ -163,9 +175,15 @@
                 });
 
             }
-            // función que va a comprobar si existe en la tabla referenciaz Cruzadas si existe El estado
-            // en lista de precios ponemos existe y añadimos el id del recambio
-            // si es nuevo añadimos nuevo en el estado de lista de precios
+            
+           
+			/* =========================  Funcion de consulta  ========================================*/
+            // Encontramos que la tabla listaprecios tiene registros con el estado VACIO, entonces 
+            // comprobamos en la tabla REFERENCIASCRUZADAS de BD de RECAMBIOS, si existe la referencia
+            // 		-Si existe se pone en ESTADO = "existe"
+            // 		-NO existe se pone en ESTADO = "nuevo"
+            // Estos cambios son el campor ESTADO de la tabla LISTAPRECIOS de BD IMPORTARRECAMBIOS.
+            
             function consulta() {
             // si la línea intermedia es menor que la línea final iniciamos el bucle
                 if (b < a) {
@@ -185,7 +203,7 @@
                         datatype: 'json',
                         data: parametros,
                         beforeSend: function () {
-                            $("#resultado").html('Comprobando estado de tabla temporal...<span><img src="./img/ajax-loader.gif"/></span>');
+                            $("#resultado").html('Cubriendo estado de tabla temporal...<span><img src="./img/ajax-loader.gif"/></span>');
                         },
                         success: function (response) {
                            
@@ -206,7 +224,7 @@
                 } else {
                     // cuando acaba el ciclo creamos el campo terminar y cerramos el bucle
                     document.getElementById('Paso3').style.display = 'block';
-
+					$("#resultado").html('Pulsa terminar si quieres crear los recambios nuevos,										\n o modificar los precios de los existentes.')
                     clearInterval(set);
                     b = 0;
 
@@ -215,9 +233,12 @@
             }
             // Empezamos el ciclo de comprobar si es nuevo, existe o tiene un error
             function ciclo(response) {
-                rs = response;
+				rs = response ;
                 set = setInterval("consulta()", 500);
             }
+            /* =========================  Funcion de resumen  ========================================*/
+            // Si en CompravarPaso2Listaprecios NO encuentrar en la tabla listaprecios tiene registros con el estado VACIO, entonces nos trae aquí. 
+            // En donde realizamos RESUMEN, es decir comprueba cuantos registros hay y cuantos son nuevo o existentes.
             
             function resumen (nombretabla){
 				var nombretabla = "listaprecios";
@@ -243,7 +264,7 @@
                             $("#vacio").html(response['v']);
                             $("#nuevos").html(response['n']);
                             $("#existentes").html(response['e']);
-                            $("#resultado").html('Pulsa terminar para empezar añadir en BDRecambios');
+                            $("#resultado").html('Pulsa terminar si quieres crear los recambios nuevos,								\n o modificar los precios de los existentes.')
                             return;
 
                         }
@@ -268,30 +289,21 @@
                     },
                     success: function (response) {
                         // cubrimos la linea final y lanzamos el ciclo
+                  
                         a = response.length;
                         rs = response;
 
                         console.log(' Voy a funcion anhadir');
-                        $("#resultado").html("<pre>"+rs+"</pre>Numero filas que devuelve verNuevasRef ="+ a);
+                        $("#resultado").html("Coste:<pre>"+rs[b].estado+"</pre>Numero filas que devuelve verNuevasRef ="+ a);
 						alert( "Inicio de ciclo terminar \n"+ "Id Inicial:"+ b +"\n Id Final" + a);
-                        rs = response;
                         
-                        anhadir(response);
+                        anhadir(rs);
 
                     }
                 });
 
             }
-            // lanza el ciclo
-            function anhadir(response) {
-                // Guardamos array con los datos listaprecios temporal
-                rs = response;
-                
-                b = 1;
-                console.log('rs'+ rs[b]);
-                set = setInterval("anhadirnuevos()", 1000);
-
-            }
+            
             // esta función va a hacer el paso definitivo que es el siguientes:
             // si es nuevo crea el articulo en recambios  a continuación cubre la relación recambio - familia
             // para terminar el proceso de nuevo la relaccion referenciascruzadas
@@ -365,6 +377,18 @@
                 return;
 
             }
+            
+            
+           // lanza el ciclo
+            function anhadir(response) {
+                // Guardamos array con los datos listaprecios temporal
+                //~ rs = response;
+                
+                b = 1;
+                console.log('rs'+ rs[b]);
+                set = setInterval("anhadirnuevos(rs)", 1000);
+
+            } 
         </script>
     </body>
 </html>
