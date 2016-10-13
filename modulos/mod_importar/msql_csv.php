@@ -40,6 +40,8 @@ $archivo = fopen($fichero,'r');
 $num_linea = 0;
 //Recuerda que la linea empieza en 0
 	while (!feof ($archivo)) {
+		$Estado = '';// inicilializamos estado
+		
 		$linea = $num_linea;
 		$Textolinea = fgets($archivo);
 		if  ($linea >= $lineaA)
@@ -47,11 +49,18 @@ $num_linea = 0;
 		   
 		   if($linea < $lineaF) 
 		   { 
-				//abrimos condición, solo entrará en la condición a partir de la segunda pasada del bucle.
-				/* La funcion explode nos ayuda a delimitar los campos, por lo tanto irá 
-				leyendo hasta que encuentre un ; */
-				//~ echo $linea.' '.$Textolinea.'<br/>';
 				
+				// Ahora comprobamos que la linea contiene datos sino añadimo error en estado.
+				$limpiamosLinea = str_replace(",","",$Textolinea); // Quitamos (,)
+				$limpiamosLinea = str_replace(".","".$limpiamosLinea); // Quitamos (.)
+				$limpiamosLinea = str_replace("0","".$limpiamosLinea); // Quitamos (0)
+				$limpiamosLinea = str_replace(" ","".$limpiamosLinea); // Quitamos ( ) espacio..
+				if (strlen($limpiamosLinea) == 0) {
+					$Estado = 'Error linea vacia';
+				}
+
+
+				 
 				
 				$datos = str_getcsv($Textolinea,"," ,'"');
 				//~ $datos = explode(",",$Textolinea);
@@ -63,11 +72,11 @@ $num_linea = 0;
 				}
 				
 				
-			   // Antes de guardar cuantos campo hay
+			   // Antes de guardar comprobamos cuantos campo hay
 				if (count($datos) !== $NumeroCamposCsv){
 				$Estado = 'Campos'.count($datos).' Linea:'.$linea;
 				} else {
-				$Estado = '';
+				$Estado . = '';
 				}
 			   
 			   //guardamos en base de datos la línea leida
