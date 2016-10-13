@@ -26,7 +26,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `CrucesReferencias`
 --
 
-CREATE TABLE IF NOT EXISTS `CrucesReferencias` (
+CREATE TABLE IF NOT EXISTS `cruces_referencias` (
 `id` int(11) NOT NULL,
   `idReferenciaCruz` int(11) NOT NULL,
   `idRecambio` int(11) NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `CrucesReferencias` (
 --
 -- Indexes for table `CrucesReferencias`
 --
-ALTER TABLE `CrucesReferencias`
+ALTER TABLE `cruces_referencias`
  ADD PRIMARY KEY (`id`);
 
 --
@@ -50,7 +50,7 @@ ALTER TABLE `CrucesReferencias`
 --
 -- AUTO_INCREMENT for table `CrucesReferencias`
 --
-ALTER TABLE `CrucesReferencias`
+ALTER TABLE `cruces_referencias`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

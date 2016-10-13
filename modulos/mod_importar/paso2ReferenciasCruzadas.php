@@ -209,7 +209,7 @@
                     <!--                    <div class="form-group">
                     <?php
                     // Realizamos consulta de Fabricantes
-                    $consultaFamilias = mysqli_query($BDRecambios, "SELECT `id`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
+                    $consultaFamilias = mysqli_query($BDRecambios, "SELECT `id`,`Familia_es` FROM `familias_recambios` ORDER BY `Familia_es`");
                     // Ahora montamos htmlopciones
                     while ($fila = $consultaFamilias->fetch_assoc()) {
                         $htmlfamilias .= '<option value="' . $fila["id"] . '">' . $fila["Familia_es"] . '</option>';

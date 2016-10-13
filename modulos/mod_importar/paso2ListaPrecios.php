@@ -28,7 +28,7 @@
                     <div class="form-group">
                         <?php
                         // Realizamos consulta de Fabricantes
-                        $consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `FabricantesRecambios` ORDER BY `Nombre`");
+                        $consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `fabricantes_recambios` ORDER BY `Nombre`");
                         // Ahora montamos htmlopciones
                         while ($fila = $consultaFabricantes->fetch_assoc()) {
                             $htmloptiones.='<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>\n';
@@ -44,7 +44,7 @@
                     <div class="form-group">
                         <?php
                         // Realizamos consulta de Fabricantes
-                        $consultaFamilias = mysqli_query($BDRecambios, "SELECT `id`,`Familia_es` FROM `FamiliasRecambios` ORDER BY `Familia_es`");
+                        $consultaFamilias = mysqli_query($BDRecambios, "SELECT `id`,`Familia_es` FROM `familias_recambios` ORDER BY `Familia_es`");
                         // Ahora montamos htmlopciones
                         while ($fila = $consultaFamilias->fetch_assoc()) {
                             $htmlfamilias.='<option value="' . $fila["id"] . '">' . $fila["Familia_es"] . '</option>';
@@ -72,7 +72,7 @@
                 <div id="Paso3" style="display:none;">
 					<div class='form-group align-right'>
 						<h2>PASO 3</h2>
-						<input type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/>
+						<input id="BtnTerminar" type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/>
 					</div>
                 </div>
                 <div class="col-md-12">
@@ -150,7 +150,7 @@
                     type: 'post',
                     datatype: 'json',
                     beforeSend: function () {
-                        $("#resultado").html("Buscando en table lista precios, espere por favor...");
+                        $("#resultado").html('Comprobando  familias y recambio, tb tiene regisros vacios la tabla lista precios,...<span><img src="./img/ajax-loader.gif"/></span>');
                     },
                     success: function (response) {
 						if (response.length == 0) {
@@ -212,7 +212,7 @@
                             
                          
                             
-                            $("#total").html(response[0].t+"/"+a);
+                            $("#vacio").html(response[0].t+"/"+a);
                             $("#nuevos").html(n);
                             $("#existentes").html(e);
                             b++;
@@ -309,12 +309,14 @@
             // para terminar el proceso de nuevo la relaccion referenciascruzadas
             // existe actualiza el coste
             function anhadirnuevos(rs) {
+				console.log('Entramos en anhadirnuevos');
 				console.log('B:'+ b);
 				console.log('a:'+ a);
 				console.log('Referencia:');
 				//~ console.log(rs[b].ref);
 				console.log('Estado:');
 				console.log(rs[b].estado);
+				console.log('Condicional de anhadirnuevos');
 
                 if (b < a) {
 
@@ -341,9 +343,8 @@
                         },
                         success: function (response) {
                             b++;
-                            document.getElementById('resultado').innerHTML='Repuesta Id='+ rs[b].id;
-
-                            console.log(b);
+                            document.getElementById('resultado').innerHTML='Repuesta RefFabriPrin='+ rs[b].ref;
+                            console.log('Repuesta anahirNuevo:'+ b);
                             
                             BarraProceso(b, a);
                         }
@@ -352,7 +353,10 @@
 
                 }else{
           clearInterval(set);
-                    b = 0;           
+          document.getElementById('resultado').innerHTML='Terminado el añadir recambios nuevos y cambio precio existente.';
+
+
+          b = 0;           
         }
             }
             // JavaSCRIPT para modulo de importar de Catalogo de productos.
@@ -381,12 +385,12 @@
             
            // lanza el ciclo
             function anhadir(response) {
-                // Guardamos array con los datos listaprecios temporal
-                //~ rs = response;
-                
+				// Vamos empezar ciclo, por lo que deactivamos botton de terminar , para que no de otra vez
+				document.getElementById("BtnTerminar").disabled = true;
+
                 b = 1;
                 console.log('rs'+ rs[b]);
-                set = setInterval("anhadirnuevos(rs)", 1000);
+                set = setInterval("anhadirnuevos(rs)", 2000);
 
             } 
         </script>

@@ -311,7 +311,7 @@ mysqli_close($BDImportRecambios);
                         url: 'funciones.php',
                         type: 'post',
                         beforeSend: function () {
-                            $("#resultado").html("Procesando, espere por favor...");
+                            $("#resultado").html('Borrando tabla ListaPrecios, espere por favor...<span><img src="./img/ajax-loader.gif"/></span>');
                         },
                         success: function (response) {
                             lineaF = valorCaja2;

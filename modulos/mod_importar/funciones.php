@@ -39,6 +39,9 @@ function borrar($nombretabla, $BDImportRecambios) {
 }
 /* Function contarVacios-> Se ejecuta en Paso 2 de ListaPrecios 
  * Cuando pulsamos en comprobar... despues de seleccionar familia y fabricante.
+ * OBJETIVO: 
+ * Traer un array con os registros que el estado esté vació.
+ * Traemos la RefFabPrin y linea.
  * */
 function contarVacios($nombretabla, $BDImportRecambios) {
     // En arrayContarVacios traemos RefFabPrin y linea de los que tengan el estado vació.
@@ -202,7 +205,7 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     $resul = mysqli_fetch_assoc($ejconRefFab);
     if ($resul) {
         $datos[0]['respuesta']="exite la referencia principal";
-        $busFacruz = "SELECT id FROM `fabricantesrecambios` WHERE Nombre = '" . $fab_ref . "'";
+        $busFacruz = "SELECT id FROM `fabricantes_recambios` WHERE Nombre = '" . $fab_ref . "'";
         $ejbusFacruz = mysqli_query($BDRecambios, $busFacruz);
         $resulFabCruz = mysqli_fetch_assoc($ejbusFacruz);
         $id = $resulFabCruz['id'];
@@ -212,13 +215,13 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
        $ejConCruRefFab= mysqli_query($BDRecambios,$ConCruRefFab);
          $resulCru= mysqli_fetch_assoc($ejConCruRefFab);
          if($resulCru){
-             $buscarcruces = "SELECT * FROM `crucesreferencias` where idReferenciaCruz =" . $resulCru['id'];
+             $buscarcruces = "SELECT * FROM `cruces_referencias` where idReferenciaCruz =" . $resulCru['id'];
             $consul = mysqli_query($BDRecambios, $buscarcruces);
             if($consul){
                 $consul = "UPDATE `referenciascruzadas` SET `Estado`='ya existia en crueces referencias' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
             mysqli_query($BDImportRecambios, $consul);
             }else{
-                $insert = "INSERT INTO `crucesreferencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $resulCru['id'] . "," . $resulCru['RecambioID'] . "," . $id. ")";
+                $insert = "INSERT INTO `cruces_referencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $resulCru['id'] . "," . $resulCru['RecambioID'] . "," . $id. ")";
                 $secInser = mysqli_query($BDRecambios, $insert);
                 $consul = "UPDATE `referenciascruzadas` SET `Estado`='no existia en cruce referencias' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
             mysqli_query($BDImportRecambios, $consul);
@@ -264,7 +267,10 @@ function anahirRecam($BDRecambios) {
     $iva = "1.";
     $pvp = 0; 
     if ($estado == "nuevo") {
-        $cons = "SELECT * FROM `familiasrecambios` WHERE id = " . $familia;
+		// Buscamos en familias_recambios la familia seleccionada.
+		// Obtener el descripcion de familia que lo necesitamos para meter descripcion de 
+		// producto.
+        $cons = "SELECT * FROM `familias_recambios` WHERE id = " . $familia;
         $consFa = mysqli_query($BDRecambios, $cons);
         if ($consFa == true){
             $bfa = $consFa->fetch_assoc();
@@ -274,7 +280,8 @@ function anahirRecam($BDRecambios) {
         } else {
         echo "algo";
         }
-        $consulFab = "SELECT * FROM `fabricantesrecambios` where id =" . $fabricante;
+		// Buscamos en fabricantes_recambios la familia seleccionada.
+        $consulFab = "SELECT * FROM `fabricantes_recambios` where id =" . $fabricante;
         $cFa = mysqli_query($BDRecambios, $consulFab);
         if ($cFa == true){
         $bFa = $cFa->fetch_assoc();
@@ -283,10 +290,10 @@ function anahirRecam($BDRecambios) {
         $desdef .= " " . $bFa['Nombre'];
         }
         $desdef .= " " . $descripcion;
-		if ($coste != 0 && $margen !=0 && $iva !=0 ){
-			$pvp = ($coste + (($coste * 40) / 100)) * 1.21;
-		}
-        $consul = "INSERT INTO " . $tab . "( `Descripcion`, `coste`, `margen`, `iva`, `pvp`, `IDFabricante`, `FechaActualiza`) VALUES ('" . $desdef . "'," . $coste . ",40,21," . $pvp . "," . $fabricante . "," . $fecha . ")";
+			
+		$pvp = ($coste + (($coste * 40) / 100)) * 1.21;
+
+        $consul = "INSERT INTO " . $tab . "( `Descripcion`, `coste`, `margen`, `iva`, `pvp`, `IDFabricante`, `FechaActualiza`) VALUES ('" . $desdef . "'," . $coste . ",40,21," . $pvp . "," . $fabricante . ",'" . $fecha ."')";
         $BDRecambios->query($consul);
         $resul = $BDRecambios->insert_id;
 
@@ -294,7 +301,7 @@ function anahirRecam($BDRecambios) {
         $BDRecambios->query($consulta);
         $resFinal = $BDRecambios->insert_id;
 
-        $consulta = "INSERT INTO `recambiosfamilias`( `IdRecambio`, `IdFamilia`) VALUES (" . $resul . "," . $familia . ")";
+        $consulta = "INSERT INTO `recamb_familias`( `IdRecambio`, `IdFamilia`) VALUES (" . $resul . "," . $familia . ")";
         $BDRecambios->query($consulta);
         $resFinal2 = $BDRecambios->insert_id;
     } else {
