@@ -42,13 +42,17 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <?php
-                        // Realizamos consulta de Fabricantes
-                        $consultaFamilias = mysqli_query($BDRecambios, "SELECT `id`,`Familia_es` FROM `familias_recambios` ORDER BY `Familia_es`");
+						<?php // Realizamos consulta de Fabricantes
+						$consultaFamilias = mysqli_query($BDRecambios,"SELECT `id`,`id_Padre`,`Familia_es` FROM `familias_recambios` ORDER BY `Familia_es`");
                         // Ahora montamos htmlopciones
                         while ($fila = $consultaFamilias->fetch_assoc()) {
-                            $htmlfamilias.='<option value="' . $fila["id"] . '">' . $fila["Familia_es"] . '</option>';
-                        }
+							if ($fila["id_Padre"]== 0){
+								$familia = $fila["Familia_es"];
+								} else {
+								$familia = '--> '.$fila["Familia_es"];
+                            }
+                            $htmlfamilias.='<option value="'.$fila["id"].'">'.$familia.'</option>';
+						}
                         $consultaFamilias->close();
                         ?>
                         <label class="control-label col-md-4">Familia a la que quieres añadir</label>
@@ -309,14 +313,14 @@
             // para terminar el proceso de nuevo la relaccion referenciascruzadas
             // existe actualiza el coste
             function anhadirnuevos(rs) {
-				console.log('Entramos en anhadirnuevos');
+				console.log('Estamos funcion (anhadirnuevos)');
 				console.log('B:'+ b);
 				console.log('a:'+ a);
-				console.log('Referencia:');
+				//~ console.log('Referencia:');
 				//~ console.log(rs[b].ref);
 				console.log('Estado:');
 				console.log(rs[b].estado);
-				console.log('Condicional de anhadirnuevos');
+				//~ console.log('Condicional de anhadirnuevos');
 
                 if (b < a) {
 
@@ -390,7 +394,7 @@
 
                 b = 1;
                 console.log('rs'+ rs[b]);
-                set = setInterval("anhadirnuevos(rs)", 2000);
+                set = setInterval("anhadirnuevos(rs)", 1000);
 
             } 
         </script>
