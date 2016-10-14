@@ -3,8 +3,8 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Oct 05, 2016 at 10:55 AM
--- Server version: 5.5.52-0+deb8u1
+-- Generation Time: Oct 14, 2016 at 12:13 PM
+-- Server version: 5.5.50-0+deb8u1
 -- PHP Version: 5.6.24-0+deb8u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -17,41 +17,35 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `Recambios`
+-- Database: `importarrecambios`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ReferenciasCruzadas`
+-- Table structure for table `referenciascruzadas`
 --
 
-CREATE TABLE IF NOT EXISTS `ReferenciasCruzadas` (
-`id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `referenciascruzadas` (
+  `linea` int(11) NOT NULL,
+  `RefProveedor` text COLLATE utf8_spanish_ci NOT NULL,
+  `Fabr_Recambio` text COLLATE utf8_spanish_ci NOT NULL,
+  `Ref_Fabricante` text COLLATE utf8_spanish_ci NOT NULL,
+  `Estado` text COLLATE utf8_spanish_ci NOT NULL,
   `RecambioID` int(11) NOT NULL,
-  `IdFabricanteCru` int(11) NOT NULL,
-  `RefFabricanteCru` text CHARACTER SET latin1 COLLATE latin1_spanish_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `IdFabricanteRec` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `ReferenciasCruzadas`
+-- Indexes for table `referenciascruzadas`
 --
-ALTER TABLE `ReferenciasCruzadas`
- ADD PRIMARY KEY (`id`);
+ALTER TABLE `referenciascruzadas`
+ ADD UNIQUE KEY `linea` (`linea`);
 
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `ReferenciasCruzadas`
---
-ALTER TABLE `ReferenciasCruzadas`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

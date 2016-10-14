@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.2.12deb2+deb8u1
+-- version 4.2.12deb2+deb8u2
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 23, 2016 at 01:23 PM
--- Server version: 5.5.49-0+deb8u1
--- PHP Version: 5.6.22-0+deb8u1
+-- Generation Time: Oct 14, 2016 at 12:00 PM
+-- Server version: 5.5.50-0+deb8u1
+-- PHP Version: 5.6.24-0+deb8u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,29 +17,29 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `Recambios`
+-- Database: `recambios`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `RecambiosFamilias`
+-- Table structure for table `recamb_familias`
 --
 
-CREATE TABLE IF NOT EXISTS `RecambiosFamilias` (
+CREATE TABLE IF NOT EXISTS `recamb_familias` (
 `id` int(11) NOT NULL,
   `IdRecambio` int(111) NOT NULL,
   `IdFamilia` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3131 DEFAULT CHARSET=latin1;
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `RecambiosFamilias`
+-- Indexes for table `recamb_familias`
 --
-ALTER TABLE `RecambiosFamilias`
+ALTER TABLE `recamb_familias`
  ADD PRIMARY KEY (`id`);
 
 --
@@ -47,10 +47,10 @@ ALTER TABLE `RecambiosFamilias`
 --
 
 --
--- AUTO_INCREMENT for table `RecambiosFamilias`
+-- AUTO_INCREMENT for table `recamb_familias`
 --
-ALTER TABLE `RecambiosFamilias`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `recamb_familias`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3131;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
