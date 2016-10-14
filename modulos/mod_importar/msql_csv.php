@@ -52,11 +52,11 @@ $num_linea = 0;
 				
 				// Ahora comprobamos que la linea contiene datos sino añadimo error en estado.
 				$limpiamosLinea = str_replace(",","",$Textolinea); // Quitamos (,)
-				$limpiamosLinea = str_replace(".","".$limpiamosLinea); // Quitamos (.)
-				$limpiamosLinea = str_replace("0","".$limpiamosLinea); // Quitamos (0)
-				$limpiamosLinea = str_replace(" ","".$limpiamosLinea); // Quitamos ( ) espacio..
-				if (strlen($limpiamosLinea) == 0) {
-					$Estado = 'Error linea vacia';
+				$limpiamosLinea = str_replace(".","",$limpiamosLinea); // Quitamos (.)
+				$limpiamosLinea = str_replace("0","",$limpiamosLinea); // Quitamos (0)
+				$limpiamosLinea = str_replace(" ","",$limpiamosLinea); // Quitamos ( ) espacio..
+				if (strlen($limpiamosLinea) < 2) {
+					$Estado = 'Campos vacios con menos 2 caracteres';
 				}
 
 
@@ -76,7 +76,7 @@ $num_linea = 0;
 				if (count($datos) !== $NumeroCamposCsv){
 				$Estado = 'Campos'.count($datos).' Linea:'.$linea;
 				} else {
-				$Estado . = '';
+				$Estado .= '';
 				}
 			   
 			   //guardamos en base de datos la línea leida
@@ -105,7 +105,7 @@ $num_linea = 0;
 	$html = 'fichero '.$fichero. ' hasta linea '.$lineaF."\n".$RefProveedor.'Marca:'.$Marca.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
 
         echo $html ;
-	echo '<br/>Linea:<br/>'.addslashes($Textolinea).'<br/>';
+	//~ echo '<br/>Linea:<br/>'.$limpiamosLinea.'<br/>';
 
 
 

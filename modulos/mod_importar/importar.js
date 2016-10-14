@@ -84,7 +84,9 @@ function consultaDatos(linea,lineaF,fichero) {
 			},
 			success:  function (response) {
 					$("#resultado").html(response);
-					
+					console.log("Responde");
+					console.log(response");
+
 			}
 		});
 }

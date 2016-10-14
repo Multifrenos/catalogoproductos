@@ -288,8 +288,8 @@ mysqli_close($BDImportRecambios);
                 alert('Iniciamo ciclo, recuerda que añade 400 registros y tarda 20 segundo \n' +
                         ' cada vez que actualiza la barra de proceso.');
 
-                       
-//                bucleProceso(lineaF, lineaActual, fichero);
+                // Ejecutamos ya , porque no espera 20 segundos para empezar el ciclo... :-)       
+				bucleProceso(lineaF, lineaActual, fichero);
                 ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 20000);
 
             }
