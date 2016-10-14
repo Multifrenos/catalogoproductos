@@ -43,6 +43,7 @@
                     </div>
                     <div class="form-group">
 						<?php // Realizamos consulta de Fabricantes
+						// Lo que pretendo es que muestre los padres y dentro de estos los hijos
 						$consultaFamilias = mysqli_query($BDRecambios,"SELECT `id`,`id_Padre`,`Familia_es` FROM `familias_recambios` ORDER BY `Familia_es`");
                         // Ahora montamos htmlopciones
                         while ($fila = $consultaFamilias->fetch_assoc()) {
