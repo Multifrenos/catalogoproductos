@@ -7,7 +7,7 @@
       </div>
       <ul class="nav navbar-nav">
 	<li class="active"><a href="<?php echo $HostNombre.'/index.php'?>">Home</a></li>
-	<li><a href="./familia1.php">Familia 1</a></li>
+	<li><a href="<?php echo $HostNombre.'/modulos/mod_recambios/ListaRecambios.php';?>">Recambios</a></li>
 	<li><a href="./familia2.html">Familia 2</a></li>
 	<li><a href="./familia3.html">Familia 3</a></li>
 	<li><a href="<?php echo $HostNombre.'/modulos/mod_buscar/buscar.php';?>">Buscar</a></li>
