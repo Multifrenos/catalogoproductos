@@ -5,9 +5,19 @@
 // Reinicio variables
         include './../../head.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
-        include ("./../mod_familias/ObjetoFamilias.php");
+        
+	include ("./../mod_familias/ObjetoFamilias.php");
+	include ("./ObjetoRecambio.php");
         $Dfamilias = new Familias;
-		$Familias= $Dfamilias->LeerFamilias($BDRecambios);
+	$Familias= $Dfamilias->LeerFamilias($BDRecambios);
+	
+	// Consultamos cuantos registros hay en Recambios:
+	$Crecambios = new Recambio;
+	$consulta = "SELECT * FROM `recambios`";
+	$ResRecambios = $Crecambios->ConsultaRecambios($BDRecambios,$consulta);
+		//~ $TotalRecambios = $ResRecambios->num_rows;
+		//~ $TotalPaginas = int() $TotalRecambios / 40 ;
+		
         ?>
       
     </head>
@@ -21,9 +31,10 @@
                 <h2> Recambios: Editar, Añadir y Borrar Recambios </h2>
                 <?php 
 				//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
-				echo '<pre class="text-left">';
-				print_r($Familias);
-				echo '</pre>';
+				//~ echo '<pre class="text-left">';
+				//~ print_r($Familias);
+				//~ 
+				//~ echo '</pre>';
 				?>
             </div>
 			<div class=" col-md-2">
@@ -37,13 +48,35 @@
 				<h4> Mostrar Familias</h4>
 				
 				<form>
-					<input type="checkbox" name="Familia1" value="IDF1">Filtros <br/>
-					|__-><input type="checkbox" name="Familia2" value="IDF16">Filtros de Aceite <br/>
-				<br><br>
+					<?php
+					foreach ($Familias['items'] as $familia){ 
+					    echo $familia['Nombre'].'<br/>';
+					    if ($familia['NumeroHijos'] > 0){
+						foreach ($familia['Hijos'] as $Nieto){
+						
+						?>
+						<input type="checkbox" name="Nieto<?php echo $Nieto['id'];?>" value="">
+						<?php echo $Nieto['Nombre'];?>
+						
+						<br/>
+						<?php
+						}
+					    }
+					    
+					}
+				?>
 				</form> 
 			</div>
             <div class="col-md-10">
-                <form class="form-horizontal" role="form">
+                <?php 
+		//~ echo 'Total Recambios:'.$TotalRecambios;
+		//~ echo 'Total Paginas'.$TotalPaginas;
+		echo '<pre>';
+		print_r($ResRecambios);
+		echo '</pre>';
+		
+		?>
+		<form class="form-horizontal" role="form">
                     <div class="form-group">
 					<label>Buscar</label>
 					<input class="control-label col-md-6" type="text" name="Buscar" value="">
@@ -52,7 +85,44 @@
                         <legend>Listado de Recambios</legend>
                     </div>
                  </form>
-                 <!-- Resultado de busqueda -->
+                 <!-- TABLA DE PRODUCTOS -->
+		 <div>
+		 <table class="table table-striped">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>DESCRIPCION</th>
+					<th>COSTE</th>
+					<th>MARGEN</th>
+					<th>PVP</th>
+					<th>IDFABR</th>
+
+				</tr>
+			</thead>
+			
+			<?php 
+			// Ahora meto los datos de la consulta.
+			
+			$recambios  = $Crecambios->ObtenerRecambios($BDRecambios);
+			    //~ echo '<pre>';
+			    //~ var_dump($recambios);
+			    //~ echo '</pre>';
+			foreach ($recambios['items'] as $recambio){ 
+			?>
+			<tr>
+				<td><?php echo $recambio['id']; ?></td>
+				<td><?php echo $recambio['Descripcion']; ?></td>
+				<td><?php echo $recambio['coste']; ?></td>
+				<td><?php echo $recambio['margen']; ?></td>
+				<td><?php echo $recambio['pvp']; ?></td>
+			</tr>
+			<?php 
+			}
+			?>
+			
+		</table>
+		 </div>
+		 
                  
              </div>
         </div>

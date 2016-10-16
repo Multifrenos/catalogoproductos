@@ -1,4 +1,5 @@
 <?php 
+$Conexiones = array(); 
 /************************************************************************************************/
 /*************   Realizamos conexion de base de datos de ImportarRecambios.          ************/
 /************************************************************************************************/
@@ -6,6 +7,7 @@ $BDImportRecambios = new mysqli("localhost", "coches", "coches", "importarrecamb
 // Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 
 // está vacía, si no se produce error.
 if ($BDImportRecambios->connect_errno) {
+		$Conexiones ['ImportarRecambios'] = 'Error:'.$BDImportRecambios->connect_errno.' '.$BDImportRecambios->connect_error;
 		$BDImportRecambios->controlError = $BDImportRecambios->connect_errno.':'.$BDImportRecambios->connect_error;
 } else {
 /** cambio del juego de caracteres a utf8 */
@@ -19,6 +21,7 @@ $BDRecambios = @new mysqli("localhost", "coches", "coches", "recambios");
 // está vacía, si no se produce error.
 
 if ($BDRecambios->connect_errno) {
+		$Conexiones ['Recambios'] = 'Error:'.$BDRecambios->connect_errno.' '.$BDRecambios->connect_error;
 		$BDRecambios->controlError = $BDRecambios->connect_errno.':'.$BDRecambios->connect_error;
 } else {
 /** cambio del juego de caracteres a utf8 */
