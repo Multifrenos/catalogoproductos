@@ -12,6 +12,7 @@
  * 												Se ejecuta en Paso 3 de ListaPrecios.
  * 		$pulsado = 'anahirRecam'			-> Ejecuta anahirRecam($BDRecambios);
  * 		$pulsado = 'BuscarError'			-> Ejecuta BuscarError($BDImportRecambios);
+ * 												Se ejecuta en Paso 2 de Referencias Cruzadas al mostrar la pagina.
  * 		$pulsado = 'BuscarErrorFab'			-> Ejecuta BuscarErrorFab($BDImportRecambios);
  * 		$pulsado = 'comPro'					-> Ejecuta errorFab($BDImportRecambios, $BDRecambios);
  * 		$pulsado = 'resumen'				-> Ejecuta resumen($BDImportRecambios);
@@ -140,7 +141,10 @@ function contador($nombretabla, $BDImportRecambios) {
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($Tresumen);
 }
-
+/* Funtion BuscarErrorFab -->  Ejecuta PASO2REFERENCIAS CRUZADAS TERMINAR DE CARGAR 
+ * Lo que hace un array con los distintos fabricantes que hay en la tabla ReferenciasCruzadas 
+ * 
+ * */
 function BuscarErrorFab($BDImportRecambios) {
     $array = array();
     $consulta = "SELECT DISTINCT(Fabr_Recambio) FROM `referenciascruzadas` WHERE Estado = ''";
@@ -241,7 +245,11 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }
-
+/* ===================  FUNCION BUSCAR ERROR ===========================================*/
+	// Se ejecuta en Paso2ReferenciasCruzadas al terminar de mostrar la pagina 
+	// donde lo que hace es buscar aquellos registros que el nombre Fabricante Recambio
+	// o la referencia del fabricante tenga menos de dos caracteres.
+	
 function BuscarError($BDImportRecambios) {
     $consul = "UPDATE `referenciascruzadas` SET `Estado`='ERR:[CampoVacio]' WHERE LENGTH(Fabr_Recambio) < 2 or LENGTH(Ref_Fabricante) < 2";
     $ConsErr = mysqli_query($BDImportRecambios, $consul);
@@ -322,17 +330,32 @@ function anahirRecam($BDRecambios) {
     }
 }
 
+/* ===================  FUNCION ERROR FABRICANTE ===========================================*/
+	// Se ejecuta en Paso2ReferenciasCruzadas al terminar de mostrar la pagina 
+	// Estamos en ciclo, en el que enviamos el nombre fabricante y si no existe pone en 
+	// ESTADO = ERR:[FABRICANTE cruzado no existe]
+	// y si existe no hace nada...
+	
+
 function errorFab($BDImportRecambios, $BDRecambios) {
     $fab = $_POST['fabricante'];
-    $consul = "SELECT * FROM `fabricantesrecambios` WHERE Nombre ='" . $fab . "'";
+    $consul = "SELECT * FROM `fabricantes_recambios` WHERE Nombre ='" . $fab . "'";
     $consFa = mysqli_query($BDRecambios, $consul);
-    if ($consFA == true){
+    $ResultadoBusqFabrica = "Si"; 
+    if ($consFa == true){
     $consultaFabricante = $consFa->fetch_assoc();
     }
     if ((int) $consultaFabricante['id'] == 0) {
-        $con = "  UPDATE `referenciascruzadas` SET `Estado`= 'ERR:[RefFabPrin no existe]' WHERE Fabr_Recambio ='" . $fab . "'";
+		// Cambiamos valor varia que respondemos
+		$ResultadoBusqFabrica = "No"; 
+        $con = "  UPDATE `referenciascruzadas` SET `Estado`= 'ERR:[FABRICANTE cruzado no existe]' WHERE Fabr_Recambio ='" . $fab . "'";
         $consFa = mysqli_query($BDImportRecambios, $con);
+       
     }
+    //~ $ResultadoBusqFabrica = $consultaFabricante['id'];
+    // Vamos enviar si se encontro o no... 
+    header("Content-Type: application/json;charset=utf-8");
+    echo json_encode($ResultadoBusqFabrica);
 }
 
 function resumenCruz($BDImportRecambios) {

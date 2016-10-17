@@ -1,3 +1,11 @@
+<?php 
+/*  Este fichero los utilizamos para :
+ *    Comprobar el tabla Referencias Cruzadas
+ * 		1.- Si los campos Ref_Fabricantes y Fabricante tiene mas 2 caracteres sino ESTADO= ERR:[CampoVacio]
+ * 
+ * */ 
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -8,14 +16,16 @@
         include './../../head.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
         ?>
-<!--        <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/comprobar.js"></script>-->
         <script>
-            var lineafinal;
+            var lineafinal; // Indica el final ciclo
             var respuesta;
             var lineaIntermedia = 0;
             var ciclodefunciones;
+            var fabricanteserror = 0;
+            // Se ejecuta cuando termina de carga toda la pagina.
             $(document).ready(function () {
 
+                // Buscamos los campos que tengan menos 2 caracteres para no analizar
                 function modifestadofab() {
                     var parametros = {
                         'pulsado': 'BuscarError'
@@ -26,9 +36,12 @@
                         url: 'funciones.php',
                         type: 'post',
                         beforeSend: function () {
-                            $("#resultado").html("Procesando, espere por favor...");
+                            $("#resultado").html("Buscando campos con solo 2 caracterres, espere por favor...");
                         },
                         success: function (response) {
+							$("#resultado").html("Termino de buscar campos con solo 2 caracterres....");
+							console.log("Success de modifestado");
+                            alert ("Success de modifestado");
                             buscProvee();
 
 
@@ -52,11 +65,13 @@
                         type: 'post',
                         datatype: 'json',
                         beforeSend: function () {
-                            $("#resultado").html("Procesando, espere por favor...");
+                            $("#resultado").html("Creamos array con los distintos fabricantes que hay importacion, espere por favor...");
                         },
                         success: function (response) {
                             // cubrimos la linea final y lanzamos el ciclo
+                            $("#resultado").html("Terminado de crear Array con los distintos fabricantes y lanzamos ciclo ...");
                             lineafinal = response.length;
+							console.log("Fabricantes encontrados en importacion:" + lineafinal);
                           
                             ciclofabricante(response);
                         }
@@ -78,10 +93,24 @@
                             url: 'funciones.php',
                             type: 'post',
                             beforeSend: function () {
-                                $("#resultado").html("Procesando, espere por favor...");
+                                $("#resultado").html("Estamos en ciclo,buscando " + respuesta[lineaIntermedia].Fabr_Recambio );
                             },
                             success: function (response) {
+                                console.log ( "Fabricante:" + respuesta[lineaIntermedia].Fabr_Recambio );
+                                console.log ( "LineaFinal:" + lineafinal);
+                                console.log ( "LineaIntermedia:" + lineaIntermedia);
+                                console.log ("Repuesta:"+ response);
+                                if (response == 'No'){
+								fabricanteserror = fabricanteserror + 1;
+								console.log ( "Fabricantes con error:" + fabricanteserror);	
+								$("#fabcru").html(fabricanteserror);
+
+								}
+								if (respuesta[lineaIntermedia].Fabr_Recambio =="TOYOT"){
+									alert ("Ojo Toyot");
+								}
                                 lineaIntermedia++;
+                                $("#resultado").html("Resultado de "+ respuesta[lineaIntermedia].Fabr_Recambio );
                                 BarraProceso(lineaIntermedia, lineafinal);
                             }
 
@@ -114,12 +143,18 @@
                         type: 'post',
                         datatype: 'json',
                         beforeSend: function () {
-                            $("#resultado").html("Procesando, espere por favor...");
+                            $("#resultado").html("Realizando resumen fichero importar ReferenciasCruzadas, espere por favor...");
                         },
                         success: function (response) {
                             var vacio = response[0].e;
                             var fab = response[0].f;
                             var validos = response[0].c;
+                            console.log("Total lineas" + lineafinal);
+                            console.log("Total vacios" + vacio);
+                            console.log("Total Fabricante Cruzado No" + fab);
+                            console.log("Total Validos" + validos);
+
+                            
                             $("#compFichero span").remove();
                             //var campo="<input type='button' href='javascript:;' onclick='ComprobarPaso2RefCruzadas($('#IdFabricante').val());return false;' value='Comprobar'/>";
                             //$("#compFichero").append(campo);
@@ -171,7 +206,7 @@
         ?>
         <div class="container">
             <div class="col-md-12 text-center">
-                <h2>Paso 2 - ReferenciasCruzadas: Seleccionar Familia ,Fabricante y buscar referencia </h2>
+                <h2>Paso 2 - Añadir ReferenciasCruzadas al proveedor seleccionado </h2>
             </div>
 
             <div class="col-md-6">
@@ -183,8 +218,12 @@
                 <div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
                     0 % completado
                     <!--
-                                                                    <span id="spanProceso" class="sr-only">0% Complete</span>
+					<span id="spanProceso" class="sr-only">0% Complete</span>
                     -->
+                </div>
+                <hr />
+                <div id="resultado" class="col-md-12">
+                <!-- Aquí mostramos respuestas de AJAX -->
                 </div>
                 <form class="form-horizontal" role="form" action="action_page.php">
                     <div class="form-group">
@@ -193,7 +232,7 @@
                     <div class="form-group">
                         <?php
                         // Realizamos consulta de Fabricantes
-                        $consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `FabricantesRecambios` ORDER BY `Nombre`");
+                        $consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `fabricantes_recambios` ORDER BY `Nombre`");
                         // Ahora montamos htmlopciones
                         while ($fila = $consultaFabricantes->fetch_assoc()) {
                             $htmloptiones .= '<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';

@@ -15,9 +15,9 @@
 	$Crecambios = new Recambio;
 	$consulta = "SELECT * FROM `recambios`";
 	$ResRecambios = $Crecambios->ConsultaRecambios($BDRecambios,$consulta);
-		//~ $TotalRecambios = $ResRecambios->num_rows;
-		//~ $TotalPaginas = int() $TotalRecambios / 40 ;
-		
+		$TotalRecambios = $ResRecambios->num_rows;
+		$TotalPaginas = $TotalRecambios / 40 ;
+		$TotalPaginas = round($TotalPaginas, 0, PHP_ROUND_HALF_UP);   // Redondeo al alza...
         ?>
       
     </head>
@@ -50,7 +50,7 @@
 				<form>
 					<?php
 					foreach ($Familias['items'] as $familia){ 
-					    echo $familia['Nombre'].'<br/>';
+					    echo '<h5>'. $familia['Nombre'].'</h5>';
 					    if ($familia['NumeroHijos'] > 0){
 						foreach ($familia['Hijos'] as $Nieto){
 						
@@ -68,14 +68,10 @@
 				</form> 
 			</div>
             <div class="col-md-10">
-                <?php 
-		//~ echo 'Total Recambios:'.$TotalRecambios;
-		//~ echo 'Total Paginas'.$TotalPaginas;
-		echo '<pre>';
-		print_r($ResRecambios);
-		echo '</pre>';
-		
-		?>
+				<h4>Recambios encontrados</h4>
+                <?php 	echo 'Recambios encontrados:'.$TotalRecambios.'<br/>';
+                		echo 'Pagina: 1 - '.$TotalPaginas;
+				?>
 		<form class="form-horizontal" role="form">
                     <div class="form-group">
 					<label>Buscar</label>
