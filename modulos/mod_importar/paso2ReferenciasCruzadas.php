@@ -39,9 +39,17 @@
                             $("#resultado").html("Buscando campos con solo 2 caracterres, espere por favor...");
                         },
                         success: function (response) {
+							console.log(response.toSource()); // Cuando recibimos un objeto, lo vemos asi..
+							if ( response.conexion == 'correcto'){
+							console.log('Numero Items:'+ response.NItems);
+							console.log('Numero Items Error Campo 2:' + response.Menos2C);
+							$("#total").html(response.NItems);
+                            $("#campVa").html(response.Menos2C);
+							
+							} 
+							
 							$("#resultado").html("Termino de buscar campos con solo 2 caracterres....");
 							console.log("Success de modifestado");
-                            alert ("Success de modifestado");
                             buscProvee();
 
 
@@ -103,13 +111,11 @@
                                 if (response == 'No'){
 								fabricanteserror = fabricanteserror + 1;
 								console.log ( "Fabricantes con error:" + fabricanteserror);	
-								$("#fabcru").html(fabricanteserror);
+								$("#fabcruDes").html(fabricanteserror);
+								}
+								$("#fabcru").html(lineaIntermedia); // Indicamos fabricantes analizados.
 
-								}
-								if (respuesta[lineaIntermedia].Fabr_Recambio =="TOYOT"){
-									alert ("Ojo Toyot");
-								}
-                                lineaIntermedia++;
+								lineaIntermedia++;
                                 $("#resultado").html("Resultado de "+ respuesta[lineaIntermedia].Fabr_Recambio );
                                 BarraProceso(lineaIntermedia, lineafinal);
                             }
@@ -146,24 +152,16 @@
                             $("#resultado").html("Realizando resumen fichero importar ReferenciasCruzadas, espere por favor...");
                         },
                         success: function (response) {
-                            var vacio = response[0].e;
-                            var fab = response[0].f;
-                            var validos = response[0].c;
-                            console.log("Total lineas" + lineafinal);
-                            console.log("Total vacios" + vacio);
-                            console.log("Total Fabricante Cruzado No" + fab);
-                            console.log("Total Validos" + validos);
-
-                            
+                            var vacio = response[0].e;// Registros que tiene error campo ( 2 caracteres)
+                            var fab = response[0].f; // Registros de fabricantes cruzados no correctos
+                            var validos = response[0].c; // Registros que vamos a comprobar.
                             $("#compFichero span").remove();
-                            //var campo="<input type='button' href='javascript:;' onclick='ComprobarPaso2RefCruzadas($('#IdFabricante').val());return false;' value='Comprobar'/>";
-                            //$("#compFichero").append(campo);
                             $("#cmp").css("display", "block");
-                            $("#total").html(lineafinal);
+                            $("#fabcru").html(lineafinal); // Total fabricantes 
                             $("#campVa").html(vacio);
-                            $("#fabcru").html(fab);
-                            $("#validos").html(validos);
-
+                            $("#Rfabcru").html(fab);
+                            $("#RegBlanco").html(validos);
+							$("#resultado").html("COMPLETADO PASO2 (REFERENCIAS CRUZADAS). Selecciona fabricante principal y seguir comprobando...");
                         }
 
                     });
@@ -209,12 +207,42 @@
                 <h2>Paso 2 - Añadir ReferenciasCruzadas al proveedor seleccionado </h2>
             </div>
 
-            <div class="col-md-6">
-                <h3>Resumen de comprobación</h3>
+            <div class="col-md-8">
+                <h3>Resumen de comprobación de fichero</h3>
 <!--                <p>Numero de Registros analizados: <span id="total"></span></p>-->
-                <p>Numero de Registros Error Campo Vacio: <span id="campVa"></span></p>
-                <p>Numero de Recambios Error Fabricante Cruzado: <span id="fabcru"></span></p>
-                <p>Numero de Recambios A Comprobar Referencia: <span id="validos"></span></p>
+                 <table class="table table-striped">
+					<thead>
+					  <tr>
+						<th>COMPROBANDO</th>
+						<th>Registros</th>
+						<th>CAMPO ESTADO</th>
+						<th>Otros Datos</th>
+					  </tr>
+					</thead>
+					<tbody>
+					  <tr>
+						<th>Campos con menos 2 caracteres</th>
+						<td>Total Registros:<strong><span id="total"></span></strong></td>
+						<td>ERR:[CampoVacio]</td>
+						<td>Registros campos mal:<strong><span id="campVa"></span></strong></td>
+					  </tr>
+					  <tr>
+						<th>Fabricantes cruzados que no existen</th>
+						<td>Analizando FAB de tabla de importacion:<strong><span id="fabcru"></span></strong><br/>Registros descartados:<strong><span id="Rfabcru"></span></strong></td>
+						<td>ERR:[FABRICANTE cruzado no existe]</td>
+						<td>De los Fabricantes analizados se descartan:<strong><span id="fabcruDes"></span></strong></td>
+
+					  </tr>
+					  <tr>
+						<th>PASO 3: Registros Estado Blanco</th>
+						<td>Registros a procesar:<strong><span id="RegBlanco"></strong></span></td>
+						<td></td>
+						<td> </td>
+					  </tr>
+					</tbody>
+				  </table>
+                
+               
                 <div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
                     0 % completado
                     <!--
@@ -245,22 +273,7 @@
                             <?php echo $htmloptiones; ?>
                         </select>
                     </div>
-                    <!--                    <div class="form-group">
-                    <?php
-                    // Realizamos consulta de Fabricantes
-                    $consultaFamilias = mysqli_query($BDRecambios, "SELECT `id`,`Familia_es` FROM `familias_recambios` ORDER BY `Familia_es`");
-                    // Ahora montamos htmlopciones
-                    while ($fila = $consultaFamilias->fetch_assoc()) {
-                        $htmlfamilias .= '<option value="' . $fila["id"] . '">' . $fila["Familia_es"] . '</option>';
-                    }
-                    $consultaFamilias->close();
-                    ?>
-                                            <label class="control-label col-md-4">Familia a la que quieres añadir</label>
-                                            <select name="familia" id="IdFamilia">
-                                                <option value="0">Seleccione Familia</option>
-                    <?php echo $htmlfamilias; ?>
-                                            </select>
-                                        </div>-->
+                  
 
                     <div class="form-group align-right">
                         <div  id="compFichero">
@@ -294,8 +307,12 @@
                 if (fabricante == 0) {
                     alert("Selecciona un Fabricante");
                 } else {
-                    ComprobarPaso2RefCruzadas();
-                }
+					// Si no contesta si no hace nada..
+					var respuestaConf = confirm('Ahora si que puede que añada registros, por lo que es conveniente tener una copia de seguridad de BDRecambios\n\ Estas seguro');
+					if (respuestaConf == true) {
+						ComprobarPaso2RefCruzadas();
+					}
+				}
 
             }
             ;

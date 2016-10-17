@@ -251,8 +251,16 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
 	// o la referencia del fabricante tenga menos de dos caracteres.
 	
 function BuscarError($BDImportRecambios) {
+    // Llamamos funcion contar registro con estado en blanco
+    $datos = ContarVaciosBlanco($BDImportRecambios,'referenciascruzadas');
+     
     $consul = "UPDATE `referenciascruzadas` SET `Estado`='ERR:[CampoVacio]' WHERE LENGTH(Fabr_Recambio) < 2 or LENGTH(Ref_Fabricante) < 2";
-    $ConsErr = mysqli_query($BDImportRecambios, $consul);
+    $ConsErr = $BDImportRecambios->query($consul);
+    $datos['Menos2C'] = $BDImportRecambios->affected_rows; 
+    header("Content-Type: application/json;charset=utf-8");
+    echo json_encode($datos);
+    //~ return $datos;
+    
 }
 
 function anahirRecam($BDRecambios) {
@@ -346,9 +354,9 @@ function errorFab($BDImportRecambios, $BDRecambios) {
     $consultaFabricante = $consFa->fetch_assoc();
     }
     if ((int) $consultaFabricante['id'] == 0) {
-		// Cambiamos valor varia que respondemos
+		// Cambiamos valor variable que respondemos
 		$ResultadoBusqFabrica = "No"; 
-        $con = "  UPDATE `referenciascruzadas` SET `Estado`= 'ERR:[FABRICANTE cruzado no existe]' WHERE Fabr_Recambio ='" . $fab . "'";
+        $con = "UPDATE `referenciascruzadas` SET `Estado`= 'ERR:[FABRICANTE cruzado no existe]' WHERE Fabr_Recambio ='" . $fab . "'";
         $consFa = mysqli_query($BDImportRecambios, $con);
        
     }
@@ -359,30 +367,49 @@ function errorFab($BDImportRecambios, $BDRecambios) {
 }
 
 function resumenCruz($BDImportRecambios) {
-
-    $consulta = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[RefFabPrin no existe]'";
+	// Contamos los REGISTROS que tiene error: ERR:[FABRICANTE cruzado no existe] 
+    $consulta = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[FABRICANTE cruzado no existe]'";
     $conmys = mysqli_query($BDImportRecambios, $consulta);
     if ($conmys == true) {
     $efab = $conmys->fetch_assoc();
     }
-    
+    // Contamos los REGISTROS que tiene error: ERR:[CampoVacio] 
     $consulta2 = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[CampoVacio]'";
     $conmys2 = mysqli_query($BDImportRecambios, $consulta2);
     if ($conmys2 == true) {
         $eref = $conmys2->fetch_assoc();
     }
-    $consulta3 = "SELECT count(linea) as total FROM `referenciascruzadas` WHERE Estado = ''";
-    $conmys3 = mysqli_query($BDImportRecambios, $consulta3);
-    if ($conmys3 == true) {
-    $conpro = $conmys3->fetch_assoc();
-    }
+    // Contamos los REGISTROS que tengan ESTADO en Blanco.
+    
+    $datos = ContarVaciosBlanco($BDImportRecambios,'referenciascruzadas');
+	$conpro = $datos['NItems']; // Items de tabla que tiene Estado Vacio...
+    
     $datos[0]['f'] = $efab['total'];
     $datos[0]['e'] = $eref['total'];
-    $datos[0]['c'] = $conpro['total'];
+    $datos[0]['c'] = $conpro;
 
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }
+
+
+/* ===================  FUNCION CONTAR REGISTROS CON ESTADO EN BLANCO ==================================*/
+	// Esta funcion la utilizamos en varios procesos, para saber cuantos registros hay en BDImportRecambios
+	// que tenga el campo ESTADO en blanco.
+function ContarVaciosBlanco ($BD,$tabla){
+	$datos['conexion'] = 'error';
+	$consulta = "SELECT * FROM $tabla WHERE Estado = ''";
+    $conmys3 = mysqli_query($BD, $consulta);
+    if ($conmys3 == true) {
+	$datos['NItems'] = $conmys3->num_rows;
+	$datos['conexion'] = 'correcto';
+    }
+	return($datos);
+}
+
+
+
+
 /* ===============  SWICH PARA EJECUTAR FUNCIONES SEGUN OPCION (PULSADO) ===============*/
 
 switch ($pulsado) {
@@ -414,7 +441,7 @@ switch ($pulsado) {
         errorFab($BDImportRecambios, $BDRecambios);
         break;
     case 'resumen':
-        resumenCru($BDImportRecambios);
+        resumenCruz($BDImportRecambios);
         break;
     case 'contarVacioscruzados':
         contarVaciosCru($BDImportRecambios);
