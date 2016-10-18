@@ -294,11 +294,18 @@
 
         </div>
         <script>
+			// Funciones que se ejecutan despues de seleccionar comprobar
+			// Se obtiene registros que su estado="" de tabla referenciascruzadas de importar
+			// para:
+			// 		1.- Buscar si existe la referencia_principal
+			// 			[NO EXISTE] Entonces añadimos a  campo estado como ERROR[Referencia Principal]
+			//			[SI EXISTE] Entonces buscamos la referencia cruzada si existe o no , ojo siempre
+			//		comparandolo con el fabricante.
             var lineabarra=0;
             var fabricante;
-            var finallinea;
+            var finallinea; // La utilizamos en barra
             var arrayConsulta;
-            var arranqueCiclo;
+            //~ var arranqueCiclo;
             var intermedia = 0;
             var lineaIntermedia = 0;
 
@@ -307,19 +314,23 @@
                 if (fabricante == 0) {
                     alert("Selecciona un Fabricante");
                 } else {
-					// Si no contesta si no hace nada..
-					var respuestaConf = confirm('Ahora si que puede que añada registros, por lo que es conveniente tener una copia de seguridad de BDRecambios\n\ Estas seguro');
+					// Informamos que ahora si va añadir y que no hay vuelta atrás.
+					var respuestaConf = confirm('Vamos empezar añadir registros a BDRecambios,\n\ ahora si que no hay vuelta atrás, por lo que es conveniente tener una copia de seguridad de BDRecambios\n\ Estas seguro');
 					if (respuestaConf == true) {
 						ComprobarPaso2RefCruzadas();
 					}
 				}
 
-            }
-            ;
+            };
 
             function ComprobarPaso2RefCruzadas() {
-               
-                var finallinea = $("#validos").html();
+				// En esta funcion obtenemos los 400 registros primeros que tengan ESTADO=""
+				// por este motivo , ya no hace falta finallinea
+                var finallinea = $("#RegBlanco").html();
+                //
+                // Tambien ten encuenta que a esta funcion se llama desde:
+                // 		funcion finalizar(
+                //		function grabar() --> Ajax response...
                 
                 if (fabricante == 0) {
                     alert("Selecciona un Fabricante");
@@ -334,47 +345,33 @@
                         datatype: 'json',
                         beforeSend: function () {
 
-                            $("#fin").html("Procesando, espere por favor...");
+                            $("#fin").html("Obteniendo registros con ESTADO en BLANCO, espere por favor...");
 
                         },
                         success: function (response) {
-//                        if (response == null) {
-//                            alert("no hay ficheros que modificar");
-////                            var campo = "<div class='form-group align-right'><h2>PASO 3</h2><input type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/></div>"
-////                            $("#fin").append(campo);
-//                        } else {
-//                            // cargamos en la variable a el final de linea qeu es el total de registros del array
-//                           
-////                            console.log(response.length);
-//                            // iniciamos el ciclo
-//                           v
-//                            grabar();
 
-//                        }
                             if (response.length != 0) {
+                                // Creamos array con los datos $BDImportar-referenciascruzadas
                                 arrayConsulta = response;
                                 console.log("respuesta del ajax length "+response.length);
+                                $("#fin").html("Hemos obtenido "+ response.length + " con ESTADO en BLANCO, ,Empezamos a grabar...");
+
+                                
                                 grabar();
                                 
                             } else {
-
+								 $("#fin").html("No hemos obtenido registros con ESTADO= "+ response.length + " ...");
                             }
 
                         }
                     });
 
                 }
-            }
-            ;
-//          function ciclo(response){
-//           arrayConsulta=response;
-//           
-//           arranqueCiclo=setInterval('grabar()',2500);
-//           };
+            };
+
             function grabar() {
 
-//               if(intermedia < finallinea){
-                var parametros = {
+               var parametros = {
 
                     'pulsado': 'comprobar2cruz',
                     'idrecambio': arrayConsulta[intermedia].id,
@@ -407,56 +404,46 @@
 //                        console.log("prof cruzado"+ arrayConsulta[intermedia].F_rec);
                          console.log("****************");
                          console.log(response[0].respuesta);
-                        
+                        // Este if es el que hace ciclo.. es decir
+                        // Vuelve ejecutar la misma funcion mientras la 
+                        // variable global var intermedia no llege al final de arrayConsulta.length
                         if (intermedia == (arrayConsulta.length)-1) {
                             intermedia=0;
                             ComprobarPaso2RefCruzadas();
                         } else {
-                            console.log("esto es la linea intermedia: "+intermedia);
-                            
+                            console.log("Intermedia: "+intermedia);
+                            console.log("linebarra: "+lineabarra);
+							console.log("linefinal: "+finallinea);
                             intermedia++;
                             lineabarra+=intermedia;
-                            BarraProceso2(lineabarra,finallinea);
+                            BarraProceso(lineabarra,finallinea);
                             grabar();
                         }
                     }
                 });
+            };
 
-
-//                } else {
-//                    // cuando acaba el ciclo creamos el campo terminar y cerramos el bucle
-//                    var campo = "<div class='form-group align-right'><h2>PASO 3</h2><input type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/></div>"
-//                    $("#fin").append(campo);
-//                    clearInterval(arranqueCiclo);
-//                    intermedia = 0;
-//
-//                }
-
-            }
-            ;
-
-            function BarraProceso2(lineaA, lineaF) {
-                // Script para generar la barra de proceso.
-                // Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
-                // que ya estan añadidas.
-                // NOTA:
-                // lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
-                if (lineaA == 0) {
-                    lineaA = 1;
-                }
-                if (lineaF == 0) {
-                    //alert('Linea Final es 0 ');
-                    return;
-                }
-                var progreso = Math.round((lineaA * 100) / lineaF);
-
-                $('#bar').css('width', progreso + '%');
-                // Añadimos numero linea en resultado.
-                document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
-                return;
-
-            }
-            ;
+            //~ function BarraProceso2(lineaA, lineaF) {
+                //~ // Script para generar la barra de proceso.
+                //~ // Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
+                //~ // que ya estan añadidas.
+                //~ // NOTA:
+                //~ // lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
+                //~ if (lineaA == 0) {
+                    //~ lineaA = 1;
+                //~ }
+                //~ if (lineaF == 0) {
+                    //~ //alert('Linea Final es 0 ');
+                    //~ return;
+                //~ }
+                //~ var progreso = Math.round((lineaA * 100) / lineaF);
+//~ 
+                //~ $('#bar').css('width', progreso + '%');
+                //~ // Añadimos numero linea en resultado.
+                //~ document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
+                //~ return;
+//~ 
+            //~ };
         </script>
 
     </body>
