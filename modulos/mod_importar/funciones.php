@@ -224,11 +224,11 @@ function comprobar($nombretabla, $BDImportRecambios, $BDRecambios) {
 	
 
 function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
-    $ref = $_POST['idrecambio'];
-    $l = $_POST['linea'];
-    $f = $_POST['fabricante'];
-    $ref_f = $_POST['Ref_fa'];
-    $fab_ref = $_POST['Fab_ref'];
+    $ref = $_POST['idrecambio']; // Realmente es la referencia del proveedor principal, no es id recambio... 
+    $l = $_POST['linea']; // La utilizamos para modificar campo ESTADO de BDIMPORTAR-REFERENCIASCRUZADAS.
+    $f = $_POST['fabricante']; // Id de fabricante principal...
+    $ref_f = $_POST['Ref_fa']; // Referencia de fabricante cruzado.
+    $fab_ref = $_POST['Fab_ref'];// Nombre fabricante cruzado.
 	// 	1.- Comprobamos si existe la referencia principal.
 	// 		Buscamos en BDRecambios en tabla referencias cruzadas si existe la referencia principal.
     $conRefFab = "SELECT * FROM `referenciascruzadas` WHERE RefFabricanteCru = '" . $ref . "' and IdFabricanteCru = '" . $f . "'";
@@ -295,8 +295,9 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
 			// Ahora añadimos $BDRECAMBIOS -cruce_referencias.
 			// 		Entiendo que no existe, pero nunca se sabe.. por lo que se debería comprobar de nuevo
 			//		para esto debería ser funciones muchos proceso para evitar duplicar código
-			$consul = "UPDATE `referenciascruzadas` SET `Estado`='COMBROBADO:[EXISTE CRUCE]' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
-			mysqli_query($BDImportRecambios, $consul);
+			$insert = "INSERT INTO `cruces_referencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $resulCru['id'] . "," . $resulCru['RecambioID'] . "," . $id. ")";
+            $secInser = mysqli_query($BDRecambios, $insert);
+            
 			// Ahota cambiamos campo ESTADO de referencia cruzada de importar.
 			$consul = "UPDATE `referenciascruzadas` SET `Estado`='AÑADIDO:[REFERENCIA CRUZADA - Y NUEVO CRUCE]' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
 			mysqli_query($BDImportRecambios, $consul);

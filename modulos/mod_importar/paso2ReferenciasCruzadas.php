@@ -17,16 +17,17 @@
         include ("./../mod_conexion/conexionBaseDatos.php");
         ?>
         <script>
-            var lineafinal; // Indica el final ciclo
+            var lineafinal; // Indica el final ciclo primero de fabricantes...
             var respuesta;
             var lineaIntermedia = 0;
             var ciclodefunciones;
             var fabricanteserror = 0;
             // Se ejecuta cuando termina de carga toda la pagina.
             $(document).ready(function () {
-
+			    BarraProceso(); // Para se defina..
                 // Buscamos los campos que tengan menos 2 caracteres para no analizar
                 function modifestadofab() {
+					
                     var parametros = {
                         'pulsado': 'BuscarError'
 
@@ -166,10 +167,13 @@
 
                     });
 
-                }
-                ;
+                };
                 modifestadofab();
-                function BarraProceso(lineaA, lineaF) {
+                
+
+
+            });
+            function BarraProceso(lineaA, lineaF) {
                     // Script para generar la barra de proceso.
                     // Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
                     // que ya estan añadidas.
@@ -191,9 +195,6 @@
 
                 }
                 ;
-
-
-            });
         </script>
 
     </head>
@@ -325,12 +326,12 @@
 
             function ComprobarPaso2RefCruzadas() {
 				// En esta funcion obtenemos los 400 registros primeros que tengan ESTADO=""
-				// por este motivo , ya no hace falta finallinea
-                var finallinea = $("#RegBlanco").html();
-                //
                 // Tambien ten encuenta que a esta funcion se llama desde:
-                // 		funcion finalizar(
-                //		function grabar() --> Ajax response...
+                // 		funcion finalizar-> Cuando pulsamos btn comprobar...
+                //		function grabar() --> Ajax response si ya leyo los 400 registros....
+				
+				// Obtenemos de tabla BDImportar-Registroscruzados los que tenga el estado ""
+                finallinea = $("#RegBlanco").html();
                 
                 if (fabricante == 0) {
                     alert("Selecciona un Fabricante");
@@ -352,21 +353,28 @@
 
                             if (response.length != 0) {
                                 // Creamos array con los datos $BDImportar-referenciascruzadas
+                                // Por ejemplo:
+                                // [{	id:"A110049",
+                                //	 	linea:"1413", 
+								//		F_rec:"QUINTON HA",
+								// 		Ref_F:"WF8232"}
+								// y así con 399 registros mas... 
                                 arrayConsulta = response;
-                                console.log("respuesta del ajax length "+response.length);
-                                $("#fin").html("Hemos obtenido "+ response.length + " con ESTADO en BLANCO, ,Empezamos a grabar...");
-
+                                console.log("************ RESPUESTA AJAX FUNCION ComprobarPaso2RefCruzadas *********")
+                                console.log("Numero registros obtenidos "+response.length);
+                                $("#fin").html("Hemos obtenido "+ response.length + " con ESTADO en BLANCO,Empezamos a grabar...");
                                 
                                 grabar();
                                 
                             } else {
-								 $("#fin").html("No hemos obtenido registros con ESTADO= "+ response.length + " ...");
+								 $("#fin").html("Hemos terminado ya que hay" +  response.length + " con estado en blanco.");
+								 alert ( "Terminamos");
                             }
 
                         }
                     });
 
-                }
+                } // Fin else fabricante no es 0
             };
 
             function grabar() {
@@ -380,70 +388,58 @@
                     'Ref_fa': arrayConsulta[intermedia].Ref_F,
                     'Fab_ref': arrayConsulta[intermedia].F_rec
                 };
-//                        console.log("********************************");
-//                        console.log("que id es "+arrayConsulta[intermedia].id);
-//                        console.log("que linea es "+arrayConsulta[intermedia].linea);
-//                        console.log("que fabricante es "+fabricante);
-//                        console.log("que ref_fa es "+arrayConsulta[intermedia].Ref_F);
-//                        console.log("que fab_ref es "+arrayConsulta[intermedia].F_rec);
+                        console.log("******* FUNCION GRABAR ENVIAMOS AJAX *********************");
+                        console.log("que id es "+arrayConsulta[intermedia].id);
+                        console.log("que linea es "+arrayConsulta[intermedia].linea);
+                        console.log("que fabricante es "+fabricante);
+                        console.log("que ref_fa es "+arrayConsulta[intermedia].Ref_F);
+                        console.log("que fab_ref es "+arrayConsulta[intermedia].F_rec);
                 $.ajax({
                     data: parametros,
                     url: 'funciones.php',
                     type: 'post',
                     datatype: 'json',
                     beforeSend: function () {
-                        $("#resultado").html("<p alert .alert-info>Procesando, espere por favor...</p>");
+                        textoMostrar = "Grabar()- Comprobando Referencia:"+arrayConsulta[intermedia].Ref_F;
+                        textoMostrar = "\n Fabricantes cruzado es:" + +arrayConsulta[intermedia].F_rec;
+                        $("#resultado").html(textoMostrar);
 
                     },
                     success: function (response) {
-
-//                        console.log( arrayConsulta[intermedia].id);
-//                        console.log( arrayConsulta[intermedia].linea);
-//                        console.log( fabricante);
-//                        console.log("ref cruzada "+ arrayConsulta[intermedia].Ref_F);
-//                        console.log("prof cruzado"+ arrayConsulta[intermedia].F_rec);
-                         console.log("****************");
-                         console.log(response[0].respuesta);
+						console.log("******* RESPUESTA AJAX DE GRABAR *************************");
+                        //~ console.log( arrayConsulta[intermedia].id);
+                        //~ console.log( arrayConsulta[intermedia].linea);
+                        //~ console.log( fabricante);
+                        //~ console.log("ref cruzada "+ arrayConsulta[intermedia].Ref_F);
+                        //~ console.log("prof cruzado"+ arrayConsulta[intermedia].F_rec);
+                        //~ console.log("****************");
+                        
+                        console.log("Respuesta:" + response[0].respuesta);
                         // Este if es el que hace ciclo.. es decir
                         // Vuelve ejecutar la misma funcion mientras la 
                         // variable global var intermedia no llege al final de arrayConsulta.length
                         if (intermedia == (arrayConsulta.length)-1) {
                             intermedia=0;
+							console.log("Obtener nuevamente array en ComprobarPaso2RefCruzadas");
                             ComprobarPaso2RefCruzadas();
                         } else {
-                            console.log("Intermedia: "+intermedia);
-                            console.log("linebarra: "+lineabarra);
-							console.log("linefinal: "+finallinea);
-                            intermedia++;
-                            lineabarra+=intermedia;
+							console.log("Continuamos con ciclo de grabar..");
+							intermedia++;
+                            lineabarra++;
                             BarraProceso(lineabarra,finallinea);
+                            
+                            console.log("Numero que vamos en este ciclo: "+intermedia);
+                            console.log("Maximo ciclo: "+arrayConsulta.length);
+							console.log("linea final de barra proceso: "+finallinea);
+							console.log("linea actual de barra proceso: "+lineabarra);
+
                             grabar();
                         }
                     }
                 });
             };
 
-            //~ function BarraProceso2(lineaA, lineaF) {
-                //~ // Script para generar la barra de proceso.
-                //~ // Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
-                //~ // que ya estan añadidas.
-                //~ // NOTA:
-                //~ // lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
-                //~ if (lineaA == 0) {
-                    //~ lineaA = 1;
-                //~ }
-                //~ if (lineaF == 0) {
-                    //~ //alert('Linea Final es 0 ');
-                    //~ return;
-                //~ }
-                //~ var progreso = Math.round((lineaA * 100) / lineaF);
-//~ 
-                //~ $('#bar').css('width', progreso + '%');
-                //~ // Añadimos numero linea en resultado.
-                //~ document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
-                //~ return;
-//~ 
-            //~ };
+           
         </script>
 
     </body>
