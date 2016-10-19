@@ -229,14 +229,20 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     $f = $_POST['fabricante']; // Id de fabricante principal...
     $ref_f = $_POST['Ref_fa']; // Referencia de fabricante cruzado.
     $fab_ref = $_POST['Fab_ref'];// Nombre fabricante cruzado.
+    // Reiniciamos 
+    $datos[0]['respuesta'] = "";
+    $ControlPaso = "";
+    $ControlBusqueda = "";
+    $idRecambio = "";
 	// 	1.- Comprobamos si existe la referencia principal.
 	// 		Buscamos en BDRecambios en tabla referencias cruzadas si existe la referencia principal.
     $conRefFab = "SELECT * FROM `referenciascruzadas` WHERE RefFabricanteCru = '" . $ref . "' and IdFabricanteCru = '" . $f . "'";
     $ejconRefFab = mysqli_query($BDRecambios, $conRefFab);
     $resul = mysqli_fetch_assoc($ejconRefFab);
+    $idRecambio = $resul['RecambioID']; // Id de recambio que vamos a cruzar
     if ($resul) {
 		// Si existe referencia principal, por lo que continuamos.
-		$datos[0]['respuesta']="Entro en referencia principal.";
+		$ControlPaso=" [REFPRINCIPAL]=".$idRecambio;
 		//	2.- Comprobamos que el fabricante cruzado exista. ( Este paso creo que podemos eliminarlo)
 		// 		Ahora obtenemos el id del fabricante cruzado,
 		// 		Este ya lo hicimos en paso2 , podríamos ahorrarlo si añadieramos ID FabricanteCRU en 
@@ -244,9 +250,9 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
         $busFacruz = "SELECT id FROM `fabricantes_recambios` WHERE Nombre = '" . $fab_ref . "'";
         $ejbusFacruz = mysqli_query($BDRecambios, $busFacruz);
         $resulFabCruz = mysqli_fetch_assoc($ejbusFacruz);
-        $id = $resulFabCruz['id'];
+        $id = $resulFabCruz['id']; // Id de Fabricante cruzadas
        
-		$datos[0]['respuesta']= $datos[0]['respuesta']."Obtenido ID de fabricante cruzado ".$id;
+		$ControlPaso = $ControlPaso." [IDFABRICANTE]=".$id;
 		// 	3.- Comprobamos que la referencia cruzada  si existe en BDRECAMBIOS-referenciascruzadas.
 		// 		Ahora buscamos en referencias cruzadas, la nueva referencia cruzada y el id fabricante cruzados.
 		// 		Si existe entonces obtenemos el id de referenciacruzada.
@@ -256,12 +262,16 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
 		if($resulCru){
 			// Si existe referencia cruzada.
 			// 		3.-	[SI]- Buscamos en cruce_referencia si existe:
+			$ControlPaso = $ControlPaso." [YA-EXISTE-REFCRUZADA]";
+
 			$buscarcruces = "SELECT * FROM `cruces_referencias` where idReferenciaCruz =" . $resulCru['id'];
             $consul = mysqli_query($BDRecambios, $buscarcruces);
             if($consul){
 			//		3.-	[SI]	[SI]- Si existe referencia en cruce_referencias:
 			//						 ESTADO = COMBROBADO:[EXISTE CRUCE]
 			//						 en la BD IMPORTAR en TABLA referencias cruzadas
+				$ControlPaso = $ControlPaso." [EXISTE CRUCE]";
+
                 $consul = "UPDATE `referenciascruzadas` SET `Estado`='COMBROBADO:[EXISTE CRUCE]' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
 				mysqli_query($BDImportRecambios, $consul);
             }else{
@@ -270,7 +280,9 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
 							// 		ESTADO = AÑADIDO:[CRUCE NUEVO - EXISTIA REFERENCIA CRUZADA]
 							// Y añadimos referencia en BD RECAMBIOS en cruces_referencias la
 							// NUEVO CRUCE...
-                $insert = "INSERT INTO `cruces_referencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $resulCru['id'] . "," . $resulCru['RecambioID'] . "," . $id. ")";
+				$ControlPaso = $ControlPaso." [NO EXISTE CRUCE]";
+
+                $insert = "INSERT INTO `cruces_referencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $resulCru['id'] . "," . $idRecambio . "," . $id. ")";
                 $secInser = mysqli_query($BDRecambios, $insert);
                 $consul = "UPDATE `referenciascruzadas` SET `Estado`='AÑADIDO:[CRUCE NUEVO - EXISTIA REFERENCIA CRUZADA]' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
 				mysqli_query($BDImportRecambios, $consul);
@@ -285,31 +297,43 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
 			// 	2.- BDRECAMBIOS-cruce_referencias
 			// Y por ultimos en BDImportar-referenciascruzadas anoto en campo
 			// ESTADO = AÑADIDO:[REFERENCIA CRUZADA - Y NUEVO CRUCE] 
-			$creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id . "," . $ref_f . ")";
+			$ControlPaso = $ControlPaso." [NO EXISTE REFCRUZADA]=".$ref_f;
+
+			
+			$creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id . "," . "'".$ref_f. "'" . ")";
+			$ControlBusqueda = $creaCru."\n";
+			
 			mysqli_query($BDRecambios, $creaCru);
 			// Ahora obtenemos ID de referencia cruzada recien creada.
 			// Me imagino que hay otra forma de hacerlo... pero de momento repito código..
 			$ConCruRefFab = "SELECT * FROM `referenciascruzadas` WHERE RefFabricanteCru = '".$ref_f."' and IdFabricanteCru = '".$id."'";
 			$ejConCruRefFab= mysqli_query($BDRecambios,$ConCruRefFab);
 			$resulCru= mysqli_fetch_assoc($ejConCruRefFab);
+			
+			$ControlPaso = $ControlPaso." [ID-NUEVO-REFCRUZADA]=".$resulCru['id'];
+			$ControlBusqueda = $ControlBusqueda.$ConCruRefFab;
 			// Ahora añadimos $BDRECAMBIOS -cruce_referencias.
 			// 		Entiendo que no existe, pero nunca se sabe.. por lo que se debería comprobar de nuevo
 			//		para esto debería ser funciones muchos proceso para evitar duplicar código
-			$insert = "INSERT INTO `cruces_referencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $resulCru['id'] . "," . $resulCru['RecambioID'] . "," . $id. ")";
+			$insert = "INSERT INTO `cruces_referencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`) VALUES (" . $resulCru['id'] . "," . $idRecambio . "," . $id. ")";
             $secInser = mysqli_query($BDRecambios, $insert);
             
 			// Ahota cambiamos campo ESTADO de referencia cruzada de importar.
 			$consul = "UPDATE `referenciascruzadas` SET `Estado`='AÑADIDO:[REFERENCIA CRUZADA - Y NUEVO CRUCE]' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
 			mysqli_query($BDImportRecambios, $consul);
+			$ControlPaso = $ControlPaso."[REFERENCIA CRUZADA - Y NUEVO CRUCE]";
          }
 
     } else {
-		// No existe las referencia princpila por lo que marcamos en tabla importar (referecias cruzadas)
+		// No existe las referencia principal solo marcamos en tabla importar (referecias cruzadas)
 		// en ESTADO = ERROR[Referencia Principal]
 		$consul = "UPDATE `referenciascruzadas` SET `Estado`='ERROR[Referencia Principal]' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
 		mysqli_query($BDImportRecambios, $consul);
-        $datos[0]['respuesta']='No existe la referencia principal';
+		$ControlPaso = $ControlPaso."ERROR[Referencia Principal]";
+
     }
+    $datos[0]['respuesta'] = $ControlPaso;
+	$datos[0]['busqueda'] = $ControlBusqueda;
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }

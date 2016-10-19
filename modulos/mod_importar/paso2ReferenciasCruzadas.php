@@ -401,7 +401,7 @@
                     datatype: 'json',
                     beforeSend: function () {
                         textoMostrar = "Grabar()- Comprobando Referencia:"+arrayConsulta[intermedia].Ref_F;
-                        textoMostrar = "\n Fabricantes cruzado es:" + +arrayConsulta[intermedia].F_rec;
+                        textoMostrar = textoMostrar + "\n Fabricantes cruzado es:" + arrayConsulta[intermedia].F_rec;
                         $("#resultado").html(textoMostrar);
 
                     },
@@ -415,6 +415,8 @@
                         //~ console.log("****************");
                         
                         console.log("Respuesta:" + response[0].respuesta);
+                        console.log("Busqueda:" + response[0].busqueda);
+
                         // Este if es el que hace ciclo.. es decir
                         // Vuelve ejecutar la misma funcion mientras la 
                         // variable global var intermedia no llege al final de arrayConsulta.length
