@@ -362,7 +362,7 @@
                                 arrayConsulta = response;
                                 console.log("************ RESPUESTA AJAX FUNCION ComprobarPaso2RefCruzadas *********")
                                 console.log("Numero registros obtenidos "+response.length);
-                                $("#fin").html("Hemos obtenido "+ response.length + " con ESTADO en BLANCO,Empezamos a grabar...");
+                                $("#fin").html("Hemos obtenido "+ response.length + " con ESTADO en BLANCO,Llevamos " + lineabarra +" de " + finallinea +" procesando...");
                                 
                                 grabar();
                                 
