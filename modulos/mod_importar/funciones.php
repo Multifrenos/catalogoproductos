@@ -66,6 +66,7 @@ function contarVacios($nombretabla, $BDImportRecambios) {
   * 						 Ref_F-> La referencia cruzada a buscar o añadir.
   * */
 function contarVaciosCru($BDImportRecambios) {
+    $array = array();
     $consulta = "SELECT * FROM `referenciascruzadas` where Estado = '' limit 400";
     $consultaContador = mysqli_query($BDImportRecambios, $consulta);
     $i = 0;

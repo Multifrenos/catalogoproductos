@@ -345,7 +345,7 @@
                         type: 'post',
                         datatype: 'json',
                         beforeSend: function () {
-
+							console.log ('Obtenemos array con resgistros que tiene estado en blanco');
                             $("#fin").html("Obteniendo registros con ESTADO en BLANCO, espere por favor...");
 
                         },
