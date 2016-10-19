@@ -76,11 +76,13 @@ function consultaDatos(linea,lineaF,fichero) {
 	"Fichero" : fichero
 			};
 	$.ajax({
+			async:false, // Carga peticiones de forma sincrono , no asincrono.
+            cache:false,
 			data:  parametros,
 			url:   'msql_csv.php',
 			type:  'post',
 			beforeSend: function () {
-					$("#resultado").html('Procesando, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
+					$("#resultado").html('Subiendo linea '+ linea + 'hasta '+ lineaF + ', espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
 			},
 			success:  function (response) {
 					$("#resultado").html(response);

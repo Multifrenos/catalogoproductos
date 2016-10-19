@@ -49,20 +49,23 @@
 		}
 		
 		// Creamos variable numero campos, campos a cubrir, y nombre tabla, segun para que fichero estemos tratando.
-			if ($ficheroNombre == "ReferenciasCruzadas.csv") {
+		switch ($ficheroNombre) {
+
+			case "ReferenciasCruzadas.csv" :
 				$NumeroCamposCsv = 3;
 				$CamposSinCubrir = "0','0";
 				$nombretabla = "referenciascruzadas";
-			}
-			if ($ficheroNombre == "ReferenciasCversionesCoches.csv") {
+		
+			case "ReferenciasCversionesCoches.csv":
 				$NumeroCamposCsv = 3;
 				$nombretabla = "referenciasCversiones";
-			}
-			if ($ficheroNombre == "ListaPrecios.csv") {
+			
+			case "ListaPrecios.csv":
 				$NumeroCamposCsv = 3;
 				$nombretabla = "listaprecios";
 				$CamposSinCubrir = "0";
-			}
+			
+		}
 			
         ?>
         <div class="container">
@@ -89,11 +92,24 @@
                 if (move_uploaded_file($_FILES['fichero_usuario']['tmp_name'], $fichero_subido)) {
                     $correcto = " - El fichero acaba subir y existe en directorio temporal.<br/>";
                 } else {
-                    // No debería haber llegado nunca aquí, hay error.
-                    $errorFichero = $errorFichero . "- Hubo un error en la carga del fichero.<br/>
-											Revisa el nombre del fichero,<br/>
-											Error se produce en fichero recibircsv.php mod_importar ( linea 45)<br/>
-											AVISAR SERVICIO TECNICO<br/>";
+                    // No pudo guardar el fichero por algún motivo.
+                    // Errores posibles $_FILES
+                    //    1 → El fichero seleccionado excede el tamaño máximo permitido en php.ini (podemos saber el tamaño máximo permitido usando la función ini_get(‘upload_max_filesize’)).
+                    //    2 → El archivo subido excede la directiva MAX_FILE_SIZE, si se especificó en el formulario.
+                    //    3 → El archivo subido fue sólo parcialmente cargado.
+                    //    4 → No se ha subido ningún archivo.
+                    //    6 → Falta el directorio de almacenamiento temporal.
+                    //    7 → No se puede escribir el archivo (posible problema relacionado con los permisos de escritura).
+					// Aun fui capaza de llegar utilizarlo... 
+					//
+                    $errorFichero = $errorFichero .$debugprueba. "- Hubo un error en la carga del fichero.<br/>
+											Revisa configuracion de servidor, ya el error es de carga.<br/><br/>
+											Error se produce en:<br/>
+											<strong>move_upload_file</strong> en fichero  mod_importar/recibircsv.php ( linea 99)<br/>
+											AVISAR SERVICIO TECNICO!!<br/>";
+					
+					
+					
                 }
             }
             if (!in_array($ficheroNombre, $ficherosposibles)) {
@@ -102,25 +118,32 @@
                 // es una forma de evitar problemas.
                 if ($_GET["subida"] == 0) {
                     $errorFichero = $errorFichero . "- Fichero " . $ficheroNombre . " no es un nombre de fichero correcto.<br/>Los nombre de ficheros que puede utilizar son:<br/>-" . implode("<br/>-", $ficherosposibles);
-                }
-            }
-			// Comprobamos si la conexion fue correcta ( include conexion )
-			if ($BDImportRecambios->controlError) {
-				// Comprobamos si fallos la conexión con la base de datos.
-				$errorFichero.= "<strong>Error en conexión:</strong>".$BDImportRecambios->controlError.'<br/>';
-			}
-			// Realizamos conexión para contar si tiene registros. $cuenta
-			$consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
-			$consultaContador = mysqli_query($BDImportRecambios, $consulta);
-			if($consultaContador == true){
-			// Recogemos en variable $contador la variable de la consulta [cuenta]
-			$contador = $consultaContador->fetch_assoc();
-			} else {
-			// Quiere decir que no es correcta la consulta, por lo que se produce un error.
-			$errorFichero.= "<strong>Error en consulta:</strong><br/>".mysqli_error($BDImportRecambios)."<br/>";
-			$errorFichero.= "<strong>Instrucción SQL enviada:</strong><br/>".$consulta."<br/>";
+                    $errorFichero .="<br/>";
+                } else {
+					// Solo comprobamos conexión si obtenemos un nombre correcto... 
+              		// Comprobamos si la conexion fue correcta ( include conexion )
 			
+					if ($BDImportRecambios->controlError) {
+						// Comprobamos si fallos la conexión con la base de datos.
+						$errorFichero.= "<strong>Error en conexión:</strong>".$BDImportRecambios->controlError.'<br/>';
+					}
+					// Realizamos conexión para contar si tiene registros. $cuenta
+					$consulta = "SELECT count(linea) as cuenta FROM " . $nombretabla;
+					$consultaContador = mysqli_query($BDImportRecambios, $consulta);
+					if($consultaContador == true){
+						// Recogemos en variable $contador la variable de la consulta [cuenta]
+						$contador = $consultaContador->fetch_assoc();
+						} else {
+						// Quiere decir que no es correcta la consulta, por lo que se produce un error.
+						$errorFichero.= "<br/><strong>Error en consulta:</strong><br/>".mysqli_error($BDImportRecambios)."<br/>";
+						$errorFichero.= "<strong>Instrucción SQL enviada:</strong><br/>".$consulta."<br/>";
+					
+					}
+				} 
 			}
+			
+			
+			
             // Este error hacemos que no continue comprobando que salga.
             if ($errorFichero != '') {
                 ?>
@@ -290,7 +313,7 @@ mysqli_close($BDImportRecambios);
 
                 // Ejecutamos ya , porque no espera 20 segundos para empezar el ciclo... :-)       
 				bucleProceso(lineaF, lineaActual, fichero);
-                ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 20000);
+                ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 2000);
 
             }
 
