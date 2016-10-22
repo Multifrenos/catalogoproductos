@@ -39,6 +39,7 @@
 	// =========       Creamos paginado      ===================  //
 	if ($_GET[pagina]) {
 	$paginas['Actual'] = $_GET[pagina];
+	echo 'Definimos pagina actual como :'.$paginas['Actual'];
 	$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
 	} else {
 	// Si NO paremetro es la primera.
@@ -55,6 +56,7 @@
         $LinkpgFinal = $LinkpgActual;
         break;
     }
+    echo ' Redifino pagina actual...:'.$paginas['Actual'];
     
     if ($paginas['Actual'] < $paginas['Ultima']) {
 		$difPg= $paginas['Ultima']- $paginas['Actual'];
@@ -62,6 +64,7 @@
 			$difPg = 5; // Su hay mas 5, solo muestra 6
 			 
 		}
+		// Array siguientes
 		for ($i = 1; $i <= $difPg; $i++) {
 			if ($paginas['Actual']+$i != $paginas['Ultima']) {
 				$paginas['next'][$i] = $paginas['Actual']+ $i  ;
@@ -74,6 +77,7 @@
 			$difPg = 6; // Recuerda que restamos una entrada, por eso es 5 paginas solo las muestra..
 		
 		}
+		// Array anteriores
 		for ($i = 1; $i < $difPg; $i++) {
 			if ($difPg == 1) {
 				$difp = 2;
@@ -84,43 +88,79 @@
 			$paginas['previo'][$i] = $paginas['Actual']-($difp-$i);
 		}
 	}
+	// Montamos HTML para mostrar...
 	$htmlPG =  '<ul class="pagination">';
     $Linkpg = '<li><a href="./ListaRecambios.php?pagina=';
-	if ($paginas['Actual'] != $paginas['inicio']){
+	// Pagina inicio 
+	if (count($paginas['previo'])==0){
+		if ($paginas['Actual'] = $paginas['inicio']){
+			$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['inicio'].'</a></li>';
+		} else {
+		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'.$paginas['inicio'].'</a></li>';
+		}
+	} else {
+		if ($paginas['inicio']+6 <= $paginas['Actual']) {
 		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'."Inicio".'</a></li>';
 		$htmlPG = $htmlPG.'<li class="disabled"><a>'.'<<...>>'.'</...></a></li>';
-	} else {
-		$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['inicio'].'</a></li>';
-	
+
+		} else {
+		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'.$paginas['inicio'].'</a></li>';
+		}
+		
 	}
+	// Paginas anteriores
 	foreach ($paginas['previo'] as $pagina	) {
 		$htmlPG = $htmlPG.$Linkpg.$pagina.'">'.$pagina.'</a></li>';
 		
 	
 	}
-	if ($paginas['previo']){
-	// Pagina actual... 
-	$htmlPG = 	$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['Actual'].'</a></li>';
+	// Hay que tener en cuenta que cuando la pagina actual es 2, no tiene previo
+	// ya que la pagina inicio la anterior.
+	// Por este motivo los controlamos aqui.
+	echo 'Pagina Actual:'.$paginas['Actual'];
+	if ($pagina > 1 or $paginas['Actual'] == 2){
+	// Pagina actual distinta a inicio....
+	echo 'entro'; 
+	$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['Actual'].'</a></li>';
 	}
-	
+	// Pagina siguientes.
 	foreach ($paginas['next'] as $pagina	) {
 		$htmlPG = $htmlPG.$Linkpg.$pagina.'">'.$pagina.'</a></li>';
-	
 	}
-	if ($pagina + 1 == $paginas['Ultima']){
-		$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.$paginas['Ultima'].'</a></li>';
-	} else {
+	if ($paginas['Actual']+5 < $pagina['Ultima']){
 		$htmlPG = $htmlPG.'<li class="disabled"><a>'.'<<...>>'.'</...></a></li>';
-		$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.$paginas['Ultima'].'</a></li>';
-
+	}
+	if ($paginas['Actual'] != $paginas['Ultima']){
+	$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.$paginas['Ultima'].'</a></li>';
 	}
 	
 	
 	
 	
+
 	$htmlPG = $htmlPG. '</ul>';
 	?>
       
+         ?>
+	<script>
+	//~ function alertaChecked(){
+	    //~ alert(document.miFormulario.cktodos.checked)
+	//~ }
+	//~ function alertaValue(){
+	    //~ alert(document.miFormulario.cktodos.value)
+	//~ }
+	function metodoClick(){
+	    console.log("Inicimos click cktodos");
+	    if (document.miFormulario.cktodos.checked = true){
+		alert(" ahora debería activar");
+		//~ document.miFormulario.cktodos.checked = false;
+		} else {
+		alert(" Deberia desactivar");
+		//~ document.miFormulario.cktodos.checked = true;
+		document.grupoCked.style.display='block';
+		}
+	}
+	</script> 
     </head>
 
     <body>
@@ -149,12 +189,16 @@
 					<li> Ver </li>
 				</ul>
 				<h4> Mostrar Familias</h4>
-				
-				<form>
+				<form name="miFormulario">
+					<input type="checkbox" name="cktodos" value="all"  onclick="metodoClick()">Todos
+
 					<?php
 					foreach ($Familias['items'] as $familia){ 
 					    echo '<h5>'. $familia['Nombre'].'</h5>';
 					    if ($familia['NumeroHijos'] > 0){
+						?>
+						<fieldset name="grupoCked" style="display:none;">
+						<?php
 						foreach ($familia['Hijos'] as $Nieto){
 						
 						?>
@@ -164,6 +208,9 @@
 						<br/>
 						<?php
 						}
+						?>
+						</fieldset>
+						<?php
 					    }
 					    
 					}
@@ -204,7 +251,8 @@
 			
 						<?php 
 						// Ahora meto los datos de la consulta.
-						$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,"0");
+						$desde = ($paginaActual * 40)-1; 
+						$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,$desde);
 						$recambios  = $Crecambios->ObtenerRecambios($recambios);
 						foreach ($recambios['items'] as $recambio){ 
 						?>
