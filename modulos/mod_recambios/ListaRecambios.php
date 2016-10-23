@@ -9,14 +9,14 @@
 	include ("./../mod_familias/ObjetoFamilias.php");
 	include ("./ObjetoRecambio.php");
 	// Creamos objeto familia y leemos familias para mostrar..
-    $Dfamilias = new Familias;
+	$Dfamilias = new Familias;
 	$Familias= $Dfamilias->LeerFamilias($BDRecambios);
 	// Creamos objeto Recambio para realizar las consultas..
 	$Crecambios = new Recambio;
 	// Realizamos consulta para saber cuantos registros tiene y hacer paginación.
 	// Ahora creamos array paginas.
-    // Estructura:
-    // paginas{
+	// Estructura:
+	// paginas{
 	//		actual:
 	//		inicio:
 	//		ultima:
@@ -26,7 +26,7 @@
 	//		previo->
 	//			[id]
 	// 			
-    $paginas = array();
+	$paginas = array();
 	
 	
 	$limite = 40 ; // Esto puede ser variable ...
@@ -38,27 +38,29 @@
 	$paginas['inicio'] = 1;
 	// =========       Creamos paginado      ===================  //
 	if ($_GET[pagina]) {
-	$paginas['Actual'] = $_GET[pagina];
-	echo 'Definimos pagina actual como :'.$paginas['Actual'];
-	$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
+		$paginas['Actual'] = $_GET[pagina];
+		$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
 	} else {
 	// Si NO paremetro es la primera.
 	$paginas['Actual'] = 1;
 	$LinkpgActual = '<a href="./ListaRecambios.php?pagina=1">1</a>';
 	}
+	// La variables controlError la utilizao como un debug, no se muestra... Solo si hubiera un error..
+	//~ $controlError = 'Obtenemos o creamos Pagina Actual :'.$paginas['Actual']; 
+
 	switch ($paginas['Actual']) {
-    case 1:
-        $paginaInicio = $paginas['Actual'];
-        $LinkpgInicio = $LinkpgActual;
-        break;
-    case $TotalPaginas:
-        $paginas['Ultima'] = $paginas['Actual'];
-        $LinkpgFinal = $LinkpgActual;
-        break;
-    }
-    echo ' Redifino pagina actual...:'.$paginas['Actual'];
-    
-    if ($paginas['Actual'] < $paginas['Ultima']) {
+	    case 1:
+		$paginaInicio = $paginas['Actual'];
+		$LinkpgInicio = $LinkpgActual;
+		break;
+	    case $TotalPaginas:
+		$paginas['Ultima'] = $paginas['Actual'];
+		$LinkpgFinal = $LinkpgActual;
+		break;
+	}
+	//~ $controlError .= ' Redifino pagina actual...:'.$paginas['Actual'];
+	
+	if ($paginas['Actual'] < $paginas['Ultima']) {
 		$difPg= $paginas['Ultima']- $paginas['Actual'];
 		if ($difPg > 6 ){
 			$difPg = 5; // Su hay mas 5, solo muestra 6
@@ -71,6 +73,8 @@
 			} 
 		}
 	}
+	//~ $controlError .= ' actual...:'.$paginas['Actual'];
+
 	if ($paginas['Actual'] > $paginas['inicio']) {
 		$difPg= $paginas['Actual'] - $paginas['inicio'];
 		if ($difPg >6 ){
@@ -88,12 +92,14 @@
 			$paginas['previo'][$i] = $paginas['Actual']-($difp-$i);
 		}
 	}
+	//~ $controlError .= 'Pagina Actual(1):'.$paginas['Actual'];
+
 	// Montamos HTML para mostrar...
 	$htmlPG =  '<ul class="pagination">';
-    $Linkpg = '<li><a href="./ListaRecambios.php?pagina=';
+	$Linkpg = '<li><a href="./ListaRecambios.php?pagina=';
 	// Pagina inicio 
-	if (count($paginas['previo'])==0){
-		if ($paginas['Actual'] = $paginas['inicio']){
+	if (count($paginas['previo'])== 0){
+		if ($paginas['Actual'] == $paginas['inicio']){
 			$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['inicio'].'</a></li>';
 		} else {
 		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'.$paginas['inicio'].'</a></li>';
@@ -108,40 +114,47 @@
 		}
 		
 	}
+	//~ $controlError .= 'Pagina Actual(2.1):'.$paginas['Actual'];
+
+	//~ $controlError .= 'Pagina Inicio(2):'.$paginas['inicio'];
+
 	// Paginas anteriores
-	foreach ($paginas['previo'] as $pagina	) {
+	foreach ($paginas['previo'] as $pagina) {
 		$htmlPG = $htmlPG.$Linkpg.$pagina.'">'.$pagina.'</a></li>';
 		
 	
 	}
-	// Hay que tener en cuenta que cuando la pagina actual es 2, no tiene previo
-	// ya que la pagina inicio la anterior.
-	// Por este motivo los controlamos aqui.
-	echo 'Pagina Actual:'.$paginas['Actual'];
+	// El valor $pagina cuando la pagina actual es 2, es 0 ya que 
+	// no tiene previo, la uno es la pagina inicio que ya la mostramos.
+	// Por este motivo, el siguiente if para mostrar pagina actual.
+	//~ $controlError .= 'Pagina(3):'.$pagina;
+	//~ $controlError .= 'Pagina Actual (3):'.$paginas['Actual'];
+
 	if ($pagina > 1 or $paginas['Actual'] == 2){
 	// Pagina actual distinta a inicio....
-	echo 'entro'; 
 	$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['Actual'].'</a></li>';
 	}
 	// Pagina siguientes.
-	foreach ($paginas['next'] as $pagina	) {
-		$htmlPG = $htmlPG.$Linkpg.$pagina.'">'.$pagina.'</a></li>';
+	foreach ($paginas['next'] as $paginaF	) {
+		$htmlPG = $htmlPG.$Linkpg.$paginaF.'">'.$paginaF.'</a></li>';
 	}
-	if ($paginas['Actual']+5 < $pagina['Ultima']){
-		$htmlPG = $htmlPG.'<li class="disabled"><a>'.'<<...>>'.'</...></a></li>';
-	}
-	if ($paginas['Actual'] != $paginas['Ultima']){
-	$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.$paginas['Ultima'].'</a></li>';
-	}
-	
-	
-	
-	
+	//~ $controlError .= '-PaginaF:'.$paginaF;
+	// Mostramos ultima pagina, si no se mostro en previo.
+	if ($paginaF){
+		if ($paginaF + 1 < $paginas['Ultima']){
+			$htmlPG = $htmlPG.'<li class="disabled"><a>'.'<<...>>'.'</...></a></li>';
+			$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.'Ultima</a></li>';
 
+		} else{
+		$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.$paginas['Ultima'].'</a></li>';
+		}
+	}
 	$htmlPG = $htmlPG. '</ul>';
+	// Mostramos errores
+	//~ echo $controlError;
+
 	?>
       
-         ?>
 	<script>
 	//~ function alertaChecked(){
 	    //~ alert(document.miFormulario.cktodos.checked)
@@ -219,59 +232,65 @@
 			</div>
 			<!--==========  Contenido: Buscador, paginador y lista recambios ========== -->
 
-            <div class="col-md-10">
-				<h4>Recambios encontrados</h4>
+	<div class="col-md-10">
+		<h4>Recambios encontrados</h4>
                 <?php 	
-						echo 'Recambios encontrados:'.$TotalRecambios.'<br/>';
-                		echo $htmlPG;
-						
-				?>
-						
-				<form class="form-horizontal" role="form">
-                    <div class="form-group">
-					<label>Buscar</label>
-					<input class="control-label col-md-6" type="text" name="Buscar" value="">
-                    </div>
-                   
+		echo 'Recambios encontrados:'.$TotalRecambios.'<br/>';
+                echo $htmlPG;
+		//~ echo '<pre>';
+		//~ print_r($paginas);
+		//~ echo '</pre>';		
+		?>
+				
+		<form class="form-horizontal" role="form">
+			<div class="form-group">
+				<label>Buscar</label>
+				<input class="control-label col-md-6" type="text" name="Buscar" value="">
+			</div>
                  </form>
                  <!-- TABLA DE PRODUCTOS -->
-				<div>
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								<th>ID</th>
-								<th>DESCRIPCION</th>
-								<th>COSTE</th>
-								<th>MARGEN</th>
-								<th>PVP</th>
-								<th>IDFABR</th>
+		<div>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>DESCRIPCION</th>
+						<th>COSTE</th>
+						<th>MARGEN</th>
+						<th>PVP</th>
+						<th>IDFABR</th>
 
-							</tr>
-						</thead>
-			
-						<?php 
-						// Ahora meto los datos de la consulta.
-						$desde = ($paginaActual * 40)-1; 
-						$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,$desde);
-						$recambios  = $Crecambios->ObtenerRecambios($recambios);
-						foreach ($recambios['items'] as $recambio){ 
-						?>
+					</tr>
+				</thead>
+	
+				<?php 
+				// Ahora meto los datos de la consulta.
+				$paginasMulti = $paginas['Actual']-1;
+				if ($paginasMulti > 0) {
+				$desde = ($paginasMulti * $limite)-1; 
+				} else {
+				$desde = 0;
+				}
+				$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,$desde);
+				$recambios  = $Crecambios->ObtenerRecambios($recambios);
+				foreach ($recambios['items'] as $recambio){ 
+				?>
 
-						<tr>
-							<td><?php echo $recambio['id']; ?></td>
-							<td><?php echo $recambio['Descripcion']; ?></td>
-							<td><?php echo $recambio['coste']; ?></td>
-							<td><?php echo $recambio['margen']; ?></td>
-							<td><?php echo $recambio['pvp']; ?></td>
-						</tr>
+				<tr>
+					<td><?php echo $recambio['id']; ?></td>
+					<td><?php echo $recambio['Descripcion']; ?></td>
+					<td><?php echo $recambio['coste']; ?></td>
+					<td><?php echo $recambio['margen']; ?></td>
+					<td><?php echo $recambio['pvp']; ?></td>
+				</tr>
 
-						<?php 
-						}
-						?>
-						
-					</table>
-				</div>
-			</div>
+				<?php 
+				}
+				?>
+				
+			</table>
+		</div>
+	</div>
         </div>
     </body>
 </html>
