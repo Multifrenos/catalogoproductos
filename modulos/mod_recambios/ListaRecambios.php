@@ -162,17 +162,56 @@
 	//~ function alertaValue(){
 	    //~ alert(document.miFormulario.cktodos.value)
 	//~ }
-	function metodoClick(){
-	    console.log("Inicimos click cktodos");
-	    if (document.miFormulario.cktodos.checked = true){
-		alert(" ahora debería activar");
-		//~ document.miFormulario.cktodos.checked = false;
-		} else {
-		alert(" Deberia desactivar");
-		//~ document.miFormulario.cktodos.checked = true;
-		document.grupoCked.style.display='block';
-		}
+	function VerRecambiosSeleccionado (){
+		$(document).ready(function()
+		{
+			// Array para meter lo id de los checks
+			var checkID = [];
+			// Contamos check están activos.... 
+			var cant = 0;
+			var i= 0;
+			// Con la funcion each hace bucle todos los que encuentra..
+			$(".rowRecambio").each(function(){ 
+				i++;
+				//todos los que sean de la clase row1
+				if($('input[name=checkRec'+i+']').is(':checked')){
+					// cant cuenta los que está seleccionado.
+					cant++;
+					checkID.push( i );
+					// Ahora tengo hacer array con id...
+				}
+				
+			});
+			alert('Total check:'+cant);
+			console.log(checkID);
+			return checkID;
+		});
+	
+	
 	}
+	
+	
+	function metodoClick(pulsado){
+	    console.log("Inicimos switch de control pulsar");
+	    switch(pulsado) {
+			case 'VerRecambio':
+				console.log('Entro en VerRecambio');
+				var Recambio =  VerRecambiosSeleccionado ();
+				if (Recambio.length >1) {
+				alert ('Solo puedes editar uno ');	
+				}
+				break;
+			case 'AñadirRecambio':
+				alert('VerRecambio');
+				break;
+			default:
+				alert('Error no pulsado incorrecto');
+			}
+	} 
+	    
+	    
+	    
+
 	</script> 
     </head>
 
@@ -194,15 +233,19 @@
 			
 			<!--=================  Sidebar -- Menu y filtro =============== -->
 			<div class=" col-md-2">
+				<?php 
+					/*  Al pulsar en cualquiera de estas opciones vamos ejecutar funcion AJAX.
+					 * */
+				?>
 				<h4> Opciones Recambios</h4>
 				<ul>
 					<li> Añadir</li>
 					<li> Modificar</li>
 					<li> Borrar</li>
-					<li> Ver </li>
+					<li><input type="submit" value="Ver" onclick="metodoClick('VerRecambio');"> </li>
 				</ul>
 				<h4> Mostrar Familias</h4>
-				<form name="miFormulario">
+				<form name="FormFamilia">
 					<input type="checkbox" name="cktodos" value="all"  onclick="metodoClick()">Todos
 
 					<?php
@@ -253,6 +296,7 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
+						<th></th>
 						<th>ID</th>
 						<th>DESCRIPCION</th>
 						<th>COSTE</th>
@@ -271,10 +315,23 @@
 				} else {
 				$desde = 0;
 				}
+				// Realizamos consulta 
 				$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,$desde);
 				$recambios  = $Crecambios->ObtenerRecambios($recambios);
+				$checkRecam = 0;
 				foreach ($recambios['items'] as $recambio){ 
+					$checkRecam = $checkRecam + 1; 
 				?>
+
+				<tr>
+					<td class="rowRecambio"><input type="checkbox" name="checkRec<?php echo $checkRecam;?>" value="<?php echo $recambio['id'];?>">
+					</td>
+					<td><?php echo $recambio['id']; ?></td>
+					<td><?php echo $recambio['Descripcion']; ?></td>
+					<td><?php echo $recambio['coste']; ?></td>
+					<td><?php echo $recambio['margen']; ?></td>
+					<td><?php echo $recambio['pvp']; ?></td>
+				</tr>
 
 				<tr>
 					<td><?php echo $recambio['id']; ?></td>
