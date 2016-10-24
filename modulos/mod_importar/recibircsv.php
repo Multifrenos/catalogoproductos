@@ -295,6 +295,12 @@ mysqli_close($BDImportRecambios);
         </div>
         <!-- Script para ejecutar funcion php -->
         <script>
+			// [ PENDIENTE  ]
+			// Una vez pulsado btn Importar a Mysql deberíamos desactivar 
+			// input de lineas y btn , para evitar que usuario pulse en ellos y cambie o vuelve ejecutar.
+			// AUNQUE AL ESTAR LA PETICIONES COMO SINCRONO, YA NO ES TAN FACIL... :-)
+			
+			// **************  Variables Globales ********************
             // La variables lineaActual y lineaF son globales .
             // Estás variables la lee al cargar la pagina.
 
@@ -311,9 +317,26 @@ mysqli_close($BDImportRecambios);
                 alert('Iniciamo ciclo, recuerda que añade 400 registros y tarda 20 segundo \n' +
                         ' cada vez que actualiza la barra de proceso.');
 
-                // Ejecutamos ya , porque no espera 20 segundos para empezar el ciclo... :-)       
+                
 				bucleProceso(lineaF, lineaActual, fichero);
-                ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 2000);
+				// 15000ms segundo es el tiempo que ponemos por defecto para realizar la ciclo de peticiones a servidor.
+				// Recuerda que las peticiones AJAX está como sincrono en el hilo principal están desaprobadas ( algo que no recomiendan en :
+				// http://xhr.spec.whatwg.org/)
+				// Al ser peticiones sincrono, afecta realmente al cliente ( usuario ) ya que no le permite hacer nada en navegador
+				// mientras realiza ciclo.
+				// En la instrucción anterior [bucleProceso(bucleProceso(lineaF, lineaActual, fichero)]
+				// realizamos el primer proceso, antes de empezar el ciclo.
+				// Si hacemos un control tiempo al iniciar petición y al terminar podemos saber
+				// el tiempo que tarda en hacer el proceso 400 registros y sustituir 15000ms 
+				// Al utilizar setInterval() crea un ciclo ejecutando la funcion cada ms que le indiquemos.
+				// 		- 	Empieza contar el tiempo y realiza petición:
+				//			Esto hace que durante los 15 primeros segundos desde pulsar btn, el usuario puede utilizar btn derecho raton
+				// 		y puede inspecciona consola de eventos...  , luego el tiempo es tan justo que no puedrá. :-)
+				//		- Sigue contando el tiempo aunque tengamos sincrono, pero si no recibe respuesta,
+				// 		no manda la siguiente peticion antes de termine...
+				// Esto es una mezcla ( para mi ) sincrono y asincrono... :-)
+
+                ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 15000);
 
             }
 

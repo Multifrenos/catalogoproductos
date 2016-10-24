@@ -77,7 +77,7 @@ function consultaDatos(linea,lineaF,fichero) {
 			};
 	$.ajax({
 			async:false, // Carga peticiones de forma sincrono , no asincrono.
-            cache:false,
+            //cache:false, // No lo texteo lo suficiente , pero pienso que repite registros y lo hace mal...( por defecto es true)
 			data:  parametros,
 			url:   'msql_csv.php',
 			type:  'post',
