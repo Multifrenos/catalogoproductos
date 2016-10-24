@@ -19,15 +19,43 @@
 		// Realizamos consulta para saber cuantos registros tiene y hacer paginación.
 		$RecamID = $Crecambios->RecambioUnico($BDRecambios,$id);
 		$RecamID = $Crecambios->ObtenerRecambios($RecamID);
+		$Recambio = $RecamID[items][0];
+		// Buscamos datos ID familia.
+		$tabla = 'recamb_familias';
+		$FamRecam = $Crecambios->UnicoRegistro($BDRecambios,$id,$tabla);
+		// Buscamos  nombre familia;
+		$tabla = 'familias_recambios';
+		$NombreFamRecam = $Crecambios->UnicoRegistro($BDRecambios,$FamRecam['id'],$tabla);
+		// Buscamos datos fabricante.
+		$IdFabri =$Recambio['IDFabricante'];
+		$tabla = 'fabricantes_recambios';
+		$FabRecam = $Crecambios->UnicoRegistro($BDRecambios,$IdFabri,$tabla);
+		// Buscamos datos familia.
+		
+		
 		?>
 	</head>
 	<body>
+		<?php
+        include './../../header.php';
+        ?>
 		<div class="container">
 			<div class="col-md-7">
 				<h1> Recambio : DESCRIPCION</h1>
 				<?php
 				echo '<pre>';
 				print_r($RecamID);
+				echo ' Familia '.'<br/>';
+				print_r($FamRecam);
+				echo 'Nombre Familia <br/>';
+				print_r($NombreFamRecam);
+				echo 'Error '.mysqli_error($BDRecambios).'<br/>';
+
+				echo ' Fabricante <br/>';
+				print_r($FabRecam);
+
+				echo 'Error '.mysqli_error($BDRecambios);
+
 				echo '</pre> ';
 				?>
 				<div class="col-md-6">

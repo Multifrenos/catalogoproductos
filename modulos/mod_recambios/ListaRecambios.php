@@ -336,6 +336,7 @@
 					<td><?php echo $recambio['coste']; ?></td>
 					<td><?php echo $recambio['margen']; ?></td>
 					<td><?php echo $recambio['pvp']; ?></td>
+					<td><?php echo $recambio['IDFabricante'];?></td>
 				</tr>
 
 				<tr>

@@ -17,6 +17,7 @@ class Recambio
 			$recambios['items'][$i]['coste']= $recambio['coste'];
 			$recambios['items'][$i]['margen']= $recambio['margen'];
 			$recambios['items'][$i]['pvp']= $recambio['pvp'];
+			$recambios['items'][$i]['IDFabricante']= $recambio['IDFabricante'];
 
 			
 			$i = $i+1;
@@ -59,6 +60,17 @@ class Recambio
 		return $ResRecambios ;
     }
     
+    function UnicoRegistro ($BDRecambios,$id,$tabla) {
+		$consulta = 'SELECT * FROM `'. $tabla.'` WHERE id='.$id;
+		$QueryUnico = $BDRecambios->query($consulta);
+		if (mysqli_error($BDRecambios)) {
+			$fila = $QueryUnico;
+		} else {
+			$fila = $QueryUnico->fetch_assoc();
+		}
+		//~ $fila = $consulta;
+		return $fila ;
+	}
     
     
     
