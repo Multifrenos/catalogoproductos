@@ -156,19 +156,15 @@
 	?>
       
 	<script>
-	//~ function alertaChecked(){
-	    //~ alert(document.miFormulario.cktodos.checked)
-	//~ }
-	//~ function alertaValue(){
-	    //~ alert(document.miFormulario.cktodos.value)
-	//~ }
+	// Declaramos variables globales
+	var checkID = [];
 	function VerRecambiosSeleccionado (){
 		$(document).ready(function()
 		{
 			// Array para meter lo id de los checks
-			var checkID = [];
+			
 			// Contamos check están activos.... 
-			var cant = 0;
+			checkID = [] ; // Reiniciamos varible global.
 			var i= 0;
 			// Con la funcion each hace bucle todos los que encuentra..
 			$(".rowRecambio").each(function(){ 
@@ -176,15 +172,13 @@
 				//todos los que sean de la clase row1
 				if($('input[name=checkRec'+i+']').is(':checked')){
 					// cant cuenta los que está seleccionado.
-					cant++;
 					checkID.push( i );
 					// Ahora tengo hacer array con id...
 				}
 				
 			});
-			alert('Total check:'+cant);
-			console.log(checkID);
-			return checkID;
+			console.log('ID de Recmabios seleccionado:'+checkID);
+			return;
 		});
 	
 	
@@ -196,10 +190,21 @@
 	    switch(pulsado) {
 			case 'VerRecambio':
 				console.log('Entro en VerRecambio');
-				var Recambio =  VerRecambiosSeleccionado ();
-				if (Recambio.length >1) {
-				alert ('Solo puedes editar uno ');	
+				// Cargamos variable global ar checkID = [];
+				VerRecambiosSeleccionado ();
+				if (checkID.length >1) {
+				alert ('Solo puedes selecciona \n un recambio para editar');
+				return	
 				}
+				// Ahora redireccionamos 
+				// recambi.php?id=id
+				window.location.href = './recambio.php?id='+checkID[0];
+				
+				
+				
+				
+				
+				
 				break;
 			case 'AñadirRecambio':
 				alert('VerRecambio');
