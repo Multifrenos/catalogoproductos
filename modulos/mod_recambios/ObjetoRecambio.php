@@ -46,10 +46,10 @@ class Recambio
 		return $ResRecambios ;
     }
     
-    function RecambioUnico($BDRecambios,$id)
+    function BusquedaIDUnico($BDRecambios,$id,$tabla)
     {
-		$consulta = "SELECT * FROM `recambios` WHERE id=".$id;
-		$ResRecambios = $BDRecambios->query($consulta);
+		$consulta = 'SELECT * FROM `'.$tabla.'` WHERE '.$id;
+		$Resultado = $BDRecambios->query($consulta);
 		 //~ if ($ResRecambios == true){
 			//~ $recambios['conexion'] = 'Correcto,consulta todas familias';
 			//~ } else {
@@ -57,18 +57,18 @@ class Recambio
 			//~ return $resultado;
 			//~ // No continuamos..
 		//~ }
-		return $ResRecambios ;
+		return $Resultado ;
     }
     
     function UnicoRegistro ($BDRecambios,$id,$tabla) {
-		$consulta = 'SELECT * FROM `'. $tabla.'` WHERE id='.$id;
+		$consulta = 'SELECT * FROM `'. $tabla.'` WHERE '.$id;
 		$QueryUnico = $BDRecambios->query($consulta);
 		if (mysqli_error($BDRecambios)) {
 			$fila = $QueryUnico;
 		} else {
 			$fila = $QueryUnico->fetch_assoc();
 		}
-		//~ $fila = $consulta;
+		$fila['consulta'] = $consulta;
 		return $fila ;
 	}
     

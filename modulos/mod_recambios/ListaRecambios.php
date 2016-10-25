@@ -37,6 +37,57 @@
 	$paginas['Ultima'] = round($TotalPaginas, 0, PHP_ROUND_HALF_UP);   // Redondeo al alza...
 	$paginas['inicio'] = 1;
 	// =========       Creamos paginado      ===================  //
+	if ($_GET) {
+		if ($_GET['pagina']) {
+			$paginas['Actual'] = $_GET['pagina'];
+			$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
+		} 
+	} else {
+	// Si NO paremetro es la primera.
+	$paginas['Actual'] = 1;
+	$LinkpgActual = '<a href="./ListaRecambios.php?pagina=1">1</a>';
+	}
+	// La variables controlError la utilizao como un debug, no se muestra... Solo si hubiera un error..
+	//~ $controlError = 'Obtenemos o creamos Pagina Actual :'.$paginas['Actual']; 
+
+	switch ($paginas['Actual']) {
+	    case 1:
+		$paginaInicio = $paginas['Actual'];
+		$LinkpgInicio = $LinkpgActual;
+		break;
+	    case $TotalPaginas:
+		$paginas['Ultima'] = $paginas['Actual'];
+		$LinkpgFinal = $LinkpgActual;
+		break;
+	}
+	//~ $controlError .= ' Redifino pagina actual...:'.$paginas['Actual'];
+	
+	// Consultamos cuantos registros hay en Recambios:
+	$Crecambios = new Recambio;
+	// Realizamos consulta para saber cuantos registros tiene y hacer paginación.
+	// Ahora creamos array paginas.
+	// Estructura:
+	// paginas{
+	//		actual:
+	//		inicio:
+	//		ultima:
+	//		
+	//		next->
+	//			[id]
+	//		previo->
+	//			[id]
+	// 			
+	$paginas = array();
+	
+	
+	$limite = 40 ; // Esto puede ser variable ...
+	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0");
+	$TotalRecambios = $ContarRecambios->num_rows;
+	$TotalPaginas = $TotalRecambios / $limite ;
+	
+	$paginas['Ultima'] = round($TotalPaginas, 0, PHP_ROUND_HALF_UP);   // Redondeo al alza...
+	$paginas['inicio'] = 1;
+	// =========       Creamos paginado      ===================  //
 	if ($_GET[pagina]) {
 		$paginas['Actual'] = $_GET[pagina];
 		$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
@@ -172,7 +223,9 @@
 				//todos los que sean de la clase row1
 				if($('input[name=checkRec'+i+']').is(':checked')){
 					// cant cuenta los que está seleccionado.
-					checkID.push( i );
+					valor = '0';
+					valor = $('input[name=checkRec'+i+']').val();
+					checkID.push( valor );
 					// Ahora tengo hacer array con id...
 				}
 				
