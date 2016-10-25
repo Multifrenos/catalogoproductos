@@ -3,9 +3,8 @@
     <head>
         <?php
 // Reinicio variables
-        include './../../head.php';
-        include ("./../mod_conexion/conexionBaseDatos.php");
-        
+	include './../../head.php';
+	include ("./../mod_conexion/conexionBaseDatos.php");    
 	include ("./../mod_familias/ObjetoFamilias.php");
 	include ("./ObjetoRecambio.php");
 	// Creamos objeto familia y leemos familias para mostrar..
@@ -27,75 +26,37 @@
 	//			[id]
 	// 			
 	$paginas = array();
-	
-	
-	$limite = 40 ; // Esto puede ser variable ...
-	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0");
-	$TotalRecambios = $ContarRecambios->num_rows;
-	$TotalPaginas = $TotalRecambios / $limite ;
-	
-	$paginas['Ultima'] = round($TotalPaginas, 0, PHP_ROUND_HALF_UP);   // Redondeo al alza...
-	$paginas['inicio'] = 1;
-	// =========       Creamos paginado      ===================  //
+	// Obtenemos datos url si los hay...
 	if ($_GET) {
 		if ($_GET['pagina']) {
 			$paginas['Actual'] = $_GET['pagina'];
 			$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
-		} 
+		} else {
+			$paginas['Actual'] = 1;
+		}
+	
+		if ($_GET['buscar']) {
+			$palabraBuscar = $_GET['buscar'];
+		} else {
+			$palabraBuscar = '';
+		}
+	}
+		
+	if ($palabraBuscar !== '') {
+		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%'";
+		//~ echo ' Ver Entro: '.$filtro;
 	} else {
-	// Si NO paremetro es la primera.
-	$paginas['Actual'] = 1;
-	$LinkpgActual = '<a href="./ListaRecambios.php?pagina=1">1</a>';
+	$filtro = '';
 	}
-	// La variables controlError la utilizao como un debug, no se muestra... Solo si hubiera un error..
-	//~ $controlError = 'Obtenemos o creamos Pagina Actual :'.$paginas['Actual']; 
-
-	switch ($paginas['Actual']) {
-	    case 1:
-		$paginaInicio = $paginas['Actual'];
-		$LinkpgInicio = $LinkpgActual;
-		break;
-	    case $TotalPaginas:
-		$paginas['Ultima'] = $paginas['Actual'];
-		$LinkpgFinal = $LinkpgActual;
-		break;
-	}
-	//~ $controlError .= ' Redifino pagina actual...:'.$paginas['Actual'];
-	
-	// Consultamos cuantos registros hay en Recambios:
-	$Crecambios = new Recambio;
-	// Realizamos consulta para saber cuantos registros tiene y hacer paginación.
-	// Ahora creamos array paginas.
-	// Estructura:
-	// paginas{
-	//		actual:
-	//		inicio:
-	//		ultima:
-	//		
-	//		next->
-	//			[id]
-	//		previo->
-	//			[id]
-	// 			
-	$paginas = array();
-	
-	
 	$limite = 40 ; // Esto puede ser variable ...
-	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0");
+	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0",$filtro);
 	$TotalRecambios = $ContarRecambios->num_rows;
 	$TotalPaginas = $TotalRecambios / $limite ;
 	
 	$paginas['Ultima'] = round($TotalPaginas, 0, PHP_ROUND_HALF_UP);   // Redondeo al alza...
 	$paginas['inicio'] = 1;
 	// =========       Creamos paginado      ===================  //
-	if ($_GET[pagina]) {
-		$paginas['Actual'] = $_GET[pagina];
-		$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
-	} else {
-	// Si NO paremetro es la primera.
-	$paginas['Actual'] = 1;
-	$LinkpgActual = '<a href="./ListaRecambios.php?pagina=1">1</a>';
-	}
+	
 	// La variables controlError la utilizao como un debug, no se muestra... Solo si hubiera un error..
 	//~ $controlError = 'Obtenemos o creamos Pagina Actual :'.$paginas['Actual']; 
 
@@ -209,6 +170,7 @@
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
+	var BRecambios ='';
 	function VerRecambiosSeleccionado (){
 		$(document).ready(function()
 		{
@@ -237,6 +199,27 @@
 	
 	}
 	
+	function BuscarRecambio (){
+		$(document).ready(function()
+		{
+			// Lo ideal sería identificar palabras..
+			// de momento solo una palabra..
+			NuevoValorBuscar = $('input[name=Buscar').val();
+			NuevoValorBuscar = $.trim(NuevoValorBuscar);
+			if (NuevoValorBuscar !== ''){
+				BRecambios= NuevoValorBuscar;
+				console.log('Filtro:'+BRecambios);
+			} else {
+				alert (' Debes poner algun texto ');
+				BRecambios = '';
+			}
+			return;
+		});
+	
+	
+	}
+	
+	
 	
 	function metodoClick(pulsado){
 	    console.log("Inicimos switch de control pulsar");
@@ -259,8 +242,17 @@
 				
 				
 				break;
-			case 'AñadirRecambio':
-				alert('VerRecambio');
+			case 'NuevaBusqueda':
+				// Obtenemos puesto en input de Buscar
+				BuscarRecambio ();
+				// Ahora redireccionamos 
+				// recambi.php?buscar = buquedaid=id
+				if (BRecambios !== ''){
+					window.location.href = './ListaRecambios.php?buscar='+BRecambios;
+				} else {
+					window.location.href = './ListaRecambios.php';	
+				}
+				console.log('Resultado Buscar:'+BRecambios);
 				break;
 			default:
 				alert('Error no pulsado incorrecto');
@@ -343,12 +335,12 @@
 		//~ echo '</pre>';		
 		?>
 				
-		<form class="form-horizontal" role="form">
-			<div class="form-group">
+			<div class="form-group ClaseBuscar">
 				<label>Buscar</label>
-				<input class="control-label col-md-6" type="text" name="Buscar" value="">
+				<input type="text" name="Buscar" value="">
+				<input type="submit" name="BtnBuscar" value="Buscar" onclick="metodoClick('NuevaBusqueda');">
 			</div>
-                 </form>
+			
                  <!-- TABLA DE PRODUCTOS -->
 		<div>
 			<table class="table table-striped">
@@ -374,7 +366,12 @@
 				$desde = 0;
 				}
 				// Realizamos consulta 
-				$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,$desde);
+				if ($palabraBuscar !== '') {
+				$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%'";
+				} else {
+				$filtro = '';
+				}
+				$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,$desde,$filtro);
 				$recambios  = $Crecambios->ObtenerRecambios($recambios);
 				$checkRecam = 0;
 				foreach ($recambios['items'] as $recambio){ 
@@ -390,14 +387,6 @@
 					<td><?php echo $recambio['margen']; ?></td>
 					<td><?php echo $recambio['pvp']; ?></td>
 					<td><?php echo $recambio['IDFabricante'];?></td>
-				</tr>
-
-				<tr>
-					<td><?php echo $recambio['id']; ?></td>
-					<td><?php echo $recambio['Descripcion']; ?></td>
-					<td><?php echo $recambio['coste']; ?></td>
-					<td><?php echo $recambio['margen']; ?></td>
-					<td><?php echo $recambio['pvp']; ?></td>
 				</tr>
 
 				<?php 

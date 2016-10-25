@@ -27,22 +27,23 @@ class Recambio
     
     
     
-    function ConsultaRecambios($BDRecambios,$limite,$desde)
+    function ConsultaRecambios($BDRecambios,$limite,$desde,$filtro)
     {
-		if ($limite > 0){
-			$rango = "LIMIT ".$limite." OFFSET ".$desde;
-			} else {
-			$rango ="";
-		}
+		$rango = $filtro ;
+		if ($limite > 0 ){
+			$rango .= " LIMIT ".$limite." OFFSET ".$desde;
+		} 
         $consulta = "SELECT * FROM `recambios`".$rango;
 		$ResRecambios = $BDRecambios->query($consulta);
-		 //~ if ($ResRecambios == true){
-			//~ $recambios['conexion'] = 'Correcto,consulta todas familias';
-			//~ } else {
-			//~ $ResRecambios['conexion'] = 'Error '.mysqli_error($BDRecambios);	
-			//~ return $resultado;
-			//~ // No continuamos..
-		//~ }
+		 if ($ResRecambios == true){
+			$recambios['conexion'] = 'Correcto,consulta todas familias';
+			} else {
+			$ResRecambios['conexion'] = 'Error '.mysqli_error($BDRecambios);
+			$ResRecambios['consulta'] = $consulta;
+				
+			return $ResRecambios;
+			// No continuamos..
+		}
 		return $ResRecambios ;
     }
     
