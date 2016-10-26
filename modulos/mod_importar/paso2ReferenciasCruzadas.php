@@ -223,7 +223,7 @@
 					<tbody>
 					  <tr>
 						<th>Campos con menos 2 caracteres</th>
-						<td>Total Registros:<strong><span id="total"></span></strong></td>
+						<td>Registros con ESTADO en blanco:<strong><span id="total"></span></strong></td>
 						<td>ERR:[CampoVacio]</td>
 						<td>Registros campos mal:<strong><span id="campVa"></span></strong></td>
 					  </tr>

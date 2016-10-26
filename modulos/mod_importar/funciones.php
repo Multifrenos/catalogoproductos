@@ -231,6 +231,7 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     $ref_f = $_POST['Ref_fa']; // Referencia de fabricante cruzado.
     $fab_ref = $_POST['Fab_ref'];// Nombre fabricante cruzado.
     // Reiniciamos 
+    $fecha = date('Y-m-d');
     $datos[0]['respuesta'] = "";
     $ControlPaso = "";
     $ControlBusqueda = "";
@@ -301,7 +302,7 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
 			$ControlPaso = $ControlPaso." [NO EXISTE REFCRUZADA]=".$ref_f;
 
 			
-			$creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id . "," . "'".$ref_f. "'" . ")";
+			$creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id . "," . "'".$ref_f. "','" .$fecha. "')";
 			$ControlBusqueda = $creaCru."\n";
 			
 			mysqli_query($BDRecambios, $creaCru);
