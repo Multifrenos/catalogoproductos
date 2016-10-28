@@ -42,7 +42,7 @@
 			$palabraBuscar = '';
 		}
 	}
-		
+	// ===================  CONSULTAMOS CUANTOS RECAMBIOS HAY CON LA BUSQUEDA QUE PUSIMOS  =============   //	
 	if ($palabraBuscar !== '') {
 		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%'";
 		//~ echo ' Ver Entro: '.$filtro;
@@ -50,7 +50,10 @@
 	$filtro = '';
 	}
 	$limite = 40 ; // Esto puede ser variable ...
+	// Realizamos consulta
 	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0",$filtro);
+	
+	// Obtenemos datos
 	$TotalRecambios = $ContarRecambios->num_rows;
 	$TotalPaginas = $TotalRecambios / $limite ;
 	
@@ -167,6 +170,9 @@
 	$htmlPG = $htmlPG. '</ul>';
 	// Mostramos errores
 	//~ echo $controlError;
+	
+	// =========       Fin paginado      ===================  //
+
 
 	?>
       
@@ -329,17 +335,13 @@
 			<!--==========  Contenido: Buscador, paginador y lista recambios ========== -->
 
 	<div class="col-md-10">
-		<h4>Recambios encontrados</h4>
-                <?php 	
-		echo 'Recambios encontrados:'.$TotalRecambios.'<br/>';
-                echo $htmlPG;
-		//~ echo '<pre>';
-		//~ print_r($paginas);
-		//~ echo '</pre>';		
-		?>
+		<h4>Recambios encontrados:<?php echo $TotalRecambios;?></h4>
+                <?php 	// Mostramos paginacion 
+                  echo $htmlPG;
+				?>
 				
 			<div class="form-group ClaseBuscar">
-				<label>Buscar</label>
+				<label>Buscar por descripcion</label>
 				<input type="text" name="Buscar" value="">
 				<input type="submit" name="BtnBuscar" value="Buscar" onclick="metodoClick('NuevaBusqueda');">
 			</div>
