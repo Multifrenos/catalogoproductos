@@ -18,6 +18,7 @@ class Recambio
 			$recambios['items'][$i]['margen']= $recambio['margen'];
 			$recambios['items'][$i]['pvp']= $recambio['pvp'];
 			$recambios['items'][$i]['IDFabricante']= $recambio['IDFabricante'];
+			$recambios['items'][$i]['RefFabricanteCru']= $recambio['RefFabricanteCru'];
 
 			
 			$i = $i+1;
@@ -33,7 +34,10 @@ class Recambio
 		if ($limite > 0 ){
 			$rango .= " LIMIT ".$limite." OFFSET ".$desde;
 		} 
-        $consulta = "SELECT * FROM `recambios`".$rango;
+		
+		$consulta = "SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru FROM recambios R JOIN referenciascruzadas RC ON RC.RecambioID = R.id ".$rango;
+        //~ $consulta = "SELECT * FROM `recambios`".$rango;
+        
 		$ResRecambios = $BDRecambios->query($consulta);
 		 if ($ResRecambios == true){
 			$recambios['conexion'] = 'Correcto,consulta todas familias';
@@ -44,6 +48,7 @@ class Recambio
 			return $ResRecambios;
 			// No continuamos..
 		}
+		//~ echo $consulta;
 		return $ResRecambios ;
     }
     

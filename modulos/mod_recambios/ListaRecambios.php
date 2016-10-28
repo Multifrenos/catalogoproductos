@@ -10,10 +10,9 @@
 	// Creamos objeto familia y leemos familias para mostrar..
 	$Dfamilias = new Familias;
 	$Familias= $Dfamilias->LeerFamilias($BDRecambios);
-	// Creamos objeto Recambio para realizar las consultas..
-	$Crecambios = new Recambio;
-	// Realizamos consulta para saber cuantos registros tiene y hacer paginación.
 	// Ahora creamos array paginas.
+	$paginas = array();
+
 	// Estructura:
 	// paginas{
 	//		actual:
@@ -25,8 +24,8 @@
 	//		previo->
 	//			[id]
 	// 			
-	$paginas = array();
-	$paginas['Actual'] = 1; // por defecto es uno.
+	$paginas['Actual'] = 1; // por defecto
+	$palabraBuscar = ''; // por defecto
 	// Obtenemos datos url si los hay...
 	if ($_GET) {
 		if ($_GET['pagina']) {
@@ -43,23 +42,26 @@
 		}
 	}
 	// ===================  CONSULTAMOS CUANTOS RECAMBIOS HAY CON LA BUSQUEDA QUE PUSIMOS  =============   //	
+	// Creamos objeto Recambio para realizar las consultas..
+	$Crecambios = new Recambio;
 	if ($palabraBuscar !== '') {
-		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%'";
+		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
 		//~ echo ' Ver Entro: '.$filtro;
 	} else {
 	$filtro = '';
 	}
 	$limite = 40 ; // Esto puede ser variable ...
-	// Realizamos consulta
+	// Realizamos consulta para saber cuantos registros tiene y hacer paginación.
 	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0",$filtro);
-	
 	// Obtenemos datos
 	$TotalRecambios = $ContarRecambios->num_rows;
+	
+	// =========       Creamos paginado      ===================  //
+
 	$TotalPaginas = $TotalRecambios / $limite ;
 	
 	$paginas['Ultima'] = round($TotalPaginas, 0, PHP_ROUND_HALF_UP);   // Redondeo al alza...
 	$paginas['inicio'] = 1;
-	// =========       Creamos paginado      ===================  //
 	
 	// La variables controlError la utilizao como un debug, no se muestra... Solo si hubiera un error..
 	//~ $controlError = 'Obtenemos o creamos Pagina Actual :'.$paginas['Actual']; 
@@ -341,7 +343,7 @@
 				?>
 				
 			<div class="form-group ClaseBuscar">
-				<label>Buscar por descripcion</label>
+				<label>Buscar en descripcion / Referencia Fabricante</label>
 				<input type="text" name="Buscar" value="">
 				<input type="submit" name="BtnBuscar" value="Buscar" onclick="metodoClick('NuevaBusqueda');">
 			</div>
@@ -357,7 +359,7 @@
 						<th>COSTE</th>
 						<th>MARGEN</th>
 						<th>PVP</th>
-						<th>IDFABR</th>
+						<th>REF_FABR</th>
 
 					</tr>
 				</thead>
@@ -372,9 +374,9 @@
 				}
 				// Realizamos consulta 
 				if ($palabraBuscar !== '') {
-				$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%'";
+					$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
 				} else {
-				$filtro = '';
+					$filtro = '';
 				}
 				$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,$desde,$filtro);
 				$recambios  = $Crecambios->ObtenerRecambios($recambios);
@@ -391,7 +393,7 @@
 					<td><?php echo $recambio['coste']; ?></td>
 					<td><?php echo $recambio['margen']; ?></td>
 					<td><?php echo $recambio['pvp']; ?></td>
-					<td><?php echo $recambio['IDFabricante'];?></td>
+					<td><?php echo $recambio['RefFabricanteCru'];?></td>
 				</tr>
 
 				<?php 

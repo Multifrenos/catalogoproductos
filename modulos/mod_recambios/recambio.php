@@ -94,7 +94,7 @@
 					// UrlImagen
 					$img = './../../imagenes/recambios/'.$Recambio['IDFabricante'].'/'.$Recambio['FabricanteRef'];
 					?>
-					<img src="<?php echo $img;?>" style="width:100%;">
+					<a href="<?php echo $img;?>"><img src="<?php echo $img;?>" style="width:100%;"></a>
 				</div>
 				<div class="col-md-6">
 				<p>ID:</p>
