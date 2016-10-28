@@ -26,13 +26,14 @@
 	//			[id]
 	// 			
 	$paginas = array();
+	$paginas['Actual'] = 1; // por defecto es uno.
 	// Obtenemos datos url si los hay...
 	if ($_GET) {
 		if ($_GET['pagina']) {
 			$paginas['Actual'] = $_GET['pagina'];
 			$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
-		} else {
-			$paginas['Actual'] = 1;
+		//~ } else {
+			//~ $paginas['Actual'] = 1;
 		}
 	
 		if ($_GET['buscar']) {
@@ -114,11 +115,11 @@
 		if ($paginas['Actual'] == $paginas['inicio']){
 			$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['inicio'].'</a></li>';
 		} else {
-		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'.$paginas['inicio'].'</a></li>';
+		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'&buscar='.$palabraBuscar.'">'.$paginas['inicio'].'</a></li>';
 		}
 	} else {
 		if ($paginas['inicio']+6 <= $paginas['Actual']) {
-		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'."Inicio".'</a></li>';
+		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'&buscar='.$palabraBuscar.'">'."Inicio".'</a></li>';
 		$htmlPG = $htmlPG.'<li class="disabled"><a>'.'<<...>>'.'</...></a></li>';
 
 		} else {
@@ -132,7 +133,9 @@
 
 	// Paginas anteriores
 	foreach ($paginas['previo'] as $pagina) {
-		$htmlPG = $htmlPG.$Linkpg.$pagina.'">'.$pagina.'</a></li>';
+		// Si hay valor de busqueda tenemos que meterlo en link.
+		
+		$htmlPG = $htmlPG.$Linkpg.$pagina.'&buscar='.$palabraBuscar.'">'.$pagina.'</a></li>';
 		
 	
 	}
@@ -148,17 +151,17 @@
 	}
 	// Pagina siguientes.
 	foreach ($paginas['next'] as $paginaF	) {
-		$htmlPG = $htmlPG.$Linkpg.$paginaF.'">'.$paginaF.'</a></li>';
+		$htmlPG = $htmlPG.$Linkpg.$paginaF.'&buscar='.$palabraBuscar.'">'.$paginaF.'</a></li>';
 	}
 	//~ $controlError .= '-PaginaF:'.$paginaF;
 	// Mostramos ultima pagina, si no se mostro en previo.
 	if ($paginaF){
 		if ($paginaF + 1 < $paginas['Ultima']){
 			$htmlPG = $htmlPG.'<li class="disabled"><a>'.'<<...>>'.'</...></a></li>';
-			$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.'Ultima</a></li>';
+			$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'&buscar='.$palabraBuscar.'">'.'Ultima</a></li>';
 
 		} else{
-		$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.$paginas['Ultima'].'</a></li>';
+		$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'&buscar='.$palabraBuscar.'">'.$paginas['Ultima'].'</a></li>';
 		}
 	}
 	$htmlPG = $htmlPG. '</ul>';
