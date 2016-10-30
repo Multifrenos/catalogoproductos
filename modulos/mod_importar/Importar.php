@@ -11,7 +11,7 @@
 ?>
 
 <div class="container">
-	<div class="col-md-4">
+	<div class="col-md-3">
 		<h2>Importación de datos a Recambios.</h2>
 		<p> La importación de datos al "Catalogo de Recambios" se hacer en dos fases:</p>
 		<ol>
@@ -40,7 +40,7 @@
 		</div>
 		
 	</div>
-	<div class="col-md-8">
+	<div class="col-md-9">
 		<?php include 'enviarcsv.php'; ?>
 	</div>
 	

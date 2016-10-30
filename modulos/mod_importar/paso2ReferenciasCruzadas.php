@@ -15,6 +15,11 @@
         $htmlfamilias = '';
         include './../../head.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
+        include ("./Consultas.php");
+        $consultaRegistros = new ConsultaImportar;
+		$tabla ="referenciascruzadas";
+		$whereC = ""; 
+		$totalRegistro = $consultaRegistros->contarRegistro($BDImportRecambios,$tabla,$whereC);
         ?>
         <script>
             var lineafinal; // Indica el final ciclo primero de fabricantes...
@@ -34,7 +39,7 @@
                     };
                     $.ajax({
                         data: parametros,
-                        url: 'funciones.php',
+                        url: 'tareas.php',
                         type: 'post',
                         beforeSend: function () {
                             $("#resultado").html("Buscando campos con solo 2 caracterres, espere por favor...");
@@ -70,7 +75,7 @@
 
                     $.ajax({
                         data: parametros,
-                        url: 'funciones.php',
+                        url: 'tareas.php',
                         type: 'post',
                         datatype: 'json',
                         beforeSend: function () {
@@ -99,7 +104,7 @@
                         };
                         $.ajax({
                             data: parametros,
-                            url: 'funciones.php',
+                            url: 'tareas.php',
                             type: 'post',
                             beforeSend: function () {
                                 $("#resultado").html("Estamos en ciclo,buscando " + respuesta[lineaIntermedia].Fabr_Recambio );
@@ -146,7 +151,7 @@
                     };
                     $.ajax({
                         data: parametros,
-                        url: 'funciones.php',
+                        url: 'tareas.php',
                         type: 'post',
                         datatype: 'json',
                         beforeSend: function () {
@@ -223,7 +228,9 @@
 					<tbody>
 					  <tr>
 						<th>Campos con menos 2 caracteres</th>
-						<td>Registros con ESTADO en blanco:<strong><span id="total"></span></strong></td>
+						<td>Registro de tabla:<strong><?php echo $totalRegistro;?></strong><br/>
+						Registros con ESTADO en blanco:
+						<strong><span id="total"></span></strong></td>
 						<td>ERR:[CampoVacio]</td>
 						<td>Registros campos mal:<strong><span id="campVa"></span></strong></td>
 					  </tr>
@@ -341,7 +348,7 @@
                     };
                     $.ajax({
                         data: parametros,
-                        url: 'funciones.php',
+                        url: 'tareas.php',
                         type: 'post',
                         datatype: 'json',
                         beforeSend: function () {
@@ -396,7 +403,7 @@
                         console.log("que fab_ref es "+arrayConsulta[intermedia].F_rec);
                 $.ajax({
                     data: parametros,
-                    url: 'funciones.php',
+                    url: 'tareas.php',
                     type: 'post',
                     datatype: 'json',
                     beforeSend: function () {
