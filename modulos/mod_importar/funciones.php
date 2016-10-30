@@ -1,43 +1,11 @@
 <?php
-/* Con el switch al final y variable $pulsado
- *     	$pulsado = 'borrar'					-> Ejecuta borrar($nombretabla, $BDImportRecambios);
- * 												Se ejecuta en Paso 1  (todos los ficheros )
- *     	$pulsado = 'contar'					-> Ejecuta contador($nombretabla, $BDImportRecambios);
- * 												Se ejecuta en Paso 2 de ListaPrecios --->
- * 		$pulsado = 'comprobar'				-> Ejecuta comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
- * 		$pulsado = 'contarVacios'			-> Ejecuta contarVacios($nombretabla, $BDImportRecambios);
- * 												Se ejecuta en Paso 2 de ListaPrecios --> 
- * 												Cuando pulsamos en comprobar... despues de seleccionar familia y fabricante.
- * 		$pulsado = 'verNuevos'				-> Ejecuta verNuevosRef($BDImportRecambios);
- * 												Se ejecuta en Paso 3 de ListaPrecios.
- * 		$pulsado = 'anahirRecam'			-> Ejecuta anahirRecam($BDRecambios);
- * 		$pulsado = 'BuscarError'			-> Ejecuta BuscarError($BDImportRecambios);
- * 												Se ejecuta en Paso 2 de Referencias Cruzadas al mostrar la pagina.
- * 		$pulsado = 'BuscarErrorFab'			-> Ejecuta BuscarErrorFab($BDImportRecambios);
- * 		$pulsado = 'comPro'					-> Ejecuta errorFab($BDImportRecambios, $BDRecambios);
- * 		$pulsado = 'resumen'				-> Ejecuta resumen($BDImportRecambios);
- * 		$pulsado = 'contarVacioscruzados'	-> Ejecuta contarVaciosCru($BDImportRecambios);
- * 		$pulsado = 'comprobar2cruz'			-> Ejecuta comprobarCruzadas($BDImportRecambios, $BDRecambios);
+/*  Fichero funciones para realizar las tareas.
+ * 
  * 
  * 
  *  */
 
-/* ===============  REALIZAMOS CONEXIONES  ===============*/
 
-include ("./../mod_conexion/conexionBaseDatos.php");
-// creo que esta recogida de datos debe estar antes swich y solo pulsado.
-// la tabla solo en la opción que la necesite.
-$nombretabla = $_POST['nombretabla'];
-$pulsado = $_POST['pulsado'];
-
-/* ===============  FUNCIONES  ===========================*/
-/* Function borrar -> Se ejecuta en PASO 1
- * 		Todos los ficheros 
- * */
-function borrar($nombretabla, $BDImportRecambios) {
-    $consulta = "Delete from " . $nombretabla;
-    mysqli_query($BDImportRecambios, $consulta);
-}
 /* Function contarVacios-> Se ejecuta en Paso 2 de ListaPrecios 
  * Cuando pulsamos en comprobar... despues de seleccionar familia y fabricante.
  * OBJETIVO: 
@@ -108,41 +76,36 @@ function verNuevosRef($BDImportRecambios) {
     echo json_encode($array);
 }
 
-function contador($nombretabla, $BDImportRecambios) {
+function contador($nombretabla, $BDImportRecambios,$ConsultaImp) {
 	// Inicializamos array
     $Tresumen['n'] = 0; //nuevo
     $Tresumen['t'] = 0; //total
     $Tresumen['e'] = 0; //existe
 	$Tresumen['v'] = 0; //existe
-
+	
 	// Contamos los registros que tiene la tabla
-    $consulta = "SELECT count(linea) as vacio FROM " . $nombretabla. " WHERE Estado = ''";;
-    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
-    if ($consultaContador == true){
-        $contador = $consultaContador->fetch_assoc();
-    }
-    $Tresumen['v'] = $contador['vacio']; // vacio
-    // Contamos los registros que tiene la tabla
-    $consulta = "SELECT count(linea) as total FROM " . $nombretabla;
-    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
-    if ($consultaContador == true){
-        $contador = $consultaContador->fetch_assoc();
-    }
-    $Tresumen['t'] = $contador['total']; // total
+   	$total = 0;
+    $whereC = '';
+    $total = $ConsultaImp->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
+    $Tresumen['t'] = $total; // total registros
+		
+	// Contamos los registros que tiene la tabla estado en blanco
+   	$total = 0;
+	$whereC = " WHERE Estado = ''";
+    $total = $ConsultaImp->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
+    $Tresumen['v'] = $total; // vacio
+    
 	// Contamos los registros que tiene la tabla nuevo
-    $consulta = "SELECT count(linea) as nuevo FROM " . $nombretabla. " WHERE Estado = 'nuevo'";
-    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
-    if ($consultaContador == true){
-        $contador = $consultaContador->fetch_assoc();
-    }
-    $Tresumen['n'] = $contador['nuevo']; //nuevo
+	$total = 0;
+	$whereC = " WHERE Estado = 'nuevo'";
+    $total = $ConsultaImp->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
+    $Tresumen['n'] = $total; //nuevo
+	
 	// Contamos los registros que tiene la tabla existente
-    $consulta = "SELECT count(linea) as existe FROM " . $nombretabla. " WHERE Estado = 'existe'";
-    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
-    if ($consultaContador == true){
-        $contador = $consultaContador->fetch_assoc();
-    }
-    $Tresumen['e'] = $contador['existe']; //existe
+	$total = 0;
+	$whereC = " WHERE Estado = 'existe'";
+    $total = $ConsultaImp->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
+	$Tresumen['e'] = $total; //existe
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($Tresumen);
 }
@@ -231,6 +194,7 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     $ref_f = $_POST['Ref_fa']; // Referencia de fabricante cruzado.
     $fab_ref = $_POST['Fab_ref'];// Nombre fabricante cruzado.
     // Reiniciamos 
+    $fecha = date('Y-m-d');
     $datos[0]['respuesta'] = "";
     $ControlPaso = "";
     $ControlBusqueda = "";
@@ -301,7 +265,7 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
 			$ControlPaso = $ControlPaso." [NO EXISTE REFCRUZADA]=".$ref_f;
 
 			
-			$creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id . "," . "'".$ref_f. "'" . ")";
+			$creaCru = "INSERT INTO `referenciascruzadas`( `RecambioID`, `IdFabricanteCru`, `RefFabricanteCru`) VALUES (0," . $id . "," . "'".$ref_f. "'," .$fecha. ")";
 			$ControlBusqueda = $creaCru."\n";
 			
 			mysqli_query($BDRecambios, $creaCru);
@@ -500,54 +464,3 @@ function ContarVaciosBlanco ($BD,$tabla){
 	return($datos);
 }
 
-/* ===================  FUNCION BUSCAR REFERENCIA CRUZADAS  ==================================*/
-	// Esta funcion la utilizamos en varios procesos, para obtener la ID de la referencia cruzada de BDRecambios
-	// Necesito los siguientes datos:
-	
-
-
-/* ===============  SWICH PARA EJECUTAR FUNCIONES SEGUN OPCION (PULSADO) ===============*/
-
-switch ($pulsado) {
-    case 'borrar':
-        borrar($nombretabla, $BDImportRecambios);
-        break;
-    case 'contar':
-        contador($nombretabla, $BDImportRecambios);
-        break;
-    case 'comprobar':
-        comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
-        break;
-    case 'contarVacios':
-        contarVacios($nombretabla, $BDImportRecambios);
-        break;
-    case 'verNuevos':
-        verNuevosRef($BDImportRecambios);
-        break;
-    case 'anahirRecam':
-        anahirRecam($BDRecambios);
-        break;
-    case 'BuscarError':
-        BuscarError($BDImportRecambios);
-        break;
-    case 'BuscarErrorFab':
-        BuscarErrorFab($BDImportRecambios);
-        break;
-    case 'comPro':
-        errorFab($BDImportRecambios, $BDRecambios);
-        break;
-    case 'resumen':
-        resumenCruz($BDImportRecambios);
-        break;
-    case 'contarVacioscruzados':
-        contarVaciosCru($BDImportRecambios);
-        break;
-    case 'comprobar2cruz':
-        comprobarCruzadas($BDImportRecambios, $BDRecambios);
-        break;
-}
-
-/* ===============  CERRAMOS CONEXIONES  ===============*/
-
-mysqli_close($BDImportRecambios);
-mysqli_close($BDRecambios);

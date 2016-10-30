@@ -3,7 +3,44 @@
  // Objetivo de este fichero es:
  // - Poder subir los tres ficheros necesarios
  // - Poder enviar variable que fichero subido.
- 
+ // - Poder mostrar los link acceso a los PASO 1 y 2 de cada fichero..
+ // para ello tengo que comprobar, antes:
+		// 1.-Si existe el fichero csv en temporal.
+		// 2.-Si la BD importar y la tabla en cuestión tiene registros.
+				
+
+// Incluimos configuración para hacer comprobación.
+include ("./../../configuracion.php");
+$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
+$i=0;
+foreach ($ficherosposibles as $fichero){
+	$i++;
+	echo 'Fichero:'.$ConfDir_subida.$fichero;
+	if (is_file($ConfDir_subida.$fichero) == true){
+		$Accesofichero[$i]['csv'] =$ConfDir_subida.$fichero;
+	} else {
+		$Accesofichero[$i]['csv'] ='[ERROR: FICHERO]';
+	}
+}
+// Ahora array $RutaFichero ya tiene datos , si existe tiene el fichero , sino tiene un error...
+
+// Ahora comprobamos si tiene datos las tablas DBImportar
+include ("./../mod_conexion/conexionBaseDatos.php");
+if ($BDImportRecambios->connect_errno) {
+    echo "Falló la conexión a MySQL: (" . $BDImportRecambios->connect_errno . ") " . $BDImportRecambios->connect_error;
+}
+
+// Ahora vamos comprobar con el clase Consulta si tiene datos ... 
+include ("./Consultas.php");
+$consultaRegistros = new ConsultaImportar;
+$tablasposibles =  array("referenciascruzadas","referenciascversiones","listaprecios");
+$i=0;
+$whereC = "";
+foreach ($tablasposibles as $tabla){
+	$i++;
+	$Accesofichero[$i]['registros'] =$consultaRegistros->contarRegistro($BDImportRecambios,$tabla,$whereC);
+}
+
 ?>
 
 	<div class="row">
@@ -43,8 +80,20 @@
 					<small>ReferenciasCruzadas.csv</small>
 				</div>
 				<p>Este fichero es el encargado de indicar las referencias de otros fabricantes.</p>
-				<p>Ver campos y <a href="./../../estatico/referenciascruzadas.php#importar">más información </a> de como importar el fichero ReferenciasCruzadas</p>
-				 <p><a href="./recibircsv.php?subida=1&fichero=ReferenciasCruzadas">PASAR A PASO 1</a></p>
+				<p>Ver campos y <a href="./../../estatico/referenciascruzadas.php#importar">más información </a> de como importar el fichero ReferenciasCruzadas que <strong>existe en temporal</strong></p>
+					<?php
+					if ($Accesofichero[1]['csv'] !='[ERROR: FICHERO]'){
+						?>
+					 <p><strong><a href="./recibircsv.php?subida=1&fichero=ReferenciasCruzadas">Ir a PASO 1 </a></strong>donde selecciona las lineas a subir de ReferenciasCruzadas</p>
+					<?php
+					}
+					if ($Accesofichero[1]['registros'] > 0 ){
+						?>
+						<p>La tabla ReferenciasCruzadas tiene <strong><?php echo $Accesofichero[1]['registros']; ?></strong> quieres ir al <a href="./paso2ReferenciasCruzadas.php">PASO 2 de ReferenciasCruzadas</a></p>
+					<?php
+					}
+					
+					?>
 				</div>
 				<div class="col-md-4">
 				<h4>Ref.Versiones Coches</h4>
@@ -53,7 +102,14 @@
 					<small>ReferenciasCversionesCoches.csv</small>
 				</div>
 				<p>Este fichero es el encargado de indicar las recambios monta cada version de coches.</p>
-				<p><a href="./recibircsv.php?subida=1&fichero=ReferenciasCversionesCoches">PASAR A PASO 1</a></p>
+					<?php
+					if ($Accesofichero[2]['csv'] !='[ERROR: FICHERO]'){
+						?>
+					 <p><strong><a href="./recibircsv.php?subida=1&fichero=ReferenciasCversionesCoches">Ir a PASO 1  de ReferenciasCversiones</a></strong></p>
+					<?php
+					}
+					?>
+								
 				</div>
 				<div class="col-md-4">
 				<h4>Lista Precios</h4>
@@ -63,8 +119,18 @@
 				</div>
 				<p>Este fichero es encargado de indicar el precio coste de cada fabricante (marca).</p>
 				<p>Ver campos y <a href="./../../estatico/recambio.php#importar">más información </a> de como importar el fichero ListaPreciosProveedores.csv</p>
-				 <p><a href="./recibircsv.php?subida=1&fichero=ListaPrecios">PASAR A PASO 1</a></p>
-
+					<?php
+					if ($Accesofichero[3]['csv'] !='[ERROR: FICHERO]'){
+						?>
+					 <p><strong><a href="./recibircsv.php?subida=1&fichero=ListaPrecios">Ir a PASO 1 </a></strong>donde selecciona las lineas a subir de ListaPrecios</p>
+					<?php
+					}
+					if ($Accesofichero[3]['registros'] > 0 ){
+						?>
+						<p>La tabla Listaprecios tiene <strong><?php echo $Accesofichero[3]['registros']; ?></strong> quieres ir al <a href="./paso2ListaPrecios.php">PASO 2 de ListaPrecios</a></p>
+					<?php
+					}
+					?>
 				</div>
 			</div>
 		</div>

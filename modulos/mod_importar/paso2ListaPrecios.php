@@ -151,7 +151,7 @@
                 };
                 $.ajax({
                     data: parametros,
-                    url: 'funciones.php',
+                    url: 'tareas.php',
                     type: 'post',
                     datatype: 'json',
                     beforeSend: function () {
@@ -203,7 +203,7 @@
                  
                     $.ajax({
                         
-                        url: 'funciones.php',
+                        url: 'tareas.php',
                         type: 'post',
                         datatype: 'json',
                         data: parametros,
@@ -254,7 +254,7 @@
                  
                     $.ajax({
                         
-                        url: 'funciones.php',
+                        url: 'tareas.php',
                         type: 'post',
                         datatype: 'json',
                         data: parametros,
@@ -286,7 +286,7 @@
                 };
                 $.ajax({
                     data: parametros,
-                    url: 'funciones.php',
+                    url: 'tareas.php',
                     type: 'post',
                     datatype: 'json',
                     beforeSend: function () {
@@ -341,7 +341,7 @@
                     //document.getElementById('resultado').innerHTML='Id='+ rs[b].id;
                     $.ajax({
                         data: parametros,
-                        url: 'funciones.php',
+                        url: 'tareas.php',
                         type: 'post',
                         beforeSend: function () {
                            $("#resultado").html("Funcion anahdir ,"+ b +''+a);
