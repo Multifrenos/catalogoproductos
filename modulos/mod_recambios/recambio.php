@@ -127,21 +127,27 @@
 			
 			</div>
 			<div class="col-md-5">
-			<h1> Referencias cruzadas</h1>
-			<p>Total referencias cruzadas encontradas <?php echo $CruceRecambio['TotalCruce'];?></p>
-			<?php for ($i = 0; $i < $CruceRecambio['TotalCruce']; $i++) {
-				echo $CruceRecambio[$i]['idReferenciaCruz'].' ';
-				echo $CruceRecambio[$i]['FabricanteCru'].' ';
-				echo $CruceRecambio[$i]['FabricanteCruRef'].' ';
-				echo '<br/>';
-
+				<?php 
+				$html = '<h1> Referencias cruzadas</h1>'
+						.'Total referencias cruzadas encontradas '
+						.$CruceRecambio['TotalCruce'].'<br>';
+			 for ($i = 0; $i < $CruceRecambio['TotalCruce']; $i++) {
+				$html .= '<a title="Id Referencia Cruzada:'.$CruceRecambio[$i]['idReferenciaCruz']
+						.'"><span class=" glyphicon glyphicon-info-sign"></span></a>'
+						.$CruceRecambio[$i]['FabricanteCruRef'].' '
+						.'<a title="Id Fabricante Recambio:'
+						.$CruceRecambio[$i]['idFabriCruz'].'"><span class=" glyphicon glyphicon-wrench"></span></a>'
+						.$CruceRecambio[$i]['FabricanteCru'].'<br/>';
 				}
+			echo $html;
+			//~ echo '<code>'.$html.'</code>';
 			?>
+			
 			<?php // Debug
-			echo '<pre>';
-			echo ' Cruces ';
+			//~ echo '<pre>';
+			//~ echo ' Cruces ';
 				//~ print_r($CruceRecambio);
-			echo '</pre>';
+			//~ echo '</pre>';
 			?>
 			</div>
 		</div>
