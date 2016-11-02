@@ -12,7 +12,6 @@
 	$Familias= $Dfamilias->LeerFamilias($BDRecambios);
 	// Ahora creamos array paginas.
 	$paginas = array();
-
 	// Estructura:
 	// paginas{
 	//		actual:
@@ -41,9 +40,34 @@
 			$palabraBuscar = '';
 		}
 	}
-	// ===================  CONSULTAMOS CUANTOS RECAMBIOS HAY CON LA BUSQUEDA QUE PUSIMOS  =============   //	
 	// Creamos objeto Recambio para realizar las consultas..
 	$Crecambios = new Recambio;
+	// =================  DIFENCIAS ENTRE WEB Y RECAMBIOS DE LA TABLA VIRTUEMAR_PRODUCTS  =============   //	
+
+	// Consultamos datos de BD web de tabla virtuemart_products y comparamos con nuestra tabla virtuemart_products en BDRecambios.
+	// y obtenemos diferencia, siempre va haber diferencias, lo que se trata es de ver si hay los mismo registros principalmente.
+	
+	// Consulta en BD WEB
+	$tablaVirt="xcv7n_virtuemart_products";
+	$InfoProdVirt=$Crecambios->InfoTabla($BDWebJoomla,$tablaVirt);
+	// Consulta en BD Recambios
+	$NueVirt="virtuemart_products";
+	$InfoNueVirt=$Crecambios->InfoTabla($BDRecambios,$NueVirt);
+	// Array de diferencias.
+	$DifVirtuemart= array_diff($InfoNueVirt, $InfoProdVirt);
+	/* Recuerda con los datos de Nuestra tabla (BDRecambios virtuemart) que sean diferentes:
+	 * 		[Name] => virtuemart_products  // Normal ya que el prefijo ....
+	 *    	[Rows] => Numero registros  // ESTE ES IMPORTANTE, el que analizamos inicialmente.
+	 *    	[Create_time] => 2016-10-31 18:23:52 // Normal ya que nunca coincidira... se crearía fechas distintas.
+	 *    	[Update_time] => 2016-10-31 20:46:35 // Lo recomendable que la hora Update ser superior en nuestra BD , pero no siempre será
+ 	*/
+	
+	
+	
+	
+	
+	// ===================  CONSULTAMOS CUANTOS RECAMBIOS HAY CON LA BUSQUEDA QUE PUSIMOS  =============   //	
+
 	if ($palabraBuscar !== '') {
 		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
 		//~ echo ' Ver Entro: '.$filtro;
@@ -281,6 +305,7 @@
         include './../../header.php';
         ?>
         <div class="container">
+			
             <div class="col-md-12 text-center">
                 <h2> Recambios: Editar, Añadir y Borrar Recambios </h2>
                 <?php 
@@ -337,7 +362,22 @@
 			<!--==========  Contenido: Buscador, paginador y lista recambios ========== -->
 
 	<div class="col-md-10">
-		<h4>Recambios encontrados:<?php echo $TotalRecambios;?></h4>
+		<?php // Creamos icono de informacion para indicar que la BD Web y BD Recambios no estan bien sincronizadas.
+		$htmlDif ='';
+		if ($DifVirtuemart['Rows']){
+			// Quiere decir que esta mal... no coiciden registros entre las BD
+			$htmlDif = '<span style="color:red; " class="glyphicon glyphicon-minus-sign"></span>';
+		}else {
+			// Quiere decir que coinciden el numero registros , por ello es correcto sincronizacion.
+			$htmlDif = '<span class="glyphicon glyphicon-ok-sign"></span>';
+		}
+		?>
+		<p>Sincronizacion 
+		<?php echo $htmlDif;?>
+		 -Recambios encontrados BD local filtrados:
+		 <?php echo $TotalRecambios;?>
+		 </p>
+		 
                 <?php 	// Mostramos paginacion 
                   echo $htmlPG;
 				?>

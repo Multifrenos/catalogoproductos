@@ -78,6 +78,18 @@ class Recambio
 		return $fila ;
 	}
     
+    function InfoTabla ($Bd,$tabla){
+		$consulta = 'SHOW TABLE STATUS WHERE `name`="'. $tabla.'"';
+		$Queryinfo = $Bd->query($consulta);
+		if (mysqli_error($Bd)) {
+			$fila = $Queryinfo;
+		} else {
+			$fila = $Queryinfo->fetch_assoc();
+		}
+		$fila['consulta'] = $consulta;
+		return $fila ;
+		
+	}
     
     
     

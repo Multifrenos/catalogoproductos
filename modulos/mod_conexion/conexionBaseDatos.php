@@ -1,5 +1,7 @@
 <?php 
+// Creamos Array $Conexiones para indicar en hubo un error de conexion
 $Conexiones = array(); 
+
 /************************************************************************************************/
 /*************   Realizamos conexion de base de datos de ImportarRecambios.          ************/
 /************************************************************************************************/
@@ -13,6 +15,7 @@ if ($BDImportRecambios->connect_errno) {
 /** cambio del juego de caracteres a utf8 */
  mysqli_query ($BDImportRecambios,"SET NAMES 'utf8'");
 }
+
 /************************************************************************************************/
 /*****************   Realizamos conexion de base de datos de Recambios.          ****************/
 /************************************************************************************************/
@@ -27,4 +30,27 @@ if ($BDRecambios->connect_errno) {
 /** cambio del juego de caracteres a utf8 */
  mysqli_query ($BDRecambios,"SET NAMES 'utf8'");
 }
+
+
+
+/************************************************************************************************/
+/*****************   Realizamos conexion de base de datos Web Multipiezas        ****************/
+/************************************************************************************************/
+// Hay que tener en cuenta que los prefijos de instalación cambian
+// que los usuarios y contraseña cambian según instalacion, esto debería haber un 
+// proceso configuracion y instalacion.
+$prefijo = 'xcv7n';
+$BDWebJoomla = @new mysqli("localhost", "coches", "coches", "multipiezas");
+// Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 
+// está vacía, si no se produce error.
+
+if ($BDWebJoomla->connect_errno) {
+		$Conexiones ['Multipiezas'] = 'Error:'.$BDWebJoomla->connect_errno.' '.$BDWebJoomla->connect_error;
+		$BDWebJoomla->controlError = $BDWebJoomla->connect_errno.':'.$BDWebJoomla->connect_error;
+} else {
+/** cambio del juego de caracteres a utf8 */
+ mysqli_query ($BDWebJoomla,"SET NAMES 'utf8'");
+ $Conexiones ['Multipiezas']['prefijo'] = $prefijo;
+}
+
 ?>
