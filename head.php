@@ -1,7 +1,15 @@
 <?php
+	
+
 	// Añadimos configuracion
-	include 'configuracion.php';
+	include '/home/antonio/www/catalogoproductos/configuracion.php';
+	include ($RutaServidor.$HostNombre."/modulos/mod_conexion/conexionBaseDatos.php");
+	include ($RutaServidor.$HostNombre."/controllers/Controladores.php");
+    
+
 ?>
+
+
 
 
 <meta name="language" content="es">

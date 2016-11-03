@@ -8,8 +8,8 @@
 		include ("./../mod_familias/ObjetoFamilias.php");
 		include ("./ObjetoRecambio.php");
 		// Obtenemos id
-		if ($_GET[id]) {
-		$id = $_GET[id];
+		if ($_GET['id']) {
+		$id = $_GET['id'];
 		} else {
 		// NO hay parametro .
 		$error = "No podemos continuar";
@@ -22,13 +22,26 @@
 			$RecamID = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
 			$RecamID = $Crecambios->ObtenerRecambios($RecamID);
 			// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
-		$Recambio = $RecamID[items][0]; 
+		$Recambio = $RecamID['items'][0];
+		
+		// ======== Buscamos id de la Web.
+			$tabla = 'virtuemart_products';
+			$idBusqueda = 'product_sku ='.$Recambio['id'];
+		$WebRecam = $Crecambios->UnicoRegistro($BDRecambios,$idBusqueda,$tabla);
+		// Ahora añado a array Recambio Descricion de Fabricante
+		if (isset($WebRecam['virtuemart_product_id']) ){
+			$Recambio ['IDWeb'] = $WebRecam['virtuemart_product_id'];
+		} else {
+			$Recambio ['IDWeb'] = 0;
+		}
+		
 		// ======== Busqueda Referencia de fabricante de Cruces ============== //
 			$tabla = 'referenciascruzadas';
 			$idBusqueda = 'RecambioID ='.$Recambio['id'];
 		$RefFabricante = $Crecambios->UnicoRegistro($BDRecambios,$idBusqueda,$tabla);
 		// Ahora añado a recambio Referencia Fabricante
 		$Recambio ['FabricanteRef'] = $RefFabricante['RefFabricanteCru'];
+		
 		// ======== Buscamos datos ID familia. ========== //
 			$tabla = 'recamb_familias';
 			$idBusqueda = 'IdRecambio ='.$Recambio['id'];
@@ -48,6 +61,9 @@
 		$FabRecam = $Crecambios->UnicoRegistro($BDRecambios,$idBusqueda,$tabla);
 		// Ahora añado a array Recambio Descricion de Fabricante
 		$Recambio ['Fabricante'] = $FabRecam['Nombre'];
+		
+		
+
 
 		// ======== AHORA REALIZAMOS ARRAY CRUCESRECAMBIO ============== //
 		$tabla= 'cruces_referencias';
@@ -86,8 +102,9 @@
         include './../../header.php';
         ?>
 		<div class="container">
+			<h1 class="text-center"> Datos Recambio</h1>
 			<div class="col-md-7">
-				<h1> Datos Recambio</h1>
+				
 				<h3><?php echo $Recambio['Descripcion'];?></h3>
 				<div class="col-md-6">
 					<?php 
@@ -128,7 +145,7 @@
 			</div>
 			<div class="col-md-5">
 				<?php 
-				$html = '<h1> Referencias cruzadas</h1>'
+				$html = '<h3> Referencias cruzadas</h3>'
 						.'Total referencias cruzadas encontradas '
 						.$CruceRecambio['TotalCruce'].'<br>';
 			 for ($i = 0; $i < $CruceRecambio['TotalCruce']; $i++) {

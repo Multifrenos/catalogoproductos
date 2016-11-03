@@ -18,8 +18,13 @@ class Recambio
 			$recambios['items'][$i]['margen']= $recambio['margen'];
 			$recambios['items'][$i]['pvp']= $recambio['pvp'];
 			$recambios['items'][$i]['IDFabricante']= $recambio['IDFabricante'];
+			// No siempre existe ... 
+			if ( isset($recambio['RefFabricanteCru']) ) {
 			$recambios['items'][$i]['RefFabricanteCru']= $recambio['RefFabricanteCru'];
-
+			}
+			if ( isset($recambio['virtuemart_product_id']) ) {
+			$recambios['items'][$i]['IDWeb']= $recambio['virtuemart_product_id'];
+			}
 			
 			$i = $i+1;
 		}
@@ -35,7 +40,7 @@ class Recambio
 			$rango .= " LIMIT ".$limite." OFFSET ".$desde;
 		} 
 		
-		$consulta = "SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru FROM recambios R JOIN referenciascruzadas RC ON RC.RecambioID = R.id ".$rango;
+		$consulta = "SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru, VP.virtuemart_product_id FROM recambios R JOIN referenciascruzadas RC ON RC.RecambioID = R.id LEFT JOIN virtuemart_products VP ON VP.product_sku = R.id ".$rango;
         //~ $consulta = "SELECT * FROM `recambios`".$rango;
         
 		$ResRecambios = $BDRecambios->query($consulta);
@@ -78,20 +83,7 @@ class Recambio
 		return $fila ;
 	}
     
-    function InfoTabla ($Bd,$tabla){
-		$consulta = 'SHOW TABLE STATUS WHERE `name`="'. $tabla.'"';
-		$Queryinfo = $Bd->query($consulta);
-		if (mysqli_error($Bd)) {
-			$fila = $Queryinfo;
-		} else {
-			$fila = $Queryinfo->fetch_assoc();
-		}
-		$fila['consulta'] = $consulta;
-		return $fila ;
-		
-	}
-    
-    
+   
     
 }
 

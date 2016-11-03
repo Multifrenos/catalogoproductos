@@ -4,7 +4,6 @@
         <?php
 // Reinicio variables
 	include './../../head.php';
-	include ("./../mod_conexion/conexionBaseDatos.php");    
 	include ("./../mod_familias/ObjetoFamilias.php");
 	include ("./ObjetoRecambio.php");
 	// Creamos objeto familia y leemos familias para mostrar..
@@ -29,9 +28,6 @@
 	if ($_GET) {
 		if ($_GET['pagina']) {
 			$paginas['Actual'] = $_GET['pagina'];
-			$LinkpgActual =  '<a class="PaginaActual"'.$paginas['Actual'].'>'.$paginas['Actual'].'</a>';
-		//~ } else {
-			//~ $paginas['Actual'] = 1;
 		}
 	
 		if ($_GET['buscar']) {
@@ -40,33 +36,11 @@
 			$palabraBuscar = '';
 		}
 	}
-	// Creamos objeto Recambio para realizar las consultas..
-	$Crecambios = new Recambio;
-	// =================  DIFENCIAS ENTRE WEB Y RECAMBIOS DE LA TABLA VIRTUEMAR_PRODUCTS  =============   //	
-
-	// Consultamos datos de BD web de tabla virtuemart_products y comparamos con nuestra tabla virtuemart_products en BDRecambios.
-	// y obtenemos diferencia, siempre va haber diferencias, lo que se trata es de ver si hay los mismo registros principalmente.
-	
-	// Consulta en BD WEB
-	$tablaVirt="xcv7n_virtuemart_products";
-	$InfoProdVirt=$Crecambios->InfoTabla($BDWebJoomla,$tablaVirt);
-	// Consulta en BD Recambios
-	$NueVirt="virtuemart_products";
-	$InfoNueVirt=$Crecambios->InfoTabla($BDRecambios,$NueVirt);
-	// Array de diferencias.
-	$DifVirtuemart= array_diff($InfoNueVirt, $InfoProdVirt);
-	/* Recuerda con los datos de Nuestra tabla (BDRecambios virtuemart) que sean diferentes:
-	 * 		[Name] => virtuemart_products  // Normal ya que el prefijo ....
-	 *    	[Rows] => Numero registros  // ESTE ES IMPORTANTE, el que analizamos inicialmente.
-	 *    	[Create_time] => 2016-10-31 18:23:52 // Normal ya que nunca coincidira... se crearía fechas distintas.
-	 *    	[Update_time] => 2016-10-31 20:46:35 // Lo recomendable que la hora Update ser superior en nuestra BD , pero no siempre será
- 	*/
-	
-	
-	
 	
 	
 	// ===================  CONSULTAMOS CUANTOS RECAMBIOS HAY CON LA BUSQUEDA QUE PUSIMOS  =============   //	
+	// Creamos objeto Recambio para realizar las consultas especificas..
+	$Crecambios = new Recambio;
 
 	if ($palabraBuscar !== '') {
 		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
@@ -93,11 +67,9 @@
 	switch ($paginas['Actual']) {
 	    case 1:
 		$paginaInicio = $paginas['Actual'];
-		$LinkpgInicio = $LinkpgActual;
 		break;
 	    case $TotalPaginas:
 		$paginas['Ultima'] = $paginas['Actual'];
-		$LinkpgFinal = $LinkpgActual;
 		break;
 	}
 	//~ $controlError .= ' Redifino pagina actual...:'.$paginas['Actual'];
@@ -366,10 +338,10 @@
 		$htmlDif ='';
 		if ($DifVirtuemart['Rows']){
 			// Quiere decir que esta mal... no coiciden registros entre las BD
-			$htmlDif = '<span style="color:red; " class="glyphicon glyphicon-minus-sign"></span>';
+			$htmlDif = '<a title="El numero registros ente la Web y local ,&#13; no coinciden"><span style="color:red; " class="glyphicon glyphicon-minus-sign"></span></a>';
 		}else {
 			// Quiere decir que coinciden el numero registros , por ello es correcto sincronizacion.
-			$htmlDif = '<span class="glyphicon glyphicon-ok-sign"></span>';
+			$htmlDif = '<a title="El numero registros de la Web,&#13; es el mismo que tenemos anotados en local"><span class="glyphicon glyphicon-ok-sign"></span></a>';
 		}
 		?>
 		<p>Sincronizacion 
@@ -400,6 +372,7 @@
 						<th>MARGEN</th>
 						<th>PVP</th>
 						<th>REF_FABR</th>
+						<th>idWEB</th>
 
 					</tr>
 				</thead>
@@ -434,6 +407,14 @@
 					<td><?php echo $recambio['margen']; ?></td>
 					<td><?php echo $recambio['pvp']; ?></td>
 					<td><?php echo $recambio['RefFabricanteCru'];?></td>
+					<td>
+						<?php
+						if (isset ( $recambio['IDWeb']) ) {
+						 echo $recambio['IDWeb'];
+						}
+						 ?>
+					</td>
+
 				</tr>
 
 				<?php 

@@ -1,3 +1,15 @@
+<?php
+	/* Mostramos menu y realizamos comprobaciones comunes...
+	 * */
+	$Controlador = new ControladorComun;
+	// Comprobamos sincronizacion: parametros ( Base datos local y Bases datos web )
+	$DifVirtuemart= $Controlador->SincronizarWeb($BDRecambios,$BDWebJoomla);
+	
+	
+	
+
+?>
+
 <header>
    <!-- Debería generar un fichero de php que se cargue automaticamente el menu -->
   <nav class="navbar navbar-default">
@@ -13,7 +25,22 @@
 	<li><a href="<?php echo $HostNombre.'/modulos/mod_buscar/buscar.php';?>">Buscar</a></li>
 	<li><a href="<?php echo $HostNombre.'/modulos/mod_importar/Importar.php';?>">Importar</a></li>
       </ul>
-    </div>	
+	   
+		<div class="text-right">
+		<?php // Creamos icono de informacion para indicar que la BD Web y BD Recambios no estan bien sincronizadas.
+			$UrlSincro = $HostNombre.'/modulos/mod_sincronizar/sincronizar.php';
+			$htmlDif ='<a href="'.$UrlSincro.'" class="navbar-brand"';
+			if ($DifVirtuemart['Rows']){
+				// Quiere decir que esta mal... no coiciden registros entre las BD
+				$titleSincro = 'title="Error en sincronizacion,&#13; puede que no tengas todos los datos de la web"><span style="color:red; " class="glyphicon glyphicon-minus-sign"></span>';
+			}else {
+				// Quiere decir que coinciden el numero registros , por ello es correcto sincronizacion.
+				$htmlDifSincro = 'title="Correcta la sincronizacion,&#13; haz clic si quiere volver a sincronizar"><span class="glyphicon glyphicon-ok-sign"></span>';
+			}
+			echo $htmlDif.' '.$titleSincro.'</a>';
+		?>
+		</div>
+	</div>	
   </nav>
   <!-- Fin de menu -->
 </header>
