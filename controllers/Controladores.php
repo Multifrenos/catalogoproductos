@@ -15,7 +15,8 @@ class ControladorComun
 		 *    	[Create_time] => 2016-10-31 18:23:52 // Normal ya que nunca coincidira... se crearía fechas distintas.
 		 *    	[Update_time] => 2016-10-31 20:46:35 // Lo recomendable que la hora Update ser superior en nuestra BD , pero no siempre será
 		*/
-		if ($tabla == ''){
+		$fila = array();
+		if ($tabla != ''){
 			// Quiere decir que queremos consultar informa todas las tablas.
 				$tablas = 'WHERE `name`="'.$tabla.'"';
 		} else {
@@ -24,51 +25,72 @@ class ControladorComun
 		}
 		$consulta = 'SHOW TABLE STATUS '. $tablas;
 		$Queryinfo = $Bd->query($consulta);
-		if (mysqli_error($Bd)) {
-			$fila = $Queryinfo;
+		// Hay que tener en cuenta que no produce ningún error... 
+		$Ntablas = $Bd->affected_rows   ;
+		if ($Ntablas == 0) {
+			$fila ['error'] = 'Error tabla no encontrada - '.$tablas;
 		} else {
 			$fila = $Queryinfo->fetch_assoc();
 		}
 		$fila['consulta'] = $consulta;
+		$fila['info'] = $info;
 		return $fila ;
 		
 	}
 	
-	function SincronizarWeb ($BDRecambios,$BDWebJoomla) {
+	function SincronizarWeb ($BDRecambios,$BDWebJoomla,$prefijoJoomla) {
 		// Objetivo es que llamando a esta funcion compruebe si esta correcta la sincronizacion con la web.
 		
 		// Consultamos datos de BD web de tabla virtuemart_products y comparamos con nuestra tabla virtuemart_products en BDRecambios.
 		// y obtenemos diferencia, siempre va haber diferencias, lo que se trata es de ver si hay los mismo registros principalmente.
 		
 		// Consulta en BD WEB
-		$tablaVirt="xcv7n_virtuemart_products";
+		$tablaVirt= $prefijoJoomla."_virtuemart_products";
 		$InfoProdVirt	=	$this->InfoTabla($BDWebJoomla,$tablaVirt);
+				
 		// Consulta en BD Recambios
 		$NueVirt="virtuemart_products";
 		$InfoNueVirt	=	$this->InfoTabla($BDRecambios,$NueVirt);
-		// Array de diferencias.
-		$DifVirtuemart	=	 array_diff($InfoNueVirt, $InfoProdVirt);
-		/* Recuerda con los datos de Nuestra tabla (BDRecambios virtuemart) que sean diferentes:
+		/* Cremos array diferencias con los datos de tabla (BDJoomla virtuemart) y la nuestra:
 		 * 		[Name] => virtuemart_products  // Normal ya que el prefijo ....
 		 *    	[Rows] => Numero registros  // ESTE ES IMPORTANTE, el que analizamos inicialmente.
 		 *    	[Create_time] => 2016-10-31 18:23:52 // Normal ya que nunca coincidira... se crearía fechas distintas.
-		 *    	[Update_time] => 2016-10-31 20:46:35 // Lo recomendable que la hora Update ser superior en nuestra BD , pero no siempre será
+		 *    	[Update_time] => 2016-10-31 20:46:35 // En BD Recambio deberías ser superior, para estar seguros que actulizada
 		*/
-			
+		$DifVirtuemart	=	 array_diff($InfoProdVirt,$InfoNueVirt);
+		
+		
+		
+		// Debug 
+		// Para corregir posibles errores
+		//~ $DifVirtuemart[0] = $InfoProdVirt;
+		//~ $DifVirtuemart[1] = $InfoNueVirt;
+
 		return $DifVirtuemart;	
 	}
     
     
-    function CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$BDNombre1,$BDNombre2){
+    function CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$BDNombre1,$BDNombre2,$prefijoJoomla){
 		// Objetivo copia tabla virtuemart_products en Recambios.
-		$consulta = 'INSERT INTO `'.$BDNombre1.'`.`virtuemart_products` SELECT * FROM `'.$BDNombre2.'`.`xcv7n_virtuemart_products`';
-		$Textoerr= 'No';
+		$consulta = 'INSERT INTO `'.$BDNombre1.'`.`virtuemart_products` SELECT * FROM `'.$BDNombre2.'`.`'.$prefijoJoomla.'_virtuemart_products`';
 		if (!$BDRecambios->query($consulta)){
-					$Textoerr = $BDRecambios->errno;
+			$resultado ='Error'.$BDRecambios->errno.'<br/>Consulta:'.$consulta;
 		} else {
-		$Queryinfo = $BDRecambios->query($consulta);
+			$Queryinfo = $BDRecambios->query($consulta);
+			$resultado ='Copia tabla '; // $BDRecambios->affected_rows; muestra me devuelve -1 como si hubiera un error en la consulta.. 
 		}
-		return $Textoerr;
+		return $resultado;
+	}
+	function VerConexiones ($Conexiones){
+		// Objetivo comprobar si las conexiones son correctas.
+		$htmlError = '';
+		foreach ($Conexiones as $conexion) {
+				if ($conexion['conexion'] == 'Error'){
+					$htmlError .= 	'Error de conexion en la BD '.$conexion['NombreBD'].'<br/>'
+									.'¡¡Revisa configuracion! <br/>';
+				}
+		}
+		return $htmlError ;
 	}
 }
 

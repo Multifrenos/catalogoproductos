@@ -1,3 +1,9 @@
+<?php
+	// Directorio actual de index.php ( del proyecto) debe coincidir con $HostNombre.$RutaServidor
+	$DirectorioInicio = getcwd();
+	
+?>
+
 <!DOCTYPE html>
 <html>
 <head>

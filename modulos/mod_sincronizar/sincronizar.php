@@ -27,7 +27,7 @@
 
 		<?php 
 		//~ $copiaTabla = $Controlador->CopiarTablasWeb ($Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD']); 
-		$copiaTabla = $Controlador->CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD']); ?>
+		$copiaTabla = $Controlador->CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD'],$prefijoJoomla); ?>
 
 		
 		Copiadas tabla.... 

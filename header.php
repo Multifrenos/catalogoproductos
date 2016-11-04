@@ -1,10 +1,17 @@
 <?php
 	/* Mostramos menu y realizamos comprobaciones comunes...
 	 * */
+	$htmlError = '';
 	$Controlador = new ControladorComun;
-	// Comprobamos sincronizacion: parametros ( Base datos local y Bases datos web )
-	$DifVirtuemart= $Controlador->SincronizarWeb($BDRecambios,$BDWebJoomla);
-	
+	$htmlError = $Controlador->VerConexiones($Conexiones);
+	// Revisamos conexiones
+	if ($htmlError == '' ){
+		// Comprobamos sincronizacion: parametros ( Base datos local y Bases datos web )
+		$DifVirtuemart= $Controlador->SincronizarWeb($BDRecambios,$BDWebJoomla,$prefijoJoomla);
+	} else {
+		// Quiere decir que hay error de conexiones
+		$htmlError .= $Controlador->VerConexiones($Conexiones);
+	}
 	
 	
 
@@ -35,7 +42,7 @@
 				$titleSincro = 'title="Error en sincronizacion,&#13; puede que no tengas todos los datos de la web"><span style="color:red; " class="glyphicon glyphicon-minus-sign"></span>';
 			}else {
 				// Quiere decir que coinciden el numero registros , por ello es correcto sincronizacion.
-				$htmlDifSincro = 'title="Correcta la sincronizacion,&#13; haz clic si quiere volver a sincronizar"><span class="glyphicon glyphicon-ok-sign"></span>';
+				$titleSincro = 'title="Correcta la sincronizacion,&#13; haz clic si quiere volver a sincronizar"><span class="glyphicon glyphicon-ok-sign"></span>';
 			}
 			echo $htmlDif.' '.$titleSincro.'</a>';
 		?>

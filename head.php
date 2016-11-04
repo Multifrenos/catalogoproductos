@@ -1,8 +1,14 @@
 <?php
+	// Recuerda que este fichero se include en muchos ficheros, por lo que 
+	// la ruta getcwd() no es la misma siempre.
+	if (isset($DirectorioInicio)) {
+		$Ruta = './';
+	} else {
+		$Ruta = './../../' ; // Porque estoy en modulo...
+		// Esto tiene porque ser así se podría asignar antes, desde el fichero que include.
+	}
 	
-
-	// Añadimos configuracion
-	include '/home/antonio/www/catalogoproductos/configuracion.php';
+	include ($Ruta.'./configuracion.php');
 	include ($RutaServidor.$HostNombre."/modulos/mod_conexion/conexionBaseDatos.php");
 	include ($RutaServidor.$HostNombre."/controllers/Controladores.php");
     
