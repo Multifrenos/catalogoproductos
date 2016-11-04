@@ -1,5 +1,6 @@
 <?php 
 // Creamos Array $Conexiones para obtener datos de conexiones
+// teniendo en cuenta que le llamo a conexiones  a cada conexion a la Bases de Datos..
 $Conexiones = array(); 
 
 // [Numero conexion]

@@ -59,11 +59,16 @@ class ControladorComun
 	}
     
     
-    function CopiarTablasWeb ($BDRecambios,$BDWebJoomla){
+    function CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$BDNombre1,$BDNombre2){
 		// Objetivo copia tabla virtuemart_products en Recambios.
-		$consulta = 'INSERT INTO `'.$BDRecambios.'`.`virtuemart_products` SELECT * FROM `'.$BDWebJoomla.'`.`xcv7n_virtuemart_products`';
-		//~ $Queryinfo = $BDRecambios->query($consulta);
-		return $consulta;
+		$consulta = 'INSERT INTO `'.$BDNombre1.'`.`virtuemart_products` SELECT * FROM `'.$BDNombre2.'`.`xcv7n_virtuemart_products`';
+		$Textoerr= 'No';
+		if (!$BDRecambios->query($consulta)){
+					$Textoerr = $BDRecambios->errno;
+		} else {
+		$Queryinfo = $BDRecambios->query($consulta);
+		}
+		return $Textoerr;
 	}
 }
 

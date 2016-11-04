@@ -26,7 +26,10 @@
 	<div class="col-md-6">
 
 		<?php 
-		$copiaTabla = $Controlador->CopiarTablasWeb ($Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD']); ?>
+		//~ $copiaTabla = $Controlador->CopiarTablasWeb ($Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD']); 
+		$copiaTabla = $Controlador->CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD']); ?>
+
+		
 		Copiadas tabla.... 
 		<?php
 		echo '<pre>';
