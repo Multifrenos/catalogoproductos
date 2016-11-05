@@ -8,6 +8,8 @@
 <body>
 <?php 
 	include './../../header.php';
+	include './ObjetoSincronizar.php';
+	$ObjSincronizar = new ObjSincronizar
 ?>
 <div class="container">
 	<h2>Sincronizacion y comprobacion de bases de datos ( Recambios con la WEB ).</h2>
@@ -16,6 +18,7 @@
 			<p> La sincronizacion de bases de datos ( Recambios con la WEB ) consiste en:</p>
 		<ul>
 			<li>Copiar la tabla de BD de la web virtuemart_products en BD Recambios	</li>
+			<li>Comprobar que todos los productos que hay en la Web tiene referencia de Recambios</li>
 		</ul>
 		
 		<h4>Especificaciones Tecnicas</h4>
@@ -24,18 +27,17 @@
 		</ul>
 	</div>
 	<div class="col-md-6">
-
+		<h4> Resultado de sincronización</h4>
 		<?php 
-		//~ $copiaTabla = $Controlador->CopiarTablasWeb ($Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD']); 
-		$copiaTabla = $Controlador->CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD'],$prefijoJoomla); ?>
-
-		
-		Copiadas tabla.... 
-		<?php
-		echo '<pre>';
-		print_r($copiaTabla);
-		echo '</pre>';
+		if ($DifVirtuemart['Rows']){
+			// Quiere decir que hay diferencias entre las filas que hay.
+			$ResulCopiaTabla = $ObjSincronizar->CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD'],$prefijoJoomla); 
+		} else {
+			$ResulCopiaTabla = '<span class="glyphicon glyphicon-ok-sign"></span>'.' NO SE COPIO: Ya que hay misma cantidad registros entre las dos BD de la tabla '.$Conexiones[2]['NombreBD'];
+		}
+		 echo $ResulCopiaTabla
 		?>
+
 	</div>
 </div>
 </body>
