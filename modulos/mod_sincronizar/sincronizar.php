@@ -30,12 +30,20 @@
 		<h4> Resultado de sincronización</h4>
 		<?php 
 		if ($DifVirtuemart['Rows']){
-			// Quiere decir que hay diferencias entre las filas que hay.
+			// Quiere decir que hay diferencias entre las dos BDDatos la recambios y la de la web.
+			// tenemos que vaciar la tabla viruemart_product de recambios y luego copiarla ( añadir los registros...
+			// ya que sino produce un error .
+			// Error :ERROR 1062: Duplicate entry 
+			$RegistrosEliminado = $Controlador->EliminarTabla('virtuemart_products',$BDRecambios);
+			
 			$ResulCopiaTabla = $ObjSincronizar->CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD'],$prefijoJoomla); 
+			$Respuesta1 = '<span class="glyphicon glyphicon-ok-sign"></span>'.$RegistrosEliminado.' registros eliminados de tabla virtuemart_product de BD recambios<br/>';
+			$Respuesta1 .= '<span class="glyphicon glyphicon-ok-sign"></span>'.$ResulCopiaTabla.' registros añadidos a tabla virtuemart_product de BD recambios<br/>';
+		
 		} else {
-			$ResulCopiaTabla = '<span class="glyphicon glyphicon-ok-sign"></span>'.' NO SE COPIO: Ya que hay misma cantidad registros entre las dos BD de la tabla '.$Conexiones[2]['NombreBD'];
+			$Respuesta1 = '<span class="glyphicon glyphicon-ok-sign"></span>'.' NO SE COPIO: Ya que hay misma cantidad registros entre las dos BD de la tabla '.$Conexiones[2]['NombreBD'];
 		}
-		 echo $ResulCopiaTabla
+		 echo $Respuesta1
 		?>
 
 	</div>
