@@ -381,7 +381,7 @@
 				// Ahora meto los datos de la consulta.
 				$paginasMulti = $paginas['Actual']-1;
 				if ($paginasMulti > 0) {
-				$desde = ($paginasMulti * $limite)-1; 
+				$desde = ($paginasMulti * $limite); 
 				} else {
 				$desde = 0;
 				}
