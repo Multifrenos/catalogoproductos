@@ -324,7 +324,7 @@ if ($NumeroRegistros > 0){
 							url: 'tareas.php',
 							type: 'post',
 							beforeSend: function () {
-								$("#resultado").html('Borrando tabla ListaPrecios, espere por favor...<span><img src="./img/ajax-loader.gif"/></span>');
+								$("#resultado").html('Borrando <?php echo $nombretabla; ?>, espere por favor...<span><img src="./img/ajax-loader.gif"/></span>');
 							},
 							success: function (response) {
 								lineaF = valorCaja2;
