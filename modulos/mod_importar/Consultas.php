@@ -8,6 +8,7 @@ class ConsultaImportar
 	{
     $consulta = "Delete from " . $nombretabla;
     mysqli_query($BDImportRecambios, $consulta);
+    return $nombretabla;
 	}
 
 	function contarRegistro($BDImportRecambios,$nombretabla,$whereC) {

@@ -33,7 +33,7 @@ class ControladorComun
 			$fila = $Queryinfo->fetch_assoc();
 		}
 		$fila['consulta'] = $consulta;
-		$fila['info'] = $info;
+		
 		return $fila ;
 		
 	}

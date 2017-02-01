@@ -327,6 +327,7 @@ if ($NumeroRegistros > 0){
 								$("#resultado").html('Borrando <?php echo $nombretabla; ?>, espere por favor...<span><img src="./img/ajax-loader.gif"/></span>');
 							},
 							success: function (response) {
+								console.log('Eliminada tabla '+response);
 								lineaF = valorCaja2;
 								var lineaI = valorCaja1;
 								lineaActual = lineaI;

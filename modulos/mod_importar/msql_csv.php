@@ -111,7 +111,7 @@ $num_linea = 0;
 	fclose($archivo);
 	mysqli_close($BDImportRecambios);
 	//$html = 'Añadi de linea '.$lineaA. ' hasta linea '.$lineaF."\n".$RefProveedor.'Marca:'.$Marca.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
-	$html = 'fichero '.$fichero. ' hasta linea '.$lineaF."\n".$RefProveedor.'Marca:'.$Marca.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
+	$html = 'fichero '.$fichero. ' hasta linea '.$lineaF."\n".'Marca:'.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
 
         echo $html ;
 	//~ echo '<br/>Linea:<br/>'.$limpiamosLinea.'<br/>';
