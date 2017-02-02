@@ -33,7 +33,6 @@ class ControladorComun
 			$fila = $Queryinfo->fetch_assoc();
 		}
 		$fila['consulta'] = $consulta;
-		
 		return $fila ;
 		
 	}
@@ -57,14 +56,14 @@ class ControladorComun
 		 *    	[Create_time] => 2016-10-31 18:23:52 // Normal ya que nunca coincidira... se crearía fechas distintas.
 		 *    	[Update_time] => 2016-10-31 20:46:35 // En BD Recambio deberías ser superior, para estar seguros que actulizada
 		*/
-		$DifVirtuemart	=	 array_diff($InfoProdVirt,$InfoNueVirt);
+		$DifVirtuemart	=	 array_diff_assoc($InfoProdVirt,$InfoNueVirt);
 		
 		
 		
 		// Debug 
 		// Para corregir posibles errores
-		//~ $DifVirtuemart[0] = $InfoProdVirt;
-		//~ $DifVirtuemart[1] = $InfoNueVirt;
+		$DifVirtuemart[0] = $InfoProdVirt;
+		$DifVirtuemart[1] = $InfoNueVirt;
 
 		return $DifVirtuemart;	
 	}
@@ -82,6 +81,21 @@ class ControladorComun
 		}
 		return $htmlError ;
 	}
+	
+	
+	function EliminarTabla($nombretabla, $BD) 
+	{
+		//Objetivo tener una funcion para eliminar contenido de una tabla.
+		$consulta = "Delete from " . $nombretabla;
+		$Queryinfo = $BD->query($consulta);
+		// Anotamos cuantos registros eliminamos. 
+		$NRegiEliminados = $BD->affected_rows   ;
+		return $NRegiEliminados;
+	}
+
+	
+	
+	
 }
 
 

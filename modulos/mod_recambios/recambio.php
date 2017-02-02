@@ -93,34 +93,70 @@
 			//~ $tabla = 'cruces_referencias';
 			//~ // el mismo $idBusqueda
 		//~ $CrucesRef = $Crecambios->UnicoRegistro($BDRecambios,$idBusqueda,$tabla);
-		
-		
 		?>
+		<script src="<?php echo $HostNombre; ?>/modulos/mod_recambios/funciones.js"></script>
+
+
 	</head>
 	<body>
 		<?php
         include './../../header.php';
+       
+       
         ?>
 		<div class="container">
 			<h1 class="text-center"> Datos Recambio</h1>
-			<div class="col-md-7">
+			<div class="col-md-12">
 				
 				<h3><?php echo $Recambio['Descripcion'];?></h3>
-				<div class="col-md-6">
+				<div class="col-md-3">
 					<?php 
 					// UrlImagen
 					$img = './../../imagenes/recambios/'.$Recambio['IDFabricante'].'/'.$Recambio['FabricanteRef'];
 					?>
 					<a href="<?php echo $img;?>"><img src="<?php echo $img;?>" style="width:100%;"></a>
 				</div>
-				<div class="col-md-6">
-				<p>ID:</p>
-				<p>Fabricante:</p>
+				<div class="col-md-9">
+					<div class="DatosWeb">
+						<div class="form-group">
+							<label>Nombre Recambio:</label>
+							<input type="text" id="Descripcion" name="NombreRecambio" value="<?php echo $Recambio['Descripcion'];?>" size="60"  disabled>
+							<button onclick="copiarAlPortapapeles('Descripcion')">Copiar</button>
+							
+						</div>
+						<div class="col-md-6 form-group">
+							<label>Ref. del producto:</label>
+							<input type="text" id="RefProducto" name="ReferenciaProducto" value="<?php echo $Recambio['id'];?>"   disabled>
+							<button onclick="copiarAlPortapapeles('RefProducto')">Copiar</button>
+						</div>
+						<div class="col-md-6 form-group">
+							<label>Ref. del producto del Fabricante - GTIN (EAN,ISBN):</label>
+							<input type="text" id="RefProdFabricante" name="ReferenciaProdFabricante" value="<?php echo $Recambio['FabricanteRef'];?>"   disabled>
+							<button onclick="copiarAlPortapapeles('RefProdFabricante')">Copiar</button>
+						</div>
+						<div class="form-group">
+							<label>PVP (Precio Final):</label>
+							<input type="text" id="PVP" name="PrecioPVP" value="<?php echo $Recambio['pvp'];?>"   disabled>
+							<button onclick="copiarAlPortapapeles('RefProdFabricante')">Copiar</button>
+						</div>
+					</div>
+					<div class="Otros datos">
+						<div class="col-md-6 form-group">
+							<label>ID Fabricante:</label>
+							<input type="text" id="IDFabricante" name="IDdeFabricante" value="<?php echo $Recambio['IDFabricante'];?>"   disabled>
+						</div>
+						<div class="col-md-6 form-group">
+							<label>Nombre Fabricante:</label>
+							<input type="text" id="Fabricante" name="DescripFabricante" value="<?php echo $Recambio['Fabricante'];?>"   disabled>
+						</div>
+					</div>		
+				
 				<p>Familia:</p>
 				<p>Precio Coste:</p>
 				<p>Margen Beneficio:</p>
 				<p>IVA:</p>
-				<p>PRECIO:</p>
+				
+				
 				</div>
 			<?php // Debug
 				echo '<pre>';
@@ -143,7 +179,7 @@
 			?>
 			
 			</div>
-			<div class="col-md-5">
+			<div class="col-md-6">
 				<?php 
 				$html = '<h3> Referencias cruzadas</h3>'
 						.'Total referencias cruzadas encontradas '
