@@ -112,7 +112,7 @@
 				<div class="col-md-3">
 					<?php 
 					// UrlImagen
-					$img = './../../imagenes/recambios/'.$Recambio['IDFabricante'].'/'.$Recambio['FabricanteRef'];
+					$img = './../../imagenes/recambios/'.$Recambio['IDFabricante'].'/'.$Recambio['FabricanteRef'].'.jpg';
 					?>
 					<a href="<?php echo $img;?>"><img src="<?php echo $img;?>" style="width:100%;"></a>
 				</div>

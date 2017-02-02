@@ -15,9 +15,7 @@ $lineaF = $_POST['lineaF'] ;
 // Ahora creamos la ruta del fichero.
 // Hay que tener en cuenta que esta ruta puede cambiar según donde guarde los ficheros temporales el servidor.
 $nombrecsv = $_POST['Fichero'];
-//~ $fichero = 'C:\xampp\tmp'.'\\'.$nombrecsv;
 $fichero = $ConfDir_subida.$nombrecsv;
-//~ $nombrestabla = substr($nombrecsv, 0,-4);
 // Ante de iniciar debemos saber que cuanto campos va tener, segun el fichero que sea, no se cuenta el campo linea.
 
 if ($nombrecsv == "ReferenciasCruzadas.csv"){
@@ -113,19 +111,5 @@ $num_linea = 0;
 	//$html = 'Añadi de linea '.$lineaA. ' hasta linea '.$lineaF."\n".$RefProveedor.'Marca:'.$Marca.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
 	$html = 'fichero '.$fichero. ' hasta linea '.$lineaF."\n".'Marca:'.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
 
-        echo $html ;
-	//~ echo '<br/>Linea:<br/>'.$limpiamosLinea.'<br/>';
-
-
-
-
-
-
-//~ function NumeroCampos($fichero,$nlinea)
-//~ {
-	//~ // Recuerda que tiene abierto el fichero.
-   //~ $linea = fgets($fichero, $nlinea);
-   //~ $datos = explode(",",$linea);
-	//~ return $linea;
-//~ }
+    echo $html ;
 ?>
