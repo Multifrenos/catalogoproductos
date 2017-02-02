@@ -31,7 +31,7 @@
 				<div class="col-md-6">
 					<h4>BD de Recambios</h4>
 					<p>Esta BD será la que utilicemos para la gestión completa de recambios</p>
-					<p>Ver <a href="./estatico/BDRecambios.php">más información</a></p>
+					<p>Ver <a href="./estatico/general/BDRecambios.php">más información</a></p>
 				</div>
 				<div class="col-md-6">
 					<h4>BD de Coches</h4>

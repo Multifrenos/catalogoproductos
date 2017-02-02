@@ -15,7 +15,7 @@ $ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches
 $i=0;
 foreach ($ficherosposibles as $fichero){
 	$i++;
-	echo 'Fichero:'.$ConfDir_subida.$fichero;
+	//~ echo 'Fichero:'.$ConfDir_subida.$fichero;
 	if (is_file($ConfDir_subida.$fichero) == true){
 		$Accesofichero[$i]['csv'] =$ConfDir_subida.$fichero;
 	} else {

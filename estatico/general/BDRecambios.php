@@ -2,18 +2,18 @@
 <html>
 <head>
 <?php
-	include './../head.php';
+	include './../../head.php';
 ?>
 </head>
 <body>
 <?php 
-	include './../header.php';
+	include './../../header.php';
 ?>
 
 <div class="container">
 	<div class="col-md-12">
 		<h2>Base de datos de Recambio.</h2>
-		<p> Es la base de datos principal, la tenemos las tablas de recambios, familias de recambios, referencias cruzadas, fabricantes, referencias curazadas de versiones de coches.</p>
+		<p> Es la base de datos principal, la tenemos las tablas de recambios, familias de recambios, referencias cruzadas, fabricantes, referencias cruzadas de versiones de coches.</p>
 		
 		<h4>Tablas de BD Recambios.</h4>
 		<table class="table table-striped">
@@ -26,13 +26,13 @@
 			<tr>
 				<td><small>Recambio</small></td>
 				<td>Contiene los datos de los productos ( recambios ) que vamos a vender o comprar<br/>
-				Si quiere ver <a href="./estatico/recambio.php">más información</a></td>
+				Si quiere ver <a href="./recambio.php">más información</a></td>
 			</tr>
 			<tr>
 				<td><small>ReferenciasCruzadas</small></td>
 				<td>Se utiliza para relacionar nuestro ID con las referencias de otros fabricantes (marcas).<br/>
 				Con esto conseguimos mostrar que recambios (productos) son homologos, semejantes.<br/>
-				Si quiere ver <a href="./estatico/referenciascruzadas.php">más información</a></td>
+				Si quiere ver <a href="./referenciascruzadas.php">más información</a></td>
 			</tr>
 			<tr>
 				<td><small>FabricantesRecambios</small></td>

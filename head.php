@@ -8,7 +8,7 @@
 		// Esto tiene porque ser así se podría asignar antes, desde el fichero que include.
 	}
 	
-	include ($Ruta.'./configuracion.php');
+	include ($Ruta.'configuracion.php');
 	include ($RutaServidor.$HostNombre."/modulos/mod_conexion/conexionBaseDatos.php");
 	include ($RutaServidor.$HostNombre."/controllers/Controladores.php");
     
