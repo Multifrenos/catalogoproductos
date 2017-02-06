@@ -47,7 +47,7 @@ include ("./funciones.php");
  switch ($pulsado) {
     case 'borrar':
         $ConsultaImp->borrar($nombretabla, $BDImportRecambios);
-        return $nombretabla;
+        return $respuesta;
         break;
     case 'contar':
         contador($nombretabla, $BDImportRecambios,$ConsultaImp);

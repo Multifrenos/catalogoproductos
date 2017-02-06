@@ -6,9 +6,14 @@ class ConsultaImportar
 	
 	function borrar($nombretabla, $BDImportRecambios) 
 	{
+    // Eliminamos registros
     $consulta = "Delete from " . $nombretabla;
-    mysqli_query($BDImportRecambios, $consulta);
-	}
+		if (mysqli_query($BDImportRecambios, $consulta)) {
+			$respuesta ="Registros de tabla ".$nombretabla;
+		} else {
+			$repuesta= "Error deleting record: " . mysqli_error($conn);
+		}
+  	}
 
 	function contarRegistro($BDImportRecambios,$nombretabla,$whereC) {
     $array = array();

@@ -72,19 +72,21 @@ if ($_GET) {
 // Creamos variable numero campos, campos a cubrir, y nombre tabla, segun para que fichero estemos tratando.
 switch ($ficheroNombre) {
 
-	case "ReferenciasCruzadas.csv" :
+	case "ListaPrecios.csv":
 		$NumeroCamposCsv = 3;
+		$nombretabla = "listaprecios";
+		$CamposSinCubrir = "0";
+	
+	case "ReferenciasCruzadas.csv" :
+		$NumeroCamposCsv = 11;
 		$CamposSinCubrir = "0','0";
 		$nombretabla = "referenciascruzadas";
 
 	case "ReferenciasCversionesCoches.csv":
 		$NumeroCamposCsv = 3;
-		$nombretabla = "referenciasCversiones";
+		$nombretabla = "referenciascversiones";
 	
-	case "ListaPrecios.csv":
-		$NumeroCamposCsv = 3;
-		$nombretabla = "listaprecios";
-		$CamposSinCubrir = "0";
+	
 	
 		}
 		
@@ -314,7 +316,7 @@ if ($NumeroRegistros > 0){
 					var respuestaConf = confirm('Vamos a Borrar los registros de la tabla temporal\n\
 					Estas seguro');
 					if (respuestaConf == true) {
-						var nombretabla = "<?php echo $nombretabla; ?>";
+						var nombretabla = "<?php echo $nombretabla; ?>"; /* Nombre de la tabla */
 						var parametros = {
 							'nombretabla': nombretabla,
 							'pulsado': 'borrar'

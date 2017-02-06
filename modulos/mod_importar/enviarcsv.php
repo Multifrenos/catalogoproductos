@@ -74,7 +74,28 @@ foreach ($tablasposibles as $tabla){
 				<p> En el PASO 1 es cuando comprueba esos ficheros y le indicamos que lineas de registro queremos añadir a la BD temporal.</p>
 				<p> Puede saltarte el subir los ficheros, si lo acabas de realizar. Recuerda que ese fichero .csv solo estará en directorio temporal mientras no cierres sesión.</p>
 				<div class="col-md-4">
-				<h4>Ref. Cruzadas</h4>
+				<h4><span class="circulo">1</span> Lista Precios</h4>
+				<div class="alert alert-info">
+					<small><strong>Nombre:</strong></small>
+					<small>ListaPrecios.csv</small>
+				</div>
+				<p>Este fichero es encargado de indicar el precio coste de cada fabricante (marca).</p>
+				<p>Ver campos y <a href="./../../estatico/recambio.php#importar">más información </a> de como importar el fichero ListaPreciosProveedores.csv</p>
+					<?php
+					if ($Accesofichero[3]['csv'] !='[ERROR: FICHERO]'){
+						?>
+					 <p><strong><a href="./recibircsv.php?subida=1&fichero=ListaPrecios">Ir a PASO 1 </a></strong>donde selecciona las lineas a subir de ListaPrecios</p>
+					<?php
+					}
+					if ($Accesofichero[3]['registros'] > 0 ){
+						?>
+						<p>La tabla Listaprecios tiene <strong><?php echo $Accesofichero[3]['registros']; ?></strong> quieres ir al <a href="./paso2ListaPrecios.php">PASO 2 de ListaPrecios</a></p>
+					<?php
+					}
+					?>
+				</div>
+				<div class="col-md-4">
+				<h4><span class="circulo">2</span> Ref. Cruzadas</h4>
 				<div class="alert alert-info">
 					<small><strong>Nombre:</strong></small>
 					<small>ReferenciasCruzadas.csv</small>
@@ -96,9 +117,9 @@ foreach ($tablasposibles as $tabla){
 					?>
 				</div>
 				<div class="col-md-4">
-				<h4>Ref.Versiones Coches</h4>
-				<div class="alert alert-info">
-					<small><strong>Nombre:</strong></small>
+				<h4><span class="circulo">3</span> Ref.Versiones Coches</h4>
+				<div style="padding: 15px 0 ">
+					<strong>Nombre:</strong>
 					<small>ReferenciasCversionesCoches.csv</small>
 				</div>
 				<p>Este fichero es el encargado de indicar las recambios monta cada version de coches.</p>
@@ -111,27 +132,7 @@ foreach ($tablasposibles as $tabla){
 					?>
 								
 				</div>
-				<div class="col-md-4">
-				<h4>Lista Precios</h4>
-				<div class="alert alert-info">
-					<small><strong>Nombre:</strong></small>
-					<small>ListaPrecios.csv</small>
-				</div>
-				<p>Este fichero es encargado de indicar el precio coste de cada fabricante (marca).</p>
-				<p>Ver campos y <a href="./../../estatico/recambio.php#importar">más información </a> de como importar el fichero ListaPreciosProveedores.csv</p>
-					<?php
-					if ($Accesofichero[3]['csv'] !='[ERROR: FICHERO]'){
-						?>
-					 <p><strong><a href="./recibircsv.php?subida=1&fichero=ListaPrecios">Ir a PASO 1 </a></strong>donde selecciona las lineas a subir de ListaPrecios</p>
-					<?php
-					}
-					if ($Accesofichero[3]['registros'] > 0 ){
-						?>
-						<p>La tabla Listaprecios tiene <strong><?php echo $Accesofichero[3]['registros']; ?></strong> quieres ir al <a href="./paso2ListaPrecios.php">PASO 2 de ListaPrecios</a></p>
-					<?php
-					}
-					?>
-				</div>
+				
 			</div>
 		</div>
 	</div>

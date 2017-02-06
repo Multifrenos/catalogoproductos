@@ -211,6 +211,7 @@
         <div class="container">
             <div class="col-md-12 text-center">
                 <h2>Paso 2 - Añadir ReferenciasCruzadas al proveedor seleccionado </h2>
+                <p> Ahora tenemos una tabla temporal con las referencias cruzadas que acabas de subir, donde solo se controlo que las lineas del fichero .csv contenga los campos.</p>
             </div>
 
             <div class="col-md-8">
