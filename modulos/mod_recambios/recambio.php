@@ -149,15 +149,62 @@
 							<label>Nombre Fabricante:</label>
 							<input type="text" id="Fabricante" name="DescripFabricante" value="<?php echo $Recambio['Fabricante'];?>"   readonly>
 						</div>
+						<div class="col-md-6 form-group">
+							<label>ID de Familia:</label>
+							<input type="text" id="IDFamilia" name="IDFamilia:" value="<?php echo $Recambio['FamiliaID'];?>"   readonly>
+						</div>
+						<div class="col-md-6 form-group">
+							<label>Nombre Familia:</label>
+							<input type="text" id="Familia" name="Familia:" value="<?php echo $Recambio['Familia'];?>"   readonly>
+						</div>
+						<div class="col-md-6 form-group">
+							<label>Coste:</label>
+							<input type="text" id="coste" name="coste" value="<?php echo $Recambio['coste'];?>"   readonly>
+						</div>
+						<div class="col-md-6 form-group">
+							<label>Margen Beneficio:</label>
+							<input type="text" id="Beneficio" name="Beneficio" value="<?php echo $Recambio['margen'];?>"   readonly>
+						</div>
+						
 					</div>		
 				
-				<p>Familia:</p>
-				<p>Precio Coste:</p>
-				<p>Margen Beneficio:</p>
-				<p>IVA:</p>
+
 				
 				
 				</div>
+			
+			
+			</div>
+			<div class="col-md-6">
+			<?php 
+				// El problema que encuentro para realizar copia de esto con botton al portapapeles
+				// Es que el contenido html general un cierre de la etiqueta antes de tiempo
+				// pienso que se puede resolver limpiando... 
+				$html = "<h3> Referencias cruzadas</h3>"
+						."<p>Total referencias cruzadas encontradas "
+						.$CruceRecambio['TotalCruce']."</p>";
+				$htmlCopia = "Referencias cruzadas"
+						."Total referencias cruzadas encontradas "
+						;
+			 for ($i = 0; $i < $CruceRecambio['TotalCruce']; $i++) {
+				$html .= '<a title="Id Referencia Cruzada:'.$CruceRecambio[$i]['idReferenciaCruz']
+						.'"><span class=" glyphicon glyphicon-info-sign"></span></a>'
+						.$CruceRecambio[$i]['FabricanteCruRef'].' '
+						.'<a title="Id Fabricante Recambio:'
+						.$CruceRecambio[$i]['idFabriCruz'].'"><span class=" glyphicon glyphicon-wrench"></span></a>'
+						.$CruceRecambio[$i]['FabricanteCru'].'<br/>';
+				}
+			?>
+			
+			<label>Copiar Relaciones Cruzadas:</label>
+			<button onclick="copiarAlPortapapeles('RefCruzadas')">Copiar</button>
+			<textarea id="RefCruzadas" name="RefCruzadas" readonly>
+			<?php echo $html;?>
+			</textarea>
+			<?php echo $html;?>
+
+			</div>
+			
 			<?php // Debug
 				echo '<pre>';
 				echo ' Recambio ';
@@ -177,32 +224,6 @@
 
 				echo '</pre> ';
 			?>
-			
-			</div>
-			<div class="col-md-6">
-				<?php 
-				$html = '<h3> Referencias cruzadas</h3>'
-						.'Total referencias cruzadas encontradas '
-						.$CruceRecambio['TotalCruce'].'<br>';
-			 for ($i = 0; $i < $CruceRecambio['TotalCruce']; $i++) {
-				$html .= '<a title="Id Referencia Cruzada:'.$CruceRecambio[$i]['idReferenciaCruz']
-						.'"><span class=" glyphicon glyphicon-info-sign"></span></a>'
-						.$CruceRecambio[$i]['FabricanteCruRef'].' '
-						.'<a title="Id Fabricante Recambio:'
-						.$CruceRecambio[$i]['idFabriCruz'].'"><span class=" glyphicon glyphicon-wrench"></span></a>'
-						.$CruceRecambio[$i]['FabricanteCru'].'<br/>';
-				}
-			echo $html;
-			//~ echo '<code>'.$html.'</code>';
-			?>
-			
-			<?php // Debug
-			//~ echo '<pre>';
-			//~ echo ' Cruces ';
-				//~ print_r($CruceRecambio);
-			//~ echo '</pre>';
-			?>
-			</div>
 		</div>
 	</body>
 </html>
