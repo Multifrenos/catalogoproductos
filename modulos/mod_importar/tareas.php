@@ -31,6 +31,8 @@
 $nombretabla = $_POST['nombretabla'];
 $pulsado = $_POST['pulsado'];
 
+include ("./../../configuracion.php");
+
 // Crealizamos conexion a la BD Datos
 include ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos clase objeto de consultas.
@@ -45,6 +47,7 @@ include ("./funciones.php");
  switch ($pulsado) {
     case 'borrar':
         $ConsultaImp->borrar($nombretabla, $BDImportRecambios);
+        return $respuesta;
         break;
     case 'contar':
         contador($nombretabla, $BDImportRecambios,$ConsultaImp);

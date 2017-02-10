@@ -27,11 +27,9 @@
 		</ol>
 		<p> Recuerda que el primero es el que crea el Recambio, por lo que debe ser el primero en añadir y es uno por familia y fabricante principal.</p>
 		<div>
-		
-		
 		<h4>Especificaciones Tecnicas</h4>
 			<ul>
-			<li> Los ficheros <strong>csv</strong> tiene para cada fichero unos campos, son generados con separador (,) y divisor campos (").<a href="./estatico/comoHacerCsv.php">Ver como hacer preparar csv</a></li>
+			<li> Los ficheros <strong>csv</strong> tiene para cada fichero unos campos, son generados con separador (,) y divisor campos (").<a href="./../../estatico/general/comoHacerCsv.php">Ver como hacer preparar csv</a></li>
 			<li> Los ficheros se almacenan directament en directorio temporal del servidor, salvo que se lo indiquemos con upload_tmp_dir que no sea así.</li>
 			<li> Los ficheros no pueden ser superiores a 50MG</li>
 			<li> El proceso se hace con AJAX a trozos, para evitar saturar el servidor.</li>

@@ -57,7 +57,6 @@ if ($BDRecambios->connect_errno) {
 // Hay que tener en cuenta que los prefijos de instalación cambian
 // que los usuarios y contraseña cambian según instalacion, esto debería haber un 
 // proceso configuracion y instalacion.
-
 $Conexiones [3]['NombreBD'] = $nombreBDJoomla;
 $Conexiones [3]['prefijoJoomla'] = $prefijoJoomla;
 $BDWebJoomla = @new mysqli("localhost", "coches", "coches", $nombreBDJoomla);
