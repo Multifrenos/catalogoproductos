@@ -57,10 +57,13 @@
 	// =========       Creamos paginado      ===================  //
 
 	$TotalPaginas = $TotalRecambios / $limite ;
-	
-	$paginas['Ultima'] = round($TotalPaginas, 0, PHP_ROUND_HALF_UP);   // Redondeo al alza...
+	//~ $paginas['Ultima'] = round($TotalPaginas,0,PHP_ROUND_HALF_UP);   // Redondeo al alza...
+	$paginas['Ultima'] = (int) $TotalPaginas;
+	if ($paginas['Ultima'] < $TotalPaginas) {
+		$paginas['Ultima'] = $paginas['Ultima'] +1;
+	}
 	$paginas['inicio'] = 1;
-	
+
 	// La variables controlError la utilizao como un debug, no se muestra... Solo si hubiera un error..
 	//~ $controlError = 'Obtenemos o creamos Pagina Actual :'.$paginas['Actual']; 
 
