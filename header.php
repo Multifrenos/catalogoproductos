@@ -1,5 +1,6 @@
 <?php
 	/* Mostramos menu y realizamos comprobaciones comunes...
+	 * Si queremos volver debemo hacer esto con AJAX
 	 * */
 	$htmlError = '';
 	$Controlador = new ControladorComun;

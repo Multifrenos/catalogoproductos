@@ -14,7 +14,7 @@
 <div class="container">
 	<h2>Sincronizacion y comprobacion de bases de datos ( Recambios con la WEB ).</h2>
 	<div class="col-md-6">
-		<h4>En consiste Sincronizacion</h4>
+		<h4>Sincronizacion</h4>
 			<p> La sincronizacion de bases de datos ( Recambios con la WEB ) consiste en:</p>
 		<ul>
 			<li>Copiar la tabla de BD de la web virtuemart_products en BD Recambios	</li>
