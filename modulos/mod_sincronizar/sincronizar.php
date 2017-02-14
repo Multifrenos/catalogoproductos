@@ -2,13 +2,13 @@
 <html>
 <head>
 <?php
-	include './../../head.php';
+	include_once './../../head.php';
 ?>
 </head>
 <body>
 <?php 
-	include './../../header.php';
-	include './ObjetoSincronizar.php';
+	include_once './../../header.php';
+	include_once './ObjetoSincronizar.php';
 	$ObjSincronizar = new ObjSincronizar
 ?>
 <div class="container">

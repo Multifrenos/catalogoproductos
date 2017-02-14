@@ -337,18 +337,7 @@
 			<!--==========  Contenido: Buscador, paginador y lista recambios ========== -->
 
 	<div class="col-md-10">
-		<?php // Creamos icono de informacion para indicar que la BD Web y BD Recambios no estan bien sincronizadas.
-		$htmlDif ='';
-		if ($DifVirtuemart['Rows']){
-			// Quiere decir que esta mal... no coiciden registros entre las BD
-			$htmlDif = '<a title="El numero registros ente la Web y local ,&#13; no coinciden"><span style="color:red; " class="glyphicon glyphicon-minus-sign"></span></a>';
-		}else {
-			// Quiere decir que coinciden el numero registros , por ello es correcto sincronizacion.
-			$htmlDif = '<a title="El numero registros de la Web,&#13; es el mismo que tenemos anotados en local"><span class="glyphicon glyphicon-ok-sign"></span></a>';
-		}
-		?>
-		<p>Sincronizacion 
-		<?php echo $htmlDif;?>
+		<p>
 		 -Recambios encontrados BD local filtrados:
 		 <?php echo $TotalRecambios;?>
 		 </p>
