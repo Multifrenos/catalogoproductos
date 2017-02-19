@@ -22,13 +22,11 @@ if ($nombrecsv == "ReferenciasCruzadas.csv"){
 	$NumeroCamposCsv = 3;
 	$CamposSinCubrir = "0','0";
 	$nombretabla= "referenciascruzadas";
-}
-if ($nombrecsv == "ReferenciasCversionesCoches.csv"){
+}elseif ($nombrecsv == "ReferenciasCversionesCoches.csv"){
 	$NumeroCamposCsv = 11;
 	$CamposSinCubrir = "0','0";
 	$nombretabla= "referenciascversiones";
-}
-if ($nombrecsv == "ListaPrecios.csv"){
+}elseif ($nombrecsv == "ListaPrecios.csv"){
 	$NumeroCamposCsv = 3;
 	$nombretabla= "listaprecios";
 	$CamposSinCubrir = "0";
@@ -39,9 +37,10 @@ $archivo = fopen($fichero,'r');
 // Ahora colocamos el punteroe en la linea Inicial.
 $num_linea = 0;
 //Recuerda que la linea empieza en 0
+$consulta = [];//inicializamos el array de consultas
+
 	while (!feof ($archivo)) {
 		$Estado = '';// inicilializamos estado
-		
 		$linea = $num_linea;
 		$Textolinea = fgets($archivo);
 		if  ($linea >= $lineaA)
@@ -50,20 +49,16 @@ $num_linea = 0;
 		   if($linea < $lineaF) 
 		   { 
 				
-				// Ahora comprobamos que la linea contiene datos sino añadimo error en estado.
-				$limpiamosLinea = str_replace(",","",$Textolinea); // Quitamos (,)
-				$limpiamosLinea = str_replace(".","",$limpiamosLinea); // Quitamos (.)
-				$limpiamosLinea = str_replace("0","",$limpiamosLinea); // Quitamos (0)
-				$limpiamosLinea = str_replace(" ","",$limpiamosLinea); // Quitamos ( ) espacio..
+				// Comprobamos que los campos contienen datos
+				// - Eliminamos de las linesa los espacios,los puntos,comas,0 para comprobarlo..
+				// sino añadimos error en estado.
+			     $limpiamosLinea = str_replace([",", ".", "0", " "], "", $Textolinea); // Quitamos (,)
 				if (strlen($limpiamosLinea) < 2) {
 					$Estado = 'Campos vacios con menos 2 caracteres';
 				}
-
-
-				 
 				
+				// Obtenemos los campos de la linea en array datos.
 				$datos = str_getcsv($Textolinea,"," ,'"');
-				//~ $datos = explode(",",$Textolinea);
 				
 				//Almacenamos los datos que vamos leyendo en una variable
 				$Clinea = $num_linea;
@@ -75,26 +70,14 @@ $num_linea = 0;
 			   // Comprobamos cuantos campo hay en el csv y tiene haber los mismo que indicamos en cada fichero.
 				if (count($datos) !== $NumeroCamposCsv){
 				$Estado = 'Campos'.count($datos).' Linea:'.$linea;
-				} else {
-				$Estado .= '';
-				}
+				} 
 			   
-			   // Comprobamos si los campos son correctos, ya que necesitamos que:
-			   // Nuestra tabla puede tener campos int y fechas.
-			    
-			    
-			   
-			   
-			   
-			   //guardamos en base de datos la línea leida
-			   // AQUI DEBERIA CREAMOS UNA CONSULTA Y LUEGO EJECUTARLA.
-			   // Recuerda que $campos tiene una coma al final
+			   //Guardamos en tabla los campos obtenidos en la línea leida
+			   //Si hubiera mas campos , estos no los mostraría.
+			   //Si hubiera mas campos en la linea estos los creara en blanco.
 			   $campos = implode("','", $campo);
-			   
-			   $consulta = "INSERT INTO ".$nombretabla." VALUES('$Clinea','$campos','$Estado','$CamposSinCubrir')";
-			   mysqli_query($BDImportRecambios,$consulta);
-			   
-		 
+			   $consulta[] = "('$Clinea','$campos','$Estado','$CamposSinCubrir')";
+	 
 			   //cerramos condición
 		   }
 		}
@@ -105,11 +88,27 @@ $num_linea = 0;
 		//cerramos bucle
 		$num_linea++;
 	}
-	
+    $myconsulta = "INSERT INTO " . $nombretabla . " VALUES " . implode(',', $consulta);
+	//si el array de consultas NO ESTA VACIO se hace realmente la inserción en la base de datos    
+	$ErrorConsulta = "";
+	if (count($consulta) > 0) {
+        //~ mysqli_query($BDImportRecambios, $myconsulta);
+		$BDImportRecambios->query($myconsulta);
+       // Tengo que comprobar si no hubo un error en el insert, si lo hubo tengo que comunicarlo.
+        $ErrorConsulta =  $BDImportRecambios->error;
+    } 
+	 
+	 
 	fclose($archivo);
 	mysqli_close($BDImportRecambios);
-	//$html = 'Añadi de linea '.$lineaA. ' hasta linea '.$lineaF."\n".$RefProveedor.'Marca:'.$Marca.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
-	$html = 'fichero '.$fichero. ' hasta linea '.$lineaF."\n".'Marca:'.'NombreFichero:'.$nombretabla.'<br/>'.$consulta;
+	
+	// Ahora deberíamos devolver un array con los datos.
+	// Linea Inicia y Linea Final, si fue correcto o no el INSERT
+	// Si no fuera correcto, deberíamos guardarlo en fichero log, para que el usuario pudiera
+	// volver a ver esos errores.
+	// En el fichero log, deberíamos poner:
+	// La lineainicio y lines ficnal con el error generado.
+	$html = 'fichero '.$fichero. ' hasta linea '.$lineaF."\n".'Marca:'.'NombreFichero:'.$nombretabla.'<br/>'.'Error:'.$ErrorConsulta ;
 
     echo $html ;
 ?>

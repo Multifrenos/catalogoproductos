@@ -28,7 +28,9 @@ include ("./../mod_conexion/conexionBaseDatos.php");
 	$errorFichero = ''; // Errores que no se puede continuar
 	$advertencias = array(); // Posible errores, pero se puede continuar.
 	$correcto = '';	
-// Ahora comprobamos si acabamos subir fichero o nos saltamos ese paso.
+// Realizamos comprobaciones para saber si:
+// 		- Si acaba subir el fichero
+// 		- Si se salto el paso subir y indicamos fichero
 if ($_GET) {
 	if (isset($_GET["fichero"])) {
 		// Si nos saltamos el paso, entonces ponemos extensión
@@ -69,26 +71,17 @@ if ($_GET) {
 }
 
 
-// Creamos variable numero campos, campos a cubrir, y nombre tabla, segun para que fichero estemos tratando.
-switch ($ficheroNombre) {
+// Asignamos valor $nombretabla
 
-	case "ListaPrecios.csv":
-		$NumeroCamposCsv = 3;
-		$nombretabla = "listaprecios";
-		$CamposSinCubrir = "0";
-	
-	case "ReferenciasCruzadas.csv" :
-		$NumeroCamposCsv = 11;
-		$CamposSinCubrir = "0','0";
-		$nombretabla = "referenciascruzadas";
-
-	case "ReferenciasCversionesCoches.csv":
-		$NumeroCamposCsv = 3;
-		$nombretabla = "referenciascversiones";
-	
-	
-	
-		}
+if ($ficheroNombre == 'ListaPrecios.csv') {
+	$nombretabla = "listaprecios";
+}
+if ($ficheroNombre == 'ReferenciasCruzadas.csv') {
+	$nombretabla = "referenciascruzadas";
+}
+if ($ficheroNombre == 'ReferenciasCversionesCoches.csv') {
+	$nombretabla = "referenciascversiones";
+}
 		
 // Abrimos fichero CSV
 	if (file_exists ($ConfDir_subida.$ficheroNombre)){
@@ -114,7 +107,6 @@ if ($NumeroRegistros > 0){
 	$advertencias['texto'] = $advertencias['texto'] .'<li>En la tabla '
 							.$nombretabla.' tiene <strong>'.$NumeroRegistros.'</strong> registros.</li>';
 }
-			
 ?>
 
 <!DOCTYPE html>
@@ -267,7 +259,6 @@ if ($NumeroRegistros > 0){
 				// [ PENDIENTE  ]
 				// Una vez pulsado btn Importar a Mysql deberíamos desactivar 
 				// input de lineas y btn , para evitar que usuario pulse en ellos y cambie o vuelve ejecutar.
-				// AUNQUE AL ESTAR LA PETICIONES COMO SINCRONO, YA NO ES TAN FACIL... :-)
 				
 				// **************  Variables Globales ********************
 				// La variables lineaActual y lineaF son globales .
@@ -288,24 +279,18 @@ if ($NumeroRegistros > 0){
 
 					
 					bucleProceso(lineaF, lineaActual, fichero);
-					// 15000ms segundo es el tiempo que ponemos por defecto para realizar la ciclo de peticiones a servidor.
-					// Recuerda que las peticiones AJAX está como sincrono en el hilo principal están desaprobadas ( algo que no recomiendan en :
-					// http://xhr.spec.whatwg.org/)
-					// Al ser peticiones sincrono, afecta realmente al cliente ( usuario ) ya que no le permite hacer nada en navegador
-					// mientras realiza ciclo.
 					// En la instrucción anterior [bucleProceso(bucleProceso(lineaF, lineaActual, fichero)]
 					// realizamos el primer proceso, antes de empezar el ciclo.
-					// Si hacemos un control tiempo al iniciar petición y al terminar podemos saber
-					// el tiempo que tarda en hacer el proceso 400 registros y sustituir 15000ms 
+					// El ciclo no sabes cuando tiempo tarda en realizar insert de los 400 registros,
+					// incluso, si el fichero es muy grande en las lineas finales debería tardar más.
+					// Lo ideal sería hacer las peticiones AJAX de este ciclo sincrono en vez asincrono.
+					// Asi no empezaría ninguna petición al servidor antes terminar las otras.
+					// Ver más informacion en : http://ayuda.svigo.es/index.php/programacion-2/javascript/176-peticiones-ajax-sincrono-o-asincrono
+					
+					// De momento lo hago asincrono y le pongo que espere 3 segundo antes enviar otra petición.
 					// Al utilizar setInterval() crea un ciclo ejecutando la funcion cada ms que le indiquemos.
 					// 		- 	Empieza contar el tiempo y realiza petición:
-					//			Esto hace que durante los 15 primeros segundos desde pulsar btn, el usuario puede utilizar btn derecho raton
-					// 		y puede inspecciona consola de eventos...  , luego el tiempo es tan justo que no puedrá. :-)
-					//		- Sigue contando el tiempo aunque tengamos sincrono, pero si no recibe respuesta,
-					// 		no manda la siguiente peticion antes de termine...
-					// Esto es una mezcla ( para mi ) sincrono y asincrono... :-)
-
-					ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 15000);
+					ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 3000);
 
 				}
 
@@ -313,8 +298,7 @@ if ($NumeroRegistros > 0){
 				// valores a las variables.
 				// Y empezamos a EJECUTAR cicloProceso() me modo temporal.
 				function valoresProceso(valorCaja1, valorCaja2) {
-					var respuestaConf = confirm('Vamos a Borrar los registros de la tabla temporal\n\
-					Estas seguro');
+					var respuestaConf = confirm('Si tiene datos la tabla temporal se va a Borrar ¿Estas seguro? ');
 					if (respuestaConf == true) {
 						var nombretabla = "<?php echo $nombretabla; ?>"; /* Nombre de la tabla */
 						var parametros = {

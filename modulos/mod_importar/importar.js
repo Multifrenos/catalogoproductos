@@ -54,14 +54,14 @@ function bucleProceso (lineaF,linea,fichero) {
 				//     -Comprobar cuantos Fabricantes hay y cuanto hay que añadir a Fabricantes.
 				// 	   -Comprobar cuantas Referencias de DKM hay y cuantos hay añadir.
 			
-           switch(fichero){
-               case "ReferenciasCruzadas.csv":
-                   window.location.href='paso2ReferenciasCruzadas.php';
-                   break;
-               case "ListaPrecios.csv":
-                    window.location.href='paso2ListaPrecios.php';
-                break;
-           }
+          // switch(fichero){
+           //    case "ReferenciasCruzadas.csv":
+             //      window.location.href='paso2ReferenciasCruzadas.php';
+               //    break;
+               //case "ListaPrecios.csv":
+                 //   window.location.href='paso2ListaPrecios.php';
+                //break;
+           //~ }
           
 		}
 	}
