@@ -28,7 +28,9 @@
 
 // creo que esta recogida de datos debe estar antes swich y solo pulsado.
 // la tabla solo en la opción que la necesite.
+if (isset($_POST['nombretabla'])){
 $nombretabla = $_POST['nombretabla'];
+}
 $pulsado = $_POST['pulsado'];
 
 include ("./../../configuracion.php");

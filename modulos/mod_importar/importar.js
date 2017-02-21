@@ -45,24 +45,22 @@ function bucleProceso (lineaF,linea,fichero) {
 	
 	// Ahora si ya son iguales los linea y lineaF entonces terminamos ciclo
 		if ( (parseInt(lineaActual)-1) == parseInt(lineaF) ){
-			alert ( 'terminamos' );
 			clearInterval(ciclo);
-				// Ahora deberíamos hacer una comprobación de como quedo la cosa.
-				// es decir :
-				//     -Comprobar cuantos registros añadio a la base de datos.
-				//     -Comprobar si hay referencias repetidas, tanto RefDKM , como RefFabricante
-				//     -Comprobar cuantos Fabricantes hay y cuanto hay que añadir a Fabricantes.
-				// 	   -Comprobar cuantas Referencias de DKM hay y cuantos hay añadir.
-			
-          // switch(fichero){
-           //    case "ReferenciasCruzadas.csv":
-             //      window.location.href='paso2ReferenciasCruzadas.php';
-               //    break;
-               //case "ListaPrecios.csv":
-                 //   window.location.href='paso2ListaPrecios.php';
-                //break;
-           //~ }
-          
+				// Ya terminamos esta paso, por lo que vamos a redireccionar los 
+				// paso2 de cada fichero.
+				// Pero solo redireccionamos deberíamos redireccionar si esta correcta la 
+				// Importación, aunque le damos la opción al cliente.
+			var respuestaContinuar = confirm('Terminamos, redireccionamos a PASO 2 de cada fichero'+'<br/>'+'¿ Quiere continuar ?');
+			if (respuestaContinuar == true) {
+				switch(fichero){
+					case "ReferenciasCruzadas.csv":
+						window.location.href='paso2ReferenciasCruzadas.php';
+						break;
+					case "ListaPrecios.csv":
+						window.location.href='paso2ListaPrecios.php';
+						break;
+				}
+			}
 		}
 	}
 }
@@ -85,9 +83,20 @@ function consultaDatos(linea,lineaF,fichero) {
 					$("#resultado").html('Subiendo linea '+ linea + 'hasta '+ lineaF + ', espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
 			},
 			success:  function (response) {
-					$("#resultado").html(response);
+					// Cuando se recibe un array con JSON tenemos que parseJSON
+					var resultado =  $.parseJSON(response)
+					$("#resultado").html('Linea Inicio:'+resultado['Inicio']+'<br/>'
+									+'Linea Final:'+resultado['Final']+'<br/>'
+									);
+					// Si hay un mal insert deberiamos contarlos y anotarlo aqui.
+					if (resultado['Resultado'] != "Correcto el insert" ) {
+					// Primero cambiamos la clase , para poner advertencia.
+					$('#ErrorInsert').addClass('alert alert-danger');
+					$("#ErrorInsert").html('<strong>Error INSERT </strong>'+'<br/>'+' Ver console de javascript, error fichero de msql_csv.php');
 					console.log("Responde");
-					console.log(response);
+					console.log(response.toString());
+					}
+					
 
 			}
 		});
