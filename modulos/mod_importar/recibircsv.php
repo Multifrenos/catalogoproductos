@@ -1,4 +1,14 @@
 <?php 
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero
+ * @Descripcion	
+*/
+
+
+// =========================   DESCRIPCION  ============================================  //
 // Este fichero lo mostramos despues de enviar un fichero o saltamos al paso 1 de cualquiera
 // de los tres ficheros que podemos subir.
 // OBJETIVO PRINCIPAL:
@@ -252,6 +262,9 @@ if ($NumeroRegistros > 0){
 					</div>
 				</div>
 				<div id="resultado">
+				</div>
+				<div id="ErrorInsert">
+					
 				</div>
 			</div>	
 			<!-- Script para ejecutar funcion php -->

@@ -1,8 +1,10 @@
 <?php
-/*  Fichero funciones para realizar las tareas.
- * 
- * 
- * 
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero
+ * @Descripcion	Funciones en php para realizar las tareas.
  *  */
 
 
@@ -27,7 +29,7 @@ function contarVacios($nombretabla, $BDImportRecambios) {
     echo json_encode($arrayContarVacios);
 }
  /* Funtion contarVaciosCru
-  * 	Devolvemos un arrar con 400 registros máximo en blanco
+  * 	Devolvemos un array con 400 registros máximo en blanco
   * 	en el que tenemos el id ->RefProveedor ( que realmente RefRecambioPrincipal )
   * 						 linea-> Que indica la linea (id-primary) de $BDIMPORTAR-referenciascruzadas
   * 						 F_rec -> El nombre del fabricante cruzado...

@@ -1,7 +1,12 @@
 <?php 
-/*  Este fichero los utilizamos para :
- *    Comprobar el tabla Referencias Cruzadas
- * 		1.- Si los campos Ref_Fabricantes y Fabricante tiene mas 2 caracteres sino ESTADO= ERR:[CampoVacio]
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero
+ * @Descripcion	Este fichero los utilizamos para :
+ * 				Comprobar el tabla Referencias Cruzadas
+ * 					1.- Si los campos menos 2 caracteres su ESTADO= ERR:[CampoVacio]
  * 
  * */ 
 ?>
@@ -14,8 +19,8 @@
         $htmloptiones = '';
         $htmlfamilias = '';
         include './../../head.php';
-        include ("./../mod_conexion/conexionBaseDatos.php");
-        include ("./Consultas.php");
+        include_once ("./../mod_conexion/conexionBaseDatos.php");
+        include_once ("./Consultas.php");
         $consultaRegistros = new ConsultaImportar;
 		$tabla ="referenciascruzadas";
 		$whereC = ""; 

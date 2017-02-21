@@ -1,6 +1,10 @@
 <?php 
-/* Este fichero es llamo desde funcion javascript consultaDatos
-/* Realizamos conexion a base Datos */
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero , Alberto Lago , Marcos Araujo
+ * @Descripcion	Se llama desde funcion javascript consultaDatos y realizamos INSERT DATOS en tablas */
 include ("./../../configuracion.php");
 
 include ("./../mod_conexion/conexionBaseDatos.php");
@@ -63,7 +67,10 @@ $consulta = [];//inicializamos el array de consultas
 				//Almacenamos los datos que vamos leyendo en una variable
 				$Clinea = $num_linea;
 				for ($i = 0; $i < $NumeroCamposCsv; $i++) {
-					$campo[$i] = trim($datos[$i]);
+					// Limpiamos espacios y ademas si aparece ' dentro de un campo tambien lo inserta y no genera un error(\') 
+					// inserta el caracter especial y no la \
+					$campo[$i] = trim(str_replace(["'"], "\\'", $datos[$i]));
+
 				}
 				
 				
@@ -77,7 +84,6 @@ $consulta = [];//inicializamos el array de consultas
 			   //Si hubiera mas campos en la linea estos los creara en blanco.
 			   $campos = implode("','", $campo);
 			   $consulta[] = "('$Clinea','$campos','$Estado','$CamposSinCubrir')";
-	 
 			   //cerramos condición
 		   }
 		}
@@ -102,13 +108,16 @@ $consulta = [];//inicializamos el array de consultas
 	fclose($archivo);
 	mysqli_close($BDImportRecambios);
 	
-	// Ahora deberíamos devolver un array con los datos.
-	// Linea Inicia y Linea Final, si fue correcto o no el INSERT
-	// Si no fuera correcto, deberíamos guardarlo en fichero log, para que el usuario pudiera
-	// volver a ver esos errores.
-	// En el fichero log, deberíamos poner:
-	// La lineainicio y lines ficnal con el error generado.
-	$html = 'fichero '.$fichero. ' hasta linea '.$lineaF."\n".'Marca:'.'NombreFichero:'.$nombretabla.'<br/>'.'Error:'.$ErrorConsulta ;
-
-    echo $html ;
+	// Devolvemos un array con:
+	// 	- Linea Inicial
+	// 	- Linea Final
+	// 	- Correcto o incorrecto el INSERT.
+	$resultado['Inicio'] = $lineaA;
+	$resultado['Final'] = $lineaF;
+	if ( $ErrorConsulta == "" ) {
+	$resultado['Resultado'] = 'Correcto el insert';
+	} else {
+	$resultado['Resultado'] = $ErrorConsulta;
+	}
+	echo json_encode($resultado) ;
 ?>

@@ -1,3 +1,12 @@
+<?php 
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero
+ * @Descripcion	Paso 2 importar Lista Precios.
+ *  */
+?>
 <!DOCTYPE html>
 <html>
     <head>
