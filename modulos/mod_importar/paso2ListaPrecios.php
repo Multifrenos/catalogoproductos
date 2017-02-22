@@ -17,7 +17,8 @@
         include './../../head.php';
         include ("./../mod_conexion/conexionBaseDatos.php");
         ?>
-      
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
+
     </head>
 
     <body>
@@ -88,12 +89,17 @@
 						<h2>PASO 3</h2>
 						<input id="BtnTerminar" type='button' href='javascript:;' onclick='paso3();return false;' value='terminar'/>
 					</div>
-                </div>
                 <div class="col-md-12">
-					<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+					<div class="progress" style="margin:0 100px">
+						<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
 						0 % completado
+						</div>
 					</div>
                 </div>
+                
+                
+                </div>
+                
                 <div id="resultado"></div>
 
             </div>
@@ -318,12 +324,13 @@
 
             }
             
-            // esta función va a hacer el paso definitivo que es el siguientes:
-            // si es nuevo crea el articulo en recambios  a continuación cubre la relación recambio - familia
-            // para terminar el proceso de nuevo la relaccion referenciascruzadas
-            // existe actualiza el coste
+            // esta función va a hacer el paso definitivo:
+            // 	1.- Comprueba que si es nuevo	
+            //		1.1.- Crea uno nuevo recambio.
+            // 	 	1.2.- Crea una relación recambio - familia
+            //		1.3.- Crea una relacion referencia cruzada. 
+            // 	2.- Si existe solo actualiza el coste
             function anhadirnuevos(rs) {
-				console.log('Estamos funcion (anhadirnuevos)');
 				console.log('B:'+ b);
 				console.log('a:'+ a);
 				//~ console.log('Referencia:');
@@ -360,42 +367,20 @@
                             document.getElementById('resultado').innerHTML='Repuesta RefFabriPrin='+ rs[b].ref;
                             console.log('Repuesta anahirNuevo:'+ b);
                             
-                            BarraProceso(b, a);
+                            ProcesoBarra(b, a);
                         }
 
                     });
 
-                }else{
-          clearInterval(set);
-          document.getElementById('resultado').innerHTML='Terminado el añadir recambios nuevos y cambio precio existente.';
+				}else{
+					  clearInterval(set);
+					  document.getElementById('resultado').innerHTML='Terminado el añadir recambios nuevos y cambio precio existente.';
 
 
-          b = 0;           
-        }
+				  b = 0;           
+				}
             }
-            // JavaSCRIPT para modulo de importar de Catalogo de productos.
-            function BarraProceso(lineaA, lineaF) {
-                // Script para generar la barra de proceso.
-                // Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
-                // que ya estan añadidas.
-                // NOTA:
-                // lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
-                if (lineaA == 0) {
-                    lineaA = 1;
-                }
-                if (lineaF == 0) {
-                    alert('Linea Final es 0 ');
-                    return;
-                }
-                var progreso = Math.round((lineaA * 100) / lineaF);
-
-                $('#bar').css('width', progreso + '%');
-                // Añadimos numero linea en resultado.
-                document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
-                return;
-
-            }
-            
+          
             
            // lanza el ciclo
             function anhadir(response) {

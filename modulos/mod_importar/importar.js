@@ -1,24 +1,40 @@
-// JavaSCRIPT para modulo de importar de Catalogo de productos.
-function BarraProceso(lineaA,lineaF) {
-	// Script para generar la barra de proceso.
-	// Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
-	// que ya estan añadidas.
-	// NOTA:
-	// lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
-	if (lineaA == 0 ) {
-		lineaA = 1;
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogoproductos de Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero
+ * @Descripcion	Javascript necesarios para modulo importar.
+ * */
+
+
+/*
+ * 			==================  FUNCIONES COMUNES   ================================
+ * */
+
+
+function ProcesoBarra(Actual,Final) {
+	// Generador la barra de proceso.
+	// Esta barra proceso se crea en el div id="bar" 
+	// Se tiene enviar:
+	// Actual = Que es el punto en el que está.
+	// Final = El máximo de la barra.
+	// RECUERDA QUE NO SE LE PUEDE ENVIAR UN VALOR EN 0 SINO GENERA UN ERROR.
+	if (Actual == 0 ) {
+		Actual = 1;
 	}
-	if (lineaF == 0) {
-	 alert( 'Linea Final es 0 ');
+	if (Final == 0) {
+	 alert( 'El final de la barra de proceso no puede ser 0 ');
 	 return;
 	}
-	var progreso =  Math.round(( lineaA *100 )/lineaF);
+	var progreso =  Math.round(( Actual *100 )/Final);
 	$('#bar').css('width', progreso + '%');
 	// Añadimos numero linea en resultado.
 	document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
 	return;
 	
 }
+
+
 function bucleProceso (lineaF,linea,fichero) {
 	// Este Script es el que utilizamos para que se ejecute cada cierto tiempo.
 	// es decir, es llamado con setInterval("bucleProceso(lineaF,lineaActual)",20000);
@@ -41,7 +57,7 @@ function bucleProceso (lineaF,linea,fichero) {
 	// Iniciamos proceso Barra;
 	consultaDatos(linea,lineaActual,fichero);
 
-	BarraProceso(lineaActual,lineaF);
+	ProcesoBarra(lineaActual,lineaF);
 	
 	// Ahora si ya son iguales los linea y lineaF entonces terminamos ciclo
 		if ( (parseInt(lineaActual)-1) == parseInt(lineaF) ){

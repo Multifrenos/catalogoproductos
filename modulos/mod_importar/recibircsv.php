@@ -256,9 +256,7 @@ if ($NumeroRegistros > 0){
 				 <div class="progress" style="margin:0 100px">
 					<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
 						0 % completado
-						<!--
-																		<span id="spanProceso" class="sr-only">0% Complete</span>
-						-->
+						
 					</div>
 				</div>
 				<div id="resultado">

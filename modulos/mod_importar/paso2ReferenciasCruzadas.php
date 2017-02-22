@@ -26,6 +26,8 @@
 		$whereC = ""; 
 		$totalRegistro = $consultaRegistros->contarRegistro($BDImportRecambios,$tabla,$whereC);
         ?>
+        <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
+
         <script>
             var lineafinal; // Indica el final ciclo primero de fabricantes...
             var respuesta;
@@ -34,7 +36,7 @@
             var fabricanteserror = 0;
             // Se ejecuta cuando termina de carga toda la pagina.
             $(document).ready(function () {
-			    BarraProceso(); // Para se defina..
+			    ProcesoBarra(); // Para se defina..
                 // Buscamos los campos que tengan menos 2 caracteres para no analizar
                 function modifestadofab() {
 					
@@ -128,7 +130,7 @@
 
 								lineaIntermedia++;
                                 $("#resultado").html("Resultado de "+ respuesta[lineaIntermedia].Fabr_Recambio );
-                                BarraProceso(lineaIntermedia, lineafinal);
+                                ProcesoBarra(lineaIntermedia, lineafinal);
                             }
 
                         });
@@ -183,28 +185,7 @@
 
 
             });
-            function BarraProceso(lineaA, lineaF) {
-                    // Script para generar la barra de proceso.
-                    // Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
-                    // que ya estan añadidas.
-                    // NOTA:
-                    // lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
-                    if (lineaA == 0) {
-                        lineaA = 1;
-                    }
-                    if (lineaF == 0) {
-                        alert('Linea Final es 0 ');
-                        return;
-                    }
-                    var progreso = Math.round((lineaA * 100) / lineaF);
-
-                    $('#bar').css('width', progreso + '%');
-                    // Añadimos numero linea en resultado.
-                    document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
-                    return;
-
-                }
-                ;
+           
         </script>
 
     </head>
@@ -257,12 +238,11 @@
 				  </table>
                 
                
-                <div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+               	<div class="progress" style="margin:0 100px">
+					<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
                     0 % completado
-                    <!--
-					<span id="spanProceso" class="sr-only">0% Complete</span>
-                    -->
-                </div>
+                    </div>
+				</div>
                 <hr />
                 <div id="resultado" class="col-md-12">
                 <!-- Aquí mostramos respuestas de AJAX -->
