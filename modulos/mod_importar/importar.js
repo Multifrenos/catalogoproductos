@@ -37,7 +37,7 @@ function ProcesoBarra(Actual,Final) {
 
 function bucleProceso (lineaF,linea,fichero) {
 	// Este Script es el que utilizamos para que se ejecute cada cierto tiempo.
-	// es decir, es llamado con setInterval("bucleProceso(lineaF,lineaActual)",20000);
+	// es decir, es llamado con setInterval("bucleProceso(lineaF,lineaActual)",000);
 	// desde cicloproceso()
 	// Donde:
 	//		- Iniciamos el intervalos de lineas que vamos a tratar.
@@ -54,9 +54,8 @@ function bucleProceso (lineaF,linea,fichero) {
 			// Como ya no hay tanto registros ( 400) ponemos solo la diferencia
 			lineaActual = parseInt(linea) + parseInt(diferencia) +1;
 		}
-	// Iniciamos proceso Barra;
 	consultaDatos(linea,lineaActual,fichero);
-
+	// Iniciamos proceso Barra;
 	ProcesoBarra(lineaActual,lineaF);
 	
 	// Ahora si ya son iguales los linea y lineaF entonces terminamos ciclo
@@ -85,15 +84,14 @@ function consultaDatos(linea,lineaF,fichero) {
 	// Script que utilizamos para ejecutar funcion de php , para importar datos a MySql.
 	// Recuerda que importamos a BD y tabla temporar, me falta un proceso importación final.
 	var parametros = {
-	"lineaI" : linea,
-	"lineaF" : lineaF,
-	"Fichero" : fichero
+	"lineaI" 	: linea,
+	"lineaF" 	: lineaF,
+	"Fichero" 	: fichero,
+	"pulsado" 	: 'msql_csv'
 			};
 	$.ajax({
-			// async:false, // Carga peticiones de forma sincrono , no asincrono.
-            // cache:false, // No lo texteo lo suficiente , pero pienso que repite registros y lo hace mal...( por defecto es true)
 			data:  parametros,
-			url:   'msql_csv.php',
+			url:   'tareas.php',
 			type:  'post',
 			beforeSend: function () {
 					$("#resultado").html('Subiendo linea '+ linea + 'hasta '+ lineaF + ', espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
@@ -112,7 +110,8 @@ function consultaDatos(linea,lineaF,fichero) {
 					console.log("Responde");
 					console.log(response.toString());
 					}
-					
+					console.log(response.toString());
+
 
 			}
 		});

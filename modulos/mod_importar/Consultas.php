@@ -8,11 +8,12 @@ class ConsultaImportar
 	{
     // Eliminamos registros
     $consulta = "Delete from " . $nombretabla;
-		if (mysqli_query($BDImportRecambios, $consulta)) {
-			$respuesta ="Registros de tabla ".$nombretabla;
+		if ($BDImportRecambios->query($consulta)) {
+			$respuesta ="Eliminado Registros de tabla ".$nombretabla;
 		} else {
-			$repuesta= "Error deleting record: " . mysqli_error($conn);
+			$respuesta= "Error deleting record: " . $BDImportRecambios->error;
 		}
+		return $respuesta;
   	}
 
 	function contarRegistro($BDImportRecambios,$nombretabla,$whereC) {

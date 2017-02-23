@@ -21,7 +21,8 @@
  * 		$pulsado = 'resumen'				-> Ejecuta resumen($BDImportRecambios);
  * 		$pulsado = 'contarVacioscruzados'	-> Ejecuta contarVaciosCru($BDImportRecambios);
  * 		$pulsado = 'comprobar2cruz'			-> Ejecuta comprobarCruzadas($BDImportRecambios, $BDRecambios);
- * 
+ * 		$pulsado = 'msql_csv				-> Ejectua MsqlCsv($lineaA, $lineaF,$nombrecsv);
+
  * 
  *  */
 /* ===============  REALIZAMOS CONEXIONES  ===============*/
@@ -33,32 +34,39 @@ $nombretabla = $_POST['nombretabla'];
 }
 $pulsado = $_POST['pulsado'];
 
-include ("./../../configuracion.php");
+include_once ("./../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos
-include ("./../mod_conexion/conexionBaseDatos.php");
+include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos clase objeto de consultas.
-include ("./Consultas.php");
+include_once ("./Consultas.php");
 $ConsultaImp = new ConsultaImportar;
 
 // Incluimos funciones
-include ("./funciones.php");
+include_once ("./funciones.php");
+include_once ("./funcionesPaso2.php");
 
 
  
  switch ($pulsado) {
     case 'borrar':
-        $ConsultaImp->borrar($nombretabla, $BDImportRecambios);
-        return $respuesta;
+        $respuesta = $ConsultaImp->borrar($nombretabla, $BDImportRecambios);
+        echo json_encode($respuesta) ;
         break;
     case 'contar':
         contador($nombretabla, $BDImportRecambios,$ConsultaImp);
         break;
     case 'comprobar':
-        comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
+        $id = $_POST['idrecambio'];
+		$l = $_POST['linea'];
+		$f = $_POST['fabricante'];
+        $respuesta = comprobar($nombretabla, $BDImportRecambios, $BDRecambios,$id,$l,$f);
+        echo json_encode($respuesta) ;
+
         break;
     case 'contarVacios':
-        contarVacios($nombretabla, $BDImportRecambios);
+        $Estadovacio = contarVacios($nombretabla, $BDImportRecambios);
+        echo json_encode($Estadovacio);
         break;
     case 'verNuevos':
         verNuevosRef($BDImportRecambios);
@@ -83,6 +91,13 @@ include ("./funciones.php");
         break;
     case 'comprobar2cruz':
         comprobarCruzadas($BDImportRecambios, $BDRecambios);
+        break;
+    case 'msql_csv':
+        $lineaA = $_POST['lineaI'] ;
+		$lineaF = $_POST['lineaF'] ;
+		$nombrecsv = $_POST['Fichero'];
+		
+        MsqlCsv($lineaA, $lineaF,$nombrecsv,$ConfDir_subida,$BDImportRecambios);
         break;
 }
  

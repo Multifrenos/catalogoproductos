@@ -15,7 +15,6 @@
         $htmloptiones = '';
         $htmlfamilias = '';
         include './../../head.php';
-        include_once './../mod_conexion/conexionBaseDatos.php';
 		include_once './Consultas.php';
 		
         ?>
