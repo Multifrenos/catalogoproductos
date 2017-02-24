@@ -4,7 +4,7 @@
  * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero , Alberto Lago , Marcos Araujo
- * @Descripcion	Funciones para el Paso2 de todas los ficheros.
+ * @Descripcion	Funciones para el Paso 1 de todas los ficheros.
  * */
 
 //Funcion donde se consulta fichero.csv y realizamos INSERT DATOS en tablas *

@@ -24,17 +24,13 @@
             var e = 0;    // Referencias nuevas
             var n = 0;    // linea intermedia
             var b = 0;    // ciclos
-            var set;      // linea final
-            var a;        // id fabricance
-            var f;        // array de ajax
-            var rs;       // id familia
-            var fa; // Nombre de la tabla 
-            var nombretabla = "listaprecios";
-            
-            
-            
-            
-        </script>
+            var set;      
+            var a;        // linea final
+            var f;        // id fabricance
+            var rs;       // array de ajax
+            var fa; // id familia 
+            var nombretabla = "listaprecios"; // Nombre de la tabla 
+         </script>
     </head>
 
     <body>
@@ -90,15 +86,16 @@
                     </div>
 
                     <div class="form-group align-right">
-                        <input id="BtnComprobar" type="button" href="javascript:;" onclick="ComprobarPaso2ListaPrecios($('#IdFabricante').val(), $('#IdFamilia').val(),nombretabla);return false;" value="Comprobar"/>
+                        <input id="BtnComprobar" type="button" href="javascript:;" onclick="ComprobarSeleccionFamFab ($('#IdFabricante').val(), $('#IdFamilia').val());return false;" value="Comprobar"/>
                     </div>
                 </form>
                 <div id="CjaComprobar" style="display:none;">
                 <h3>Resumen de comprobación</h3>
                 <p>Total de Registros tabla:<span id="total"></span></p>
-                <p>Comprobando registros con ESTADO VACIO: <span id="vacio"></span></p>
-                <p>Recambios Nuevos: <span id="nuevos"></span></p>
-                <p>Recambios Existentes: <span id="existentes"></span></p>
+                <p>Registros Vacios (ID/Vacios): <span id="vacio"></span></p>
+                <p>Recambios Nuevos/Creados: <span id="nuevos"></span>/<span id="creados"></span></p>
+                <p>Recambios Existentes/Modificados: <span id="existentes"></span>/<span id="modificados"></span></p>
+                <p>Otros Estados ( Mal ) :<span id="otrosEstados"></span></p>
                 </div>
                 <div id="Paso3" style="display:none;">
 					<div class='form-group align-right'>

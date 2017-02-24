@@ -8,9 +8,6 @@
  *     	$pulsado = 'contar'					-> Ejecuta contador($nombretabla, $BDImportRecambios);
  * 												Se ejecuta en Paso 2 de ListaPrecios --->
  * 		$pulsado = 'comprobar'				-> Ejecuta comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
- * 		$pulsado = 'contarVacios'			-> Ejecuta contarVacios($nombretabla, $BDImportRecambios);
- * 												Se ejecuta en Paso 2 de ListaPrecios --> 
- * 												Cuando pulsamos en comprobar... despues de seleccionar familia y fabricante.
  * 		$pulsado = 'verNuevos'				-> Ejecuta verNuevosRef($BDImportRecambios);
  * 												Se ejecuta en Paso 3 de ListaPrecios.
  * 		$pulsado = 'anahirRecam'			-> Ejecuta anahirRecam($BDRecambios);
@@ -40,12 +37,12 @@ include_once ("./../../configuracion.php");
 include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos clase objeto de consultas.
 include_once ("./Consultas.php");
-$ConsultaImp = new ConsultaImportar;
+$ConsultaImp = new ConsultaBD;
 
 // Incluimos funciones
 include_once ("./funciones.php");
-include_once ("./funcionesPaso2.php");
-
+include_once ("./funcP2ListaPrecios.php");
+include_once ("./funcP2ReferCruzad.php");
 
  
  switch ($pulsado) {
@@ -54,7 +51,8 @@ include_once ("./funcionesPaso2.php");
         echo json_encode($respuesta) ;
         break;
     case 'contar':
-        contador($nombretabla, $BDImportRecambios,$ConsultaImp);
+        $respuesta = contador($nombretabla, $BDImportRecambios,$ConsultaImp);
+        echo json_encode($respuesta);
         break;
     case 'comprobar':
         $id = $_POST['idrecambio'];
@@ -62,17 +60,13 @@ include_once ("./funcionesPaso2.php");
 		$f = $_POST['fabricante'];
         $respuesta = comprobar($nombretabla, $BDImportRecambios, $BDRecambios,$id,$l,$f);
         echo json_encode($respuesta) ;
-
-        break;
-    case 'contarVacios':
-        $Estadovacio = contarVacios($nombretabla, $BDImportRecambios);
-        echo json_encode($Estadovacio);
         break;
     case 'verNuevos':
         verNuevosRef($BDImportRecambios);
         break;
     case 'anahirRecam':
-        anahirRecam($BDRecambios);
+        $respuesta= anahirRecam($BDRecambios);
+        echo json_encode($respuesta);
         break;
     case 'BuscarError':
         BuscarError($BDImportRecambios);

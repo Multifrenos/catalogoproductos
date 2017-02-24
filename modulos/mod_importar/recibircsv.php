@@ -116,7 +116,7 @@
 
 		
 	// Ahora Creamos clase Consulta para realizar comprobaciones... 
-	$consultaRegistros = new ConsultaImportar;
+	$consultaRegistros = new ConsultaBD;
 	$whereC = '';
 	// Consultamos si tiene registros la tabla.
 	$NumeroRegistros = $consultaRegistros->contarRegistro($BDImportRecambios,$nombretabla,$whereC);

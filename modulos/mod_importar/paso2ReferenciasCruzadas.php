@@ -20,7 +20,7 @@
         $htmlfamilias = '';
         include './../../head.php';
         include_once ("./Consultas.php");
-        $consultaRegistros = new ConsultaImportar;
+        $consultaRegistros = new ConsultaBD;
 		$tabla ="referenciascruzadas";
 		$whereC = ""; 
 		$totalRegistro = $consultaRegistros->contarRegistro($BDImportRecambios,$tabla,$whereC);

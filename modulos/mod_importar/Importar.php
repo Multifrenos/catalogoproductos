@@ -83,7 +83,7 @@
 	}
 
 	// Ahora vamos comprobar con el clase Consulta si tiene datos ... 
-	$consultaRegistros = new ConsultaImportar;
+	$consultaRegistros = new ConsultaBD;
 	$tablasposibles =  array("referenciascruzadas","referenciascversiones","listaprecios");
 	$i=0;
 	$whereC = "";

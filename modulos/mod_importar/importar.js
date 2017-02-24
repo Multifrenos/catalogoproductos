@@ -65,7 +65,7 @@ function bucleProceso (lineaF,linea,fichero) {
 				// paso2 de cada fichero.
 				// Pero solo redireccionamos deberíamos redireccionar si esta correcta la 
 				// Importación, aunque le damos la opción al cliente.
-			var respuestaContinuar = confirm('Terminamos, redireccionamos a PASO 2 de cada fichero'+'<br/>'+'¿ Quiere continuar ?');
+			var respuestaContinuar = confirm('Terminamos, redireccionamos a PASO 2 de cada fichero'+'\n'+'¿ Quiere continuar ?');
 			if (respuestaContinuar == true) {
 				switch(fichero){
 					case "ReferenciasCruzadas.csv":
