@@ -1,27 +1,43 @@
-// JavaSCRIPT para modulo de importar de Catalogo de productos.
-function BarraProceso(lineaA,lineaF) {
-	// Script para generar la barra de proceso.
-	// Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
-	// que ya estan añadidas.
-	// NOTA:
-	// lineaActual no puede ser 0 ya genera in error, por lo que debemos sustituirlo por uno
-	if (lineaA == 0 ) {
-		lineaA = 1;
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogoproductos de Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero
+ * @Descripcion	Javascript necesarios para modulo importar.
+ * */
+
+
+/*
+ * 			==================  FUNCIONES COMUNES   ================================
+ * */
+
+
+function ProcesoBarra(Actual,Final) {
+	// Generador la barra de proceso.
+	// Esta barra proceso se crea en el div id="bar" 
+	// Se tiene enviar:
+	// Actual = Que es el punto en el que está.
+	// Final = El máximo de la barra.
+	// RECUERDA QUE NO SE LE PUEDE ENVIAR UN VALOR EN 0 SINO GENERA UN ERROR.
+	if (Actual == 0 ) {
+		Actual = 1;
 	}
-	if (lineaF == 0) {
-	 alert( 'Linea Final es 0 ');
+	if (Final == 0) {
+	 alert( 'El final de la barra de proceso no puede ser 0 ');
 	 return;
 	}
-	var progreso =  Math.round(( lineaA *100 )/lineaF);
+	var progreso =  Math.round(( Actual *100 )/Final);
 	$('#bar').css('width', progreso + '%');
 	// Añadimos numero linea en resultado.
 	document.getElementById("bar").innerHTML = progreso + '%';  // Agrego nueva linea antes 
 	return;
 	
 }
+
+
 function bucleProceso (lineaF,linea,fichero) {
 	// Este Script es el que utilizamos para que se ejecute cada cierto tiempo.
-	// es decir, es llamado con setInterval("bucleProceso(lineaF,lineaActual)",20000);
+	// es decir, es llamado con setInterval("bucleProceso(lineaF,lineaActual)",000);
 	// desde cicloproceso()
 	// Donde:
 	//		- Iniciamos el intervalos de lineas que vamos a tratar.
@@ -38,31 +54,28 @@ function bucleProceso (lineaF,linea,fichero) {
 			// Como ya no hay tanto registros ( 400) ponemos solo la diferencia
 			lineaActual = parseInt(linea) + parseInt(diferencia) +1;
 		}
-	// Iniciamos proceso Barra;
 	consultaDatos(linea,lineaActual,fichero);
-
-	BarraProceso(lineaActual,lineaF);
+	// Iniciamos proceso Barra;
+	ProcesoBarra(lineaActual,lineaF);
 	
 	// Ahora si ya son iguales los linea y lineaF entonces terminamos ciclo
 		if ( (parseInt(lineaActual)-1) == parseInt(lineaF) ){
-			alert ( 'terminamos' );
 			clearInterval(ciclo);
-				// Ahora deberíamos hacer una comprobación de como quedo la cosa.
-				// es decir :
-				//     -Comprobar cuantos registros añadio a la base de datos.
-				//     -Comprobar si hay referencias repetidas, tanto RefDKM , como RefFabricante
-				//     -Comprobar cuantos Fabricantes hay y cuanto hay que añadir a Fabricantes.
-				// 	   -Comprobar cuantas Referencias de DKM hay y cuantos hay añadir.
-			
-           switch(fichero){
-               case "ReferenciasCruzadas.csv":
-                   window.location.href='paso2ReferenciasCruzadas.php';
-                   break;
-               case "ListaPrecios.csv":
-                    window.location.href='paso2ListaPrecios.php';
-                break;
-           }
-          
+				// Ya terminamos esta paso, por lo que vamos a redireccionar los 
+				// paso2 de cada fichero.
+				// Pero solo redireccionamos deberíamos redireccionar si esta correcta la 
+				// Importación, aunque le damos la opción al cliente.
+			var respuestaContinuar = confirm('Terminamos, redireccionamos a PASO 2 de cada fichero'+'\n'+'¿ Quiere continuar ?');
+			if (respuestaContinuar == true) {
+				switch(fichero){
+					case "ReferenciasCruzadas.csv":
+						window.location.href='paso2ReferenciasCruzadas.php';
+						break;
+					case "ListaPrecios.csv":
+						window.location.href='paso2ListaPrecios.php';
+						break;
+				}
+			}
 		}
 	}
 }
@@ -71,23 +84,34 @@ function consultaDatos(linea,lineaF,fichero) {
 	// Script que utilizamos para ejecutar funcion de php , para importar datos a MySql.
 	// Recuerda que importamos a BD y tabla temporar, me falta un proceso importación final.
 	var parametros = {
-	"lineaI" : linea,
-	"lineaF" : lineaF,
-	"Fichero" : fichero
+	"lineaI" 	: linea,
+	"lineaF" 	: lineaF,
+	"Fichero" 	: fichero,
+	"pulsado" 	: 'msql_csv'
 			};
 	$.ajax({
-			// async:false, // Carga peticiones de forma sincrono , no asincrono.
-            // cache:false, // No lo texteo lo suficiente , pero pienso que repite registros y lo hace mal...( por defecto es true)
 			data:  parametros,
-			url:   'msql_csv.php',
+			url:   'tareas.php',
 			type:  'post',
 			beforeSend: function () {
 					$("#resultado").html('Subiendo linea '+ linea + 'hasta '+ lineaF + ', espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
 			},
 			success:  function (response) {
-					$("#resultado").html(response);
+					// Cuando se recibe un array con JSON tenemos que parseJSON
+					var resultado =  $.parseJSON(response)
+					$("#resultado").html('Linea Inicio:'+resultado['Inicio']+'<br/>'
+									+'Linea Final:'+resultado['Final']+'<br/>'
+									);
+					// Si hay un mal insert deberiamos contarlos y anotarlo aqui.
+					if (resultado['Resultado'] != "Correcto el insert" ) {
+					// Primero cambiamos la clase , para poner advertencia.
+					$('#ErrorInsert').addClass('alert alert-danger');
+					$("#ErrorInsert").html('<strong>Error INSERT </strong>'+'<br/>'+' Ver console de javascript, error fichero de msql_csv.php');
 					console.log("Responde");
-					console.log(response);
+					console.log(response.toString());
+					}
+					console.log(response.toString());
+
 
 			}
 		});

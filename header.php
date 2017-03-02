@@ -1,5 +1,6 @@
 <?php
 	/* Mostramos menu y realizamos comprobaciones comunes...
+	 * Si queremos volver debemo hacer esto con AJAX
 	 * */
 	$htmlError = '';
 	$Controlador = new ControladorComun;
@@ -48,7 +49,10 @@
 		<?php // Creamos icono de informacion para indicar que la BD Web y BD Recambios no estan bien sincronizadas.
 			$UrlSincro = $HostNombre.'/modulos/mod_sincronizar/sincronizar.php';
 			$htmlDif ='<a href="'.$UrlSincro.'" class="navbar-brand"';
-			if ($DifVirtuemart['Rows']){
+			//~ echo '<pre>';
+			//~ print_r($htmlError);
+			//~ echo '</pre>';
+			if (isset($DifVirtuemart['Rows'])){
 				// Quiere decir que esta mal... no coiciden registros entre las BD
 				$titleSincro = 'title="Error en sincronizacion,&#13; puede que no tengas todos los datos de la web"><span style="color:red; " class="glyphicon glyphicon-minus-sign"></span>';
 			}else {

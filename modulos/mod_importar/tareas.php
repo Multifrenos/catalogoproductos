@@ -8,67 +8,77 @@
  *     	$pulsado = 'contar'					-> Ejecuta contador($nombretabla, $BDImportRecambios);
  * 												Se ejecuta en Paso 2 de ListaPrecios --->
  * 		$pulsado = 'comprobar'				-> Ejecuta comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
- * 		$pulsado = 'contarVacios'			-> Ejecuta contarVacios($nombretabla, $BDImportRecambios);
- * 												Se ejecuta en Paso 2 de ListaPrecios --> 
- * 												Cuando pulsamos en comprobar... despues de seleccionar familia y fabricante.
  * 		$pulsado = 'verNuevos'				-> Ejecuta verNuevosRef($BDImportRecambios);
  * 												Se ejecuta en Paso 3 de ListaPrecios.
  * 		$pulsado = 'anahirRecam'			-> Ejecuta anahirRecam($BDRecambios);
  * 		$pulsado = 'BuscarError'			-> Ejecuta BuscarError($BDImportRecambios);
  * 												Se ejecuta en Paso 2 de Referencias Cruzadas al mostrar la pagina.
- * 		$pulsado = 'BuscarErrorFab'			-> Ejecuta BuscarErrorFab($BDImportRecambios);
+ * 		$pulsado = 'DistintoFabCruzTemporal'-> Ejecuta DistintoFabCruzTemporal($BDImportRecambios);
  * 		$pulsado = 'comPro'					-> Ejecuta errorFab($BDImportRecambios, $BDRecambios);
  * 		$pulsado = 'resumen'				-> Ejecuta resumen($BDImportRecambios);
- * 		$pulsado = 'contarVacioscruzados'	-> Ejecuta contarVaciosCru($BDImportRecambios);
- * 		$pulsado = 'comprobar2cruz'			-> Ejecuta comprobarCruzadas($BDImportRecambios, $BDRecambios);
- * 
+ * 		$pulsado = 'obtenerVacioscruzados'	-> Ejecuta obtenerVaciosCru($BDImportRecambios);
+ * 		$pulsado = 'grabarCruzadas'			-> Ejecuta grabarCruzadas($BDImportRecambios, $BDRecambios);
+ * 		$pulsado = 'msql_csv				-> Ejectua MsqlCsv($lineaA, $lineaF,$nombrecsv);
+
  * 
  *  */
 /* ===============  REALIZAMOS CONEXIONES  ===============*/
 
 // creo que esta recogida de datos debe estar antes swich y solo pulsado.
 // la tabla solo en la opción que la necesite.
+if (isset($_POST['nombretabla'])){
 $nombretabla = $_POST['nombretabla'];
+}
 $pulsado = $_POST['pulsado'];
 
-include ("./../../configuracion.php");
+include_once ("./../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos
-include ("./../mod_conexion/conexionBaseDatos.php");
+include_once ("./../mod_conexion/conexionBaseDatos.php");
 // Incluimos clase objeto de consultas.
-include ("./Consultas.php");
-$ConsultaImp = new ConsultaImportar;
+include_once ("./Consultas.php");
+$ConsultaImp = new ConsultaBD;
 
 // Incluimos funciones
-include ("./funciones.php");
-
+include_once ("./funciones.php");
+include_once ("./funcP2ListaPrecios.php");
+include_once ("./funcP2ReferCruzad.php");
 
  
  switch ($pulsado) {
     case 'borrar':
-        $ConsultaImp->borrar($nombretabla, $BDImportRecambios);
-        return $respuesta;
+        $respuesta = $ConsultaImp->borrar($nombretabla, $BDImportRecambios);
+        echo json_encode($respuesta) ;
         break;
     case 'contar':
-        contador($nombretabla, $BDImportRecambios,$ConsultaImp);
+        $respuesta = contador($nombretabla, $BDImportRecambios,$ConsultaImp);
+        echo json_encode($respuesta);
         break;
     case 'comprobar':
-        comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
-        break;
-    case 'contarVacios':
-        contarVacios($nombretabla, $BDImportRecambios);
+        $id = $_POST['idrecambio'];
+		$l = $_POST['linea'];
+		$f = $_POST['fabricante'];
+        $respuesta = comprobar($nombretabla, $BDImportRecambios, $BDRecambios,$id,$l,$f);
+        echo json_encode($respuesta) ;
         break;
     case 'verNuevos':
         verNuevosRef($BDImportRecambios);
         break;
     case 'anahirRecam':
-        anahirRecam($BDRecambios);
+        $respuesta= anahirRecam($BDRecambios);
+        echo json_encode($respuesta);
         break;
     case 'BuscarError':
-        BuscarError($BDImportRecambios);
+        $datos = BuscarError($BDImportRecambios);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($datos);
         break;
-    case 'BuscarErrorFab':
-        BuscarErrorFab($BDImportRecambios);
+    case 'DistintoFabCruzTemporal':
+        //~ $condicional ="Estado = ''";
+        $condicional = $_POST['condicional'];
+        $array = DistintoFabCruzTemporal($BDImportRecambios, $condicional);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
         break;
     case 'comPro':
         errorFab($BDImportRecambios, $BDRecambios);
@@ -76,11 +86,20 @@ include ("./funciones.php");
     case 'resumen':
         resumenCruz($BDImportRecambios);
         break;
-    case 'contarVacioscruzados':
-        contarVaciosCru($BDImportRecambios);
+    case 'ObtenerVacioscruzados':
+        $array = obtenerVaciosCru($BDImportRecambios,$ConsultaImp);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
         break;
-    case 'comprobar2cruz':
-        comprobarCruzadas($BDImportRecambios, $BDRecambios);
+    case 'grabarCruzadas':
+        GrabarCruzadas($BDImportRecambios, $BDRecambios);
+        break;
+    case 'msql_csv':
+        $lineaA = $_POST['lineaI'] ;
+		$lineaF = $_POST['lineaF'] ;
+		$nombrecsv = $_POST['Fichero'];
+		
+        MsqlCsv($lineaA, $lineaF,$nombrecsv,$ConfDir_subida,$BDImportRecambios);
         break;
 }
  

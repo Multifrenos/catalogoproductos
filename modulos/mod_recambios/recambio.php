@@ -106,6 +106,7 @@
         ?>
 		<div class="container">
 			<h1 class="text-center"> Datos Recambio</h1>
+			<a class="text-ritght" href="javascript:history.back(1)">Volver Atrás</a>
 			<div class="col-md-12">
 				
 				<h3><?php echo $Recambio['Descripcion'];?></h3>

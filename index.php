@@ -19,14 +19,17 @@
 		<div class="container">
 			<div class="col-md-8">
 				<h1>Catalogo de recambios</h1>
-				<p>En este catalogo vamos mostrar por familias LOS RECAMBIOS AUTOMOVILES que nos ofrecan los distintos distribuidores, fabricantes o marcas. De momento solo podemos tener un precio por marca o fabricante, aunque se entiende que si es un distribuidor, este puede tener un precio coste distinto.</p>
+				<p>En este catalogo se muestra LOS RECAMBIOS AUTOMOVILES que nos ofrecan los distintos distribuidores, fabricantes o marcas. Solo tenemos un precio por marca o fabricante, aunque se entiende que si es un distribuidor, el mismo recambio puede tener varios precios <strong>(de momento no es posible)</strong>.</p>
 				<p>Este catalogo tiene definido 3 Bases de Datos (BD), donde cada una tiene sus tablas:</p>
 				<ul>
 					<li>Base de datos Recambios</li>
 					<li>Base de datos Coches</li>
 					<li>Base de datos importarRecambios</li>
 				</ul>
-				<p>Aunque son BD distintas , se relacionan entre si, ya muchos datos se sacan unas de las otras, pero tenemos que conseguir que <mark>cada BD sea independiente igualmente</mark>, para ello debemos guardar los datos necesarios en BD para que los campos y registros muestren la información que buscamos y no un simple ID que no se reconocido si no existe la otra de las otras BD.</p>
+				<p>La primera BD ( Recambios ) es a importante para la gestion, la otras son complementarias, por ello el tener <strong>copias de seguridad</strong> de esta BD es fundamental.</p>
+				<p>Ademas hay que tener en cuenta que los <strong>ID de BD Recambios</strong> es la que relacionamos en web, por lo que <strong>no deben cambiar</strong>, por ello es fundamental tener claro esto.</p>
+				<p>La tres BD son distintas , se relacionan entre si, ya muchos datos se sacan unas de las otras, pero tenemos que conseguir que <mark>cada BD sea independiente igualmente</mark>.</p>
+				<p>El que sea independientes implica que en la 3 BD debemos guardar los datos necesarios para sea legible por humanos y no puede estar solo numeros (ID). Así podremos operar con datos legibles de forma IDEPENDIENTE</p>
 				<h3>Tablas de las BD que utilizamos en este Catalogo</h3>
 				<div class="col-md-6">
 					<h4>BD de Recambios</h4>

@@ -8,9 +8,9 @@
 		// Esto tiene porque ser así se podría asignar antes, desde el fichero que include.
 	}
 	
-	include ($Ruta.'configuracion.php');
-	include ($RutaServidor.$HostNombre."/modulos/mod_conexion/conexionBaseDatos.php");
-	include ($RutaServidor.$HostNombre."/controllers/Controladores.php");
+	include_once ($Ruta.'configuracion.php');
+	include_once ($RutaServidor.$HostNombre."/modulos/mod_conexion/conexionBaseDatos.php");
+	include_once ($RutaServidor.$HostNombre."/controllers/Controladores.php");
     
 
 ?>
@@ -25,8 +25,4 @@
 
 <script src="<?php echo $HostNombre;?>/jquery/jquery-2.2.5-pre.min.js"></script>
 <script src="<?php echo $HostNombre;?>/css/bootstrap.min.js"></script>
-
-<!--
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
--->
 

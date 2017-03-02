@@ -1,10 +1,19 @@
 <?php 
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero
+ * @Descripcion	Es el encargado leer el fichero subido y importar los registros que le indiquemos.
+*/
+
+
+// =========================   DESCRIPCION  ============================================  //
 // Este fichero lo mostramos despues de enviar un fichero o saltamos al paso 1 de cualquiera
 // de los tres ficheros que podemos subir.
 // OBJETIVO PRINCIPAL:
-// Poder seleccionar que registros vamos a subir, un intervalo.
-// Antes de nada , es decir antes poder mostrar el formulario debemos hacer una serie de 
-// comprobaciones.
+// Poder seleccionar el intervalo de registros vamos a subir.
+// Primero realizamos las siguientes comprobaciones:
 // 	1.- Identificar si acabamos de subir fichero o no.
 //	2.- Si acabamos de subir el fichero, los guardamos en tmp con el nombre que tiene el fichero recien subido.
 //	3.- Se comprueba que sea correcto nombre del fichero. ( Esto a lo mejor debería cambiarse.... )
@@ -19,82 +28,84 @@
 ?>
 
 <?php
-include ("./../../configuracion.php");
-// Realizamos conexión a Base datos
-include ("./../mod_conexion/conexionBaseDatos.php");
+
 
 // Inicio de variables
 	$ficherosposibles = array("ReferenciasCruzadas.csv","ReferenciasCversionesCoches.csv","ListaPrecios.csv");
 	$errorFichero = ''; // Errores que no se puede continuar
 	$advertencias = array(); // Posible errores, pero se puede continuar.
+	$advertencias['texto'] = '';
 	$correcto = '';	
-// Ahora comprobamos si acabamos subir fichero o nos saltamos ese paso.
-if ($_GET) {
-	if (isset($_GET["fichero"])) {
-		// Si nos saltamos el paso, entonces ponemos extensión
-		$ficheroNombre = $_GET["fichero"] . '.csv';
-		$fichero_subido = $ConfDir_subida . $ficheroNombre;
-		// Ahora comprobamos si existe el fichero en cuestión en /tmp
-		if (is_file($fichero_subido) == true){
-			$advertencias['subido'] = 'No se subió';
-			$advertencias['texto'] = '<li>No se subió fichero se salto ese paso.</li>';
-			$correcto = $correcto . " - El fichero encontrado <strong>".$fichero_subido."</strong>.<br/>";
-
+	// $ficheroNombre, que puede ser el recien subido o el indica GEt si nos saltamos al PASO 1
+	if ($_GET) {
+		if (isset($_GET["fichero"])) {
+			$ficheroNombre = $_GET["fichero"] . '.csv';
+			$advertencias['subido'] = 'SIN SUBIR';
 		} else {
-		$errorFichero= "- No SE SUBIO fichero y NO EXISTE el fichero en directorio temporal:<strong> ".$ConfDir_subida.$ficheroNombre."</strong><br/>";
+			$ficheroNombre= $_FILES['fichero_usuario']['name'];
+			$advertencias['subido'] = 'RECIEN SUBIDO';	
 		}
-	} else {
-		// Comprobamos que los subimos
-		$ficheroNombre= $_FILES['fichero_usuario']['name'];
-		$fichero_subido = $ConfDir_subida . $ficheroNombre;
-		
-		if ($_GET["subida"] == 0) {
-			// Antes guardar el fichero recien subido, comprobamos
-			//    - Que el nombre sea correcto y que se pueda guardar.
-			if (in_array($ficheroNombre, $ficherosposibles) and move_uploaded_file($_FILES['fichero_usuario']['tmp_name'], $fichero_subido)) {
-				 $correcto = " - El fichero se acaba subir y existe en directorio temporal.<br/>";
-				
-			} else {
-				$errorFichero = $errorFichero . "- Fichero " . $ficheroNombre 
-								. " no es un nombre de fichero correcto.<br/>Los nombre de ficheros que puede utilizar son:<br/>-"
-								. implode("<br/>-", $ficherosposibles).'<br/>';
-			}
-		} 
-		
 	}
-	
-} else {
-
-	$errorFichero = " Algo esta mal, ya que no se subio fichero y tampoco se envio fichero a analizar";
-}
+?>
 
 
-// Creamos variable numero campos, campos a cubrir, y nombre tabla, segun para que fichero estemos tratando.
-switch ($ficheroNombre) {
-
-	case "ListaPrecios.csv":
-		$NumeroCamposCsv = 3;
-		$nombretabla = "listaprecios";
-		$CamposSinCubrir = "0";
-	
-	case "ReferenciasCruzadas.csv" :
-		$NumeroCamposCsv = 11;
-		$CamposSinCubrir = "0','0";
-		$nombretabla = "referenciascruzadas";
-
-	case "ReferenciasCversionesCoches.csv":
-		$NumeroCamposCsv = 3;
-		$nombretabla = "referenciascversiones";
-	
-	
-	
-		}
+<!DOCTYPE html>
+<html>
+<head>
+	<?php
+	include './../../head.php';
+	?>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
+	<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/recibircsv.js"></script>
+	<script>
+		// [ PENDIENTE  ]
+		// Una vez pulsado btn Importar a Mysql deberíamos desactivar 
+		// input de lineas y btn , para evitar que usuario pulse en ellos y cambie o vuelve ejecutar.
 		
-// Abrimos fichero CSV
-	if (file_exists ($ConfDir_subida.$ficheroNombre)){
+		// **************  Variables Globales ********************
+		var fichero = "<?php echo $ficheroNombre; ?>";
+		var lineaActual = 0;
+		var lineaF = 0;
+		var ciclo;
+		
+	</script>
+</head>
+<body>
+	<?php 
+	include './../../header.php';
+	include_once ("funciones.php");
+	include_once ("./Consultas.php");
+	?>
+
+	<?php
+	// Realizamos comprobaciones para saber si:
+	// 		- Si acaba subir el fichero con nombre correcto 
+	// 		- Si existe en temporal
+	// Creando advertencias o error que no permite seguir.
+	$fichero_subido = $ConfDir_subida . $ficheroNombre;
+	if ($_GET["subida"] == 0) {
+		if (in_array($ficheroNombre, $ficherosposibles) and move_uploaded_file($_FILES['fichero_usuario']['tmp_name'], $fichero_subido)) {
+			$correcto = " - Correcto el nombre del fichero recien subido.<br/>";
+			} else {
+			$errorFichero = "- Fichero " . $ficheroNombre 
+							. " no es correcto su nombre.<br/>Los nombre de ficheros que puede utilizar son:<br/>-"
+							. implode("<br/>-", $ficherosposibles).'<br/>';
+		}
+	}
+	if (is_file($fichero_subido) == true){
+			$correcto = $correcto." - El fichero existe en directorio temporal.<br/>";
+		} else {
+		$errorFichero= $errorFichero."- Fichero NO EXISTE en directorio temporal:<strong> ".$ConfDir_subida.$ficheroNombre."</strong><br/>";
+	}
+
+	// Asignamos valor $nombretabla
+	$FDatos = FicheroDatos($ficheroNombre);
+	$nombretabla 		= $FDatos['nombretabla'];
+	
+	// Abrimos fichero CSV
+	if (file_exists ($fichero_subido)){
 		//abro el archivo para lectura
-		$rutafichero = $ConfDir_subida . $ficheroNombre;
-		$archivo = fopen($rutafichero, 'r');
+		$archivo = fopen($fichero_subido, 'r');
 		//inicializo una variable para llevar la cuenta de las líneas y los caracteres
 		$num_lineas = 0;
 		//Hago un bucle para recorrer el archivo línea a línea hasta el final del archivo
@@ -104,44 +115,26 @@ switch ($ficheroNombre) {
 	}
 
 		
-// Ahora Creamos clase Consulta para realizar comprobaciones... 
-include ("./Consultas.php");
-$consultaRegistros = new ConsultaImportar;
-$whereC = '';
-// Consultamos si tiene registros la tabla.
-$NumeroRegistros = $consultaRegistros->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
-if ($NumeroRegistros > 0){
-	$advertencias['texto'] = $advertencias['texto'] .'<li>En la tabla '
-							.$nombretabla.' tiene <strong>'.$NumeroRegistros.'</strong> registros.</li>';
-}
-			
+	// Ahora Creamos clase Consulta para realizar comprobaciones... 
+	$consultaRegistros = new ConsultaBD;
+	$whereC = '';
+	// Consultamos si tiene registros la tabla.
+	$NumeroRegistros = $consultaRegistros->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
+	if ($NumeroRegistros > 0){
+		$advertencias['texto'] = $advertencias['texto'] .'<li>En la tabla '
+								.$nombretabla.' tiene <strong>'.$NumeroRegistros.'</strong> registros.</li>';
+	}
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-	<?php
-	include './../../head.php';
-	
-	?>
-	<script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
-	
-	
-	
-	
-	
-</head>
-<body>
-	<?php include './../../header.php';?>
 
 	<div class="container">
 		<div class="col-md-12 text-center">
-			<?php if ($advertencias['subido'] == 'No se subió'){?>
-				<h2>Paso 1 : Añadir registros a BD temporal del fichero <?php echo $ficheroNombre;?> SIN SUBIR  </h2>
+			<?php if ($advertencias['subido'] == 'SIN SUBIR'){?>
+				<h2>Paso 1 : Añadir registros a BD temporal del fichero <?php echo $ficheroNombre.' '.$advertencias['subido'];?>   </h2>
 
 			<?php	
 			} else {?>
-				<h2>Paso 1 : Añadir registros a BD temporal del fichero <strong>RECIEN SUBIDO</strong> </h2>
+				<h2>Paso 1 : Añadir registros a BD temporal del fichero <strong><?php echo $advertencias['subido'];?></strong> </h2>
 			<?php
 			}
 			?>
@@ -205,13 +198,10 @@ if ($NumeroRegistros > 0){
 			} else {
 				$correcto = $correcto . '- Numero de LINEAS a procesar son ' . $num_lineas . '<br/>';
 			}
-
-
-			// Ahora imprimimos resultado control de fichero
+		// Ahora imprimimos resultado control de fichero
 			?>
 		</div>
 		<div class="col-md-6">
-			<h4>Comprobamos si el fichero es correcto</h4>
 			<div class="alert alert-info">
 				<strong>COMPROBACIONES BÁSICAS CORRECTAS <br/></strong>
 				<?php echo $correcto; ?>
@@ -231,7 +221,7 @@ if ($NumeroRegistros > 0){
 			<div>
 				<form class="form-horizontal" role="form" >
 					<div class="form-group">
-						<legend>¿Desde que línea quiere importar?</legend>
+						<legend>¿Que líneas quieres importar a mysql?</legend>
 					</div>
 					<div class="form-group">
 						<label class="control-label col-md-4">Línea Inicial</label>
@@ -242,109 +232,41 @@ if ($NumeroRegistros > 0){
 						<input class="control-label col-md-6" type="number" id="LineaFinal" name="linea_final" value="<?php echo $num_lineas; ?>">
 					</div>
 					<div class="form-group">
-						<p>Ahora vamos importar los datos csv a base datos de MYSQL</p>
+						Una vez seleccionado intervalo de lineas se importa los datos csv a BD temporal de MYSQL<br/>
+
+						<?php 
+						if ($NumeroRegistros > 0) {?>
+							Teniendo en cuenta que se eliminan los <strong><?php echo $NumeroRegistros; ?></strong> registros que tiene TABLA TEMPORAL <?php echo $nombretabla; ?> o prefieres <a href="paso2<?php echo substr($ficheroNombre, 0, -4) . '.php'; ?>">IR A PASO 2</a></strong> donde comprobamos los todos esos registros. </strong> 
+							
+							<?php
+							}
+						?>
 					</div>
 					<div class="form-group align-right">
-						<input type="button" href="javascript:;" onclick="valoresProceso($('#LineaInicial').val(), $('#LineaFinal').val());return false;" value="Importar a MySql"/>
+						<input type="button" href="javascript:;" onclick="valoresProceso($('#LineaInicial').val(), $('#LineaFinal').val(),'<?php echo $nombretabla; ?>');return false;" value="Importar a MySql"/>
+						
 					</div>
 				</form>
 				<div>
-					<a href="paso2<?php echo substr($ficheroNombre, 0, -4) . '.php'; ?>">Saltar esté paso 1 y al paso 2</a>
+					<?php if ($NumeroRegistros > 0) {?>
+					
+					<?php
+					}?>
+					
 				</div>
 				 <div class="progress" style="margin:0 100px">
 					<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
 						0 % completado
-						<!--
-																		<span id="spanProceso" class="sr-only">0% Complete</span>
-						-->
+						
 					</div>
 				</div>
 				<div id="resultado">
 				</div>
-			</div>	
-			<!-- Script para ejecutar funcion php -->
-			<script>
-				// [ PENDIENTE  ]
-				// Una vez pulsado btn Importar a Mysql deberíamos desactivar 
-				// input de lineas y btn , para evitar que usuario pulse en ellos y cambie o vuelve ejecutar.
-				// AUNQUE AL ESTAR LA PETICIONES COMO SINCRONO, YA NO ES TAN FACIL... :-)
-				
-				// **************  Variables Globales ********************
-				// La variables lineaActual y lineaF son globales .
-				// Estás variables la lee al cargar la pagina.
-
-				var fichero = "<?php echo $ficheroNombre; ?>";
-
-				var lineaActual = 0;
-				var lineaF = 0;
-				var ciclo;
-				// Función que inicia el ciclo de proceso, para 
-				// añadir datos mysql, el intervalo de tiempo
-				// puede modificarse en función servidor y hardware que se tenga.
-				// yo de momento le puse 20000, son 20 segundos. 
-				function cicloProcesso() {
-					alert('Iniciamo ciclo, recuerda que añade 400 registros y tarda 20 segundo \n' +
-							' cada vez que actualiza la barra de proceso.');
-
+				<div id="ErrorInsert">
 					
-					bucleProceso(lineaF, lineaActual, fichero);
-					// 15000ms segundo es el tiempo que ponemos por defecto para realizar la ciclo de peticiones a servidor.
-					// Recuerda que las peticiones AJAX está como sincrono en el hilo principal están desaprobadas ( algo que no recomiendan en :
-					// http://xhr.spec.whatwg.org/)
-					// Al ser peticiones sincrono, afecta realmente al cliente ( usuario ) ya que no le permite hacer nada en navegador
-					// mientras realiza ciclo.
-					// En la instrucción anterior [bucleProceso(bucleProceso(lineaF, lineaActual, fichero)]
-					// realizamos el primer proceso, antes de empezar el ciclo.
-					// Si hacemos un control tiempo al iniciar petición y al terminar podemos saber
-					// el tiempo que tarda en hacer el proceso 400 registros y sustituir 15000ms 
-					// Al utilizar setInterval() crea un ciclo ejecutando la funcion cada ms que le indiquemos.
-					// 		- 	Empieza contar el tiempo y realiza petición:
-					//			Esto hace que durante los 15 primeros segundos desde pulsar btn, el usuario puede utilizar btn derecho raton
-					// 		y puede inspecciona consola de eventos...  , luego el tiempo es tan justo que no puedrá. :-)
-					//		- Sigue contando el tiempo aunque tengamos sincrono, pero si no recibe respuesta,
-					// 		no manda la siguiente peticion antes de termine...
-					// Esto es una mezcla ( para mi ) sincrono y asincrono... :-)
-
-					ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 15000);
-
-				}
-
-				// Función que al pulsar en Importar a MySql pone 
-				// valores a las variables.
-				// Y empezamos a EJECUTAR cicloProceso() me modo temporal.
-				function valoresProceso(valorCaja1, valorCaja2) {
-					var respuestaConf = confirm('Vamos a Borrar los registros de la tabla temporal\n\
-					Estas seguro');
-					if (respuestaConf == true) {
-						var nombretabla = "<?php echo $nombretabla; ?>"; /* Nombre de la tabla */
-						var parametros = {
-							'nombretabla': nombretabla,
-							'pulsado': 'borrar'
-						};
-						$.ajax({
-							data: parametros,
-							url: 'tareas.php',
-							type: 'post',
-							beforeSend: function () {
-								$("#resultado").html('Borrando <?php echo $nombretabla; ?>, espere por favor...<span><img src="./img/ajax-loader.gif"/></span>');
-							},
-							success: function (response) {
-								console.log('Eliminada tabla '+response);
-								lineaF = valorCaja2;
-								var lineaI = valorCaja1;
-								lineaActual = lineaI;
-								alert('Valores que tenemos ahora: \n ' + 'Linea Actual ' + lineaActual + ' \nLinea Final: ' + lineaF + '\nFichero:' + fichero);
-								// Iniciar ciclo proceso. ;
-
-							 cicloProcesso();
-
-							}
-						});
-					}
-
-				}
-				// FIN DE FUNCIONES
-			</script>
+				</div>
+			</div>	
+			
 		</div>
 		<?php 
 		} // Cerramos if !erroFichero 
