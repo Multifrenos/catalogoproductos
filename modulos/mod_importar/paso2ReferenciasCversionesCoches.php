@@ -59,7 +59,7 @@
                             <td>Registro de tabla:<strong><span id="reg2char">0</span></strong><br/>
                                 Registros con ESTADO en blanco:
                                 <strong><span id="emptyState"></span></strong></td>
-                            <td>ERR:[CampoVacio]</td>
+                            <td>[ERROR P2-21]:CampoVacio</td>
                             <td>Registros campos mal:<strong><span id="campVa"></span></strong></td>
                         </tr>
                         <tr>

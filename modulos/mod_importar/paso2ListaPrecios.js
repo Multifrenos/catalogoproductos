@@ -54,7 +54,7 @@ function consulta(rs) {
 		var parametros = {
 			'nombretabla': tabla,
 			'pulsado': 'comprobar',
-			'idrecambio': rs[b].id,
+			'idrecambio': rs[b].RefFabPrin,
 			'linea': rs[b].linea,
 			'fabricante': f
 		};
@@ -66,11 +66,11 @@ function consulta(rs) {
 			datatype: 'json',
 			data: parametros,
 			beforeSend: function () {
-				console.log ('Comprobando tabla '+nombretabla+' en tarea comprobar la referencia '+rs[b].id);
-				$("#resultado").html('Combrobando si existe en BDRecambio/ReferenciaCruzadas el '+rs[b].id+' de la Referencia Fabricante...<span><img src="./img/ajax-loader.gif"/></span>');
+				console.log ('Comprobando tabla '+nombretabla+' en tarea comprobar la referencia '+rs[b].RefFabPrin);
+				$("#resultado").html('Combrobando si existe en BDRecambio/ReferenciaCruzadas el '+rs[b].RefFabPrin+' de la Referencia Fabricante...<span><img src="./img/ajax-loader.gif"/></span>');
 			},
 			success: function (response) {
-			   $("#resultado").html('Buscado '+rs[b].id+' en BDRecambio/ReferenciaCruzadas.');
+			   $("#resultado").html('Buscado '+rs[b].RefFabPrin+' en BDRecambio/ReferenciaCruzadas.');
 				respuesta = JSON.parse(response)
 				n = n + (respuesta[0].n);
 				e = e + (respuesta[0].e);

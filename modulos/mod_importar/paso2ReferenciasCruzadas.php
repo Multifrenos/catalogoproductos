@@ -4,9 +4,7 @@
  * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  * @author      Ricardo Carpintero
- * @Descripcion	Este fichero los utilizamos para :
- * 				Comprobar el tabla Referencias Cruzadas
- * 					1.- Si los campos menos 2 caracteres su ESTADO= ERR:[CampoVacio]
+ * @Descripcion	Este fichero los utilizamos cmprobar el tabla Referencias Cruzadas temporal y añadir BDRecambios.
  * 
  * */ 
 ?>
@@ -43,8 +41,8 @@
             
             // Se ejecuta cuando termina de carga toda la pagina.
             $(document).ready(function () {
-			    ProcesoBarra(); // Para se defina..
-                 modifestadofab();
+				ProcesoBarra(); // Para se defina..
+                modifestadofab();
                 
             });
         </script>
@@ -58,36 +56,73 @@
         include './../../header.php';
         ?>
         <div class="container">
-            <div class="col-md-12 text-center">
+			<div class="col-md-12 text-center">
                 <h2>Paso 2 - Añadir ReferenciasCruzadas al proveedor seleccionado </h2>
                 <p> Ahora tenemos una tabla temporal con las referencias cruzadas que acabas de subir, donde solo se controlo que las lineas del fichero .csv contenga los campos.</p>
             </div>
-
-            <div class="col-md-8">
+			<div>
+				<form class="form-horizontal" role="form">
+					<div class="form-group">
+						<legend>Seleccion  fabricante que acabas subir listado</legend>
+					</div>
+					<div class="form-group paso3">
+						<?php
+						// Realizamos consulta de Fabricantes
+						$consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `fabricantes_recambios` ORDER BY `Nombre`");
+						// Ahora montamos htmlopciones
+						while ($fila = $consultaFabricantes->fetch_assoc()) {
+							$htmloptiones .= '<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';
+						}
+						$consultaFabricantes->close();
+						?>
+						<label class="control-label col-md-4">Fabricante</label>
+						<select name="fabricante" id="IdFabricante">
+							<option value="0">Seleccione Fabricante</option>
+							<?php echo $htmloptiones; ?>
+						</select>
+					</div>
+				</form>
+						
+						
+			</div>
+            
+            
+            <div class="col-md-9">
                 <h3>Resumen de comprobación de fichero</h3>
                  <table class="table table-striped">
 					<thead>
 					  <tr>
-						<th>COMPROBANDO</th>
+						<th></th>
 						<th>Registros</th>
-						<th>CAMPO ESTADO</th>
-						<th>Otros Datos</th>
+						<th>POSIBLES ESTADOS</th>
+						<th></th>
 					  </tr>
 					</thead>
 					<tbody>
 					  <tr>
-						<th>Campos con menos 2 caracteres</th>
-						<td>Registro de tabla:<strong><?php echo $totalRegistro;?></strong><br/>
-						Registros con ESTADO en blanco:
-						<strong><span id="total"></span></strong></td>
-						<td>ERR:[CampoVacio]</td>
-						<td>Registros campos mal:<strong><span id="campVa"></span></strong></td>
+						<th>Tabla temporal <br/> ReferenciasCruzadas</th>
+						<td>
+							Total:<strong><?php echo $totalRegistro;?></strong><br/>
+							</td>
+						<td>
+							[ERROR P2-21]:CampoVacio<br/>
+							Registros:<strong><span id="campVa"></span></strong><br/>
+							Fabricantes:<strong><span id="FabrError21"></span></strong><br/>
+
+						</td>
+						<td></td>
 					  </tr>
 					  <tr>
-						<th>Fabricantes cruzados que no existen</th>
-						<td>Analizando FAB de tabla de importacion:<strong><span id="fabcru"></span></strong><br/>Registros descartados:<strong><span id="Rfabcru"></span></strong></td>
-						<td>ERR:[FABRICANTE cruzado no existe]</td>
-						<td>De los Fabricantes analizados se descartan:<strong><span id="fabcruDes"></span></strong></td>
+						<th>Comprobando <br/>Fabricantes,Marcas y distribuidores</th>
+						<td>Fab_Importar:<strong><span id="Totfabcru"></span></strong><br/>
+							Buscados:<strong><span id="fabcru"></span></strong><br/>
+						</td>	
+						<td>
+							[ERROR P2-22]:FABRICANTE cruzado no existe<br/>
+							Registros:<strong><span id="Rfabcru"></span></strong><br/>
+							Fabricantes:<strong><span id="FabrError22"></span></strong><br/>
+						</td>
+						<td></td>
 
 					  </tr>
 					  <tr>
@@ -106,44 +141,21 @@
                     </div>
 				</div>
                 <hr />
-                <div id="resultado" class="col-md-12">
+                
+                <div class="alert alert-success">
+				<div id="resultado" class="col-md-12">
                 <!-- Aquí mostramos respuestas de AJAX -->
                 </div>
-                <form class="form-horizontal" role="form" action="action_page.php">
-                    <div class="form-group">
-                        <legend>Seleccion  Fabricante que acabas subir listado</legend>
-                    </div>
-                    <div class="form-group">
-                        <?php
-                        // Realizamos consulta de Fabricantes
-                        $consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `fabricantes_recambios` ORDER BY `Nombre`");
-                        // Ahora montamos htmlopciones
-                        while ($fila = $consultaFabricantes->fetch_assoc()) {
-                            $htmloptiones .= '<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';
-                        }
-                        $consultaFabricantes->close();
-                        ?>
-                        <label class="control-label col-md-4">Fabricante</label>
-                        <select name="fabricante" id="IdFabricante">
-                            <option value="0">Seleccione Fabricante</option>
-                            <?php echo $htmloptiones; ?>
-                        </select>
-                    </div>
-                  
-
-                    <div class="form-group align-right">
-                        <div  id="compFichero">
-                            <input type="button" href="javascript:;" onclick="finalizar($('#IdFabricante').val());return false;" value="Comprobar" id="cmp" style="display: none;"/>
-                            <span class="alert alert-success">Analizando Errores del fichero. Esto puede tardar unos minutos .....</span>
-                        </div>
-                        
-                        <br/><br/>
-                        <div class="col-md-4">
-
-                        </div>
-                    </div>
-                </form>
-
+                <span>Esto puede tardar unos minutos .....</span>
+                </div>
+                <div>
+					<div class="form-group align-right">
+							<div  id="compFichero">
+								<input type="button" href="javascript:;" onclick="finalizar($('#IdFabricante').val());return false;" value="Comprobar" id="cmp" style="display: none;"/>
+								
+							</div>							
+					</div>
+                </div>
                 <div id="fin"></div>
 
             </div>

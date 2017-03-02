@@ -8,50 +8,66 @@
  *  */
 
 
- /* Funtion contarVaciosCru
+ /* Funtion ObtenerVaciosCru
   * 	Devolvemos un array con 400 registros máximo en blanco
   * 	en el que tenemos el id ->RefProveedor ( que realmente RefRecambioPrincipal )
   * 						 linea-> Que indica la linea (id-primary) de $BDIMPORTAR-referenciascruzadas
   * 						 F_rec -> El nombre del fabricante cruzado...
   * 						 Ref_F-> La referencia cruzada a buscar o añadir.
   * */
-function contarVaciosCru($BDImportRecambios) {
+function obtenerVaciosCru($BDImportRecambios,$ConsultaImp) {
     $array = array();
-    $consulta = "SELECT * FROM `referenciascruzadas` where Estado = '' limit 400";
-    $consultaContador = mysqli_query($BDImportRecambios, $consulta);
-    $i = 0;
-    while ($row_planets = $consultaContador->fetch_assoc()) {
-        $array[$i]["id"] = $row_planets['RefProveedor'];
-        $array[$i]["linea"] = $row_planets['linea'];
-        $array[$i]["F_rec"] = $row_planets['Fabr_Recambio'];
-        $array[$i]["Ref_F"] = $row_planets['Ref_Fabricante'];
-        $i++;
-    }
+    
+    $tabla ="referenciascruzadas";
+	$whereC = " WHERE Estado = ''";
+	$campo[1]= 'RefProveedor';
+	$campo[2]= 'linea';
+	$campo[3]= 'Fabr_Recambio';
+	$campo[4]= 'Ref_Fabricante';
+	$array = $ConsultaImp->registroLineas($BDImportRecambios,$tabla,$campo,$whereC);
+	//~ 
+    //~ 
+    //~ 
+    //~ 
+    //~ $consulta = "SELECT * FROM `referenciascruzadas` where Estado = '' limit 400";
+    //~ $consultaContador = mysqli_query($BDImportRecambios, $consulta);
+    //~ $i = 0;
+    //~ while ($row_planets = $consultaContador->fetch_assoc()) {
+        //~ $array[$i]["id"] = $row_planets['RefProveedor'];
+        //~ $array[$i]["linea"] = $row_planets['linea'];
+        //~ $array[$i]["F_rec"] = $row_planets['Fabr_Recambio'];
+        //~ $array[$i]["Ref_F"] = $row_planets['Ref_Fabricante'];
+        //~ $i++;
+    //~ }
 
+	return $array;
 
-
-    header("Content-Type: application/json;charset=utf-8");
-    echo json_encode($array);
+    
 }
 
 
 
-/* Funtion BuscarErrorFab -->  Ejecuta PASO2REFERENCIAS CRUZADAS TERMINAR DE CARGAR 
- * Lo que hace un array con los distintos fabricantes que hay en la tabla ReferenciasCruzadas 
+/* Funtion DistintoFabCruzTemporal -->  Ejecuta PASO2REFERENCIAS CRUZADAS TERMINAR DE CARGAR 
+ * Obtenemos un array con los distintos fabricantes que hay en la tabla ReferenciasCruzadas temporal
  * 
  * */
-function BuscarErrorFab($BDImportRecambios) {
+function DistintoFabCruzTemporal($BDImportRecambios,$condicional) {
     $array = array();
-    $consulta = "SELECT DISTINCT(Fabr_Recambio) FROM `referenciascruzadas` WHERE Estado = ''";
+    if (strlen($condicional) > 0 ){
+		$condicional ="WHERE ".$condicional;
+	} else {
+		// Quiere decir que el condicional es nada...
+		$condicional = '';
+	}
+    $consulta = "SELECT DISTINCT(Fabr_Recambio) FROM `referenciascruzadas` ".$condicional;
     $conNuevo = mysqli_query($BDImportRecambios, $consulta);
     $i = 0;
     while ($row_planets = $conNuevo->fetch_assoc()) {
         $array[$i]['Fabr_Recambio'] = $row_planets['Fabr_Recambio'];
-
         $i++;
     }
-    header("Content-Type: application/json;charset=utf-8");
-    echo json_encode($array);
+   //~ $array['consulta'] = $consulta;
+   return $array;
 }
 
 
@@ -77,7 +93,7 @@ function BuscarErrorFab($BDImportRecambios) {
 	//		2.- ERROR:[NO EXISTE FABRICANTE_CRUZADO]
 	
 
-function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
+function GrabarCruzadas($BDImportRecambios, $BDRecambios) {
     $ref = $_POST['idrecambio']; // Realmente es la referencia del proveedor principal, no es id recambio... 
     $l = $_POST['linea']; // La utilizamos para modificar campo ESTADO de BDIMPORTAR-REFERENCIASCRUZADAS.
     $f = $_POST['fabricante']; // Id de fabricante principal...
@@ -182,7 +198,7 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     } else {
 		// No existe las referencia principal solo marcamos en tabla importar (referecias cruzadas)
 		// en ESTADO = ERROR[Referencia Principal]
-		$consul = "UPDATE `referenciascruzadas` SET `Estado`='ERROR[Referencia Principal]' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
+		$consul = "UPDATE `referenciascruzadas` SET `Estado`='[ERROR P2-1]:Referencia Principal' WHERE RefProveedor ='" . $ref . "' and linea ='".$l."'";
 		mysqli_query($BDImportRecambios, $consul);
 		$ControlPaso = $ControlPaso."ERROR[Referencia Principal]";
 
@@ -193,27 +209,36 @@ function comprobarCruzadas($BDImportRecambios, $BDRecambios) {
     echo json_encode($datos);
 }
 /* ===================  FUNCION BUSCAR ERROR ===========================================*/
-	// Se ejecuta en Paso2ReferenciasCruzadas al terminar de mostrar la pagina 
-	// donde lo que hace es buscar aquellos registros que el nombre Fabricante Recambio
+	// Se ejecuta por AJAX en Paso2ReferenciasCruzadas al terminar de mostrar la pagina 
+	// donde cambia con un UPDATE todos los registros que el nombre Fabricante Recambio
 	// o la referencia del fabricante tenga menos de dos caracteres.
+	// Estado ='[ERROR P2-21]:CampoVacio'
+	// Devuelve objeto:
+	// 		({
+	// 				conexion:"correcto" -> Donde indica si es correcto o no la conexion
+	//				NItems:[numero] ->	Donde indica la cantidad de item que tiene.
+	// 				Menos2C:[numero] -> Donde indica la cantidad ROW que se cambiaron.
+	//		})
 	
 function BuscarError($BDImportRecambios) {
     // Llamamos funcion contar registro con estado en blanco
     $datos = ContarVaciosBlanco($BDImportRecambios,'referenciascruzadas');
      
-    $consul = "UPDATE `referenciascruzadas` SET `Estado`='ERR:[CampoVacio]' WHERE LENGTH(Fabr_Recambio) < 2 or LENGTH(Ref_Fabricante) < 2";
+    $consul = "UPDATE `referenciascruzadas` SET `Estado`='[ERROR P2-21]:CampoVacio' WHERE LENGTH(Fabr_Recambio) < 2 or LENGTH(Ref_Fabricante) < 2";
     $ConsErr = $BDImportRecambios->query($consul);
-    $datos['Menos2C'] = $BDImportRecambios->affected_rows; 
-    header("Content-Type: application/json;charset=utf-8");
-    echo json_encode($datos);
-    //~ return $datos;
+    $datos['RegistrosMenos2C'] = $BDImportRecambios->affected_rows; 
+    // Ahora contamos fabricantes que se haya puesto estado  [ERROR P2-21]:CampoVacio a todos sus registros.
+    $condicional = "Estado = '[ERROR P2-21]:CampoVacio'";
+    $fabricantesCampoVacio = DistintoFabCruzTemporal($BDImportRecambios,$condicional);
+    $datos['FabricanteMenos2C'] = count($fabricantesCampoVacio);
+    return $datos;
     
 }
 
 /* ===================  FUNCION ERROR FABRICANTE ===========================================*/
 	// Se ejecuta en Paso2ReferenciasCruzadas al terminar de mostrar la pagina 
-	// Estamos en ciclo, en el que enviamos el nombre fabricante y si no existe pone en 
-	// ESTADO = ERR:[FABRICANTE cruzado no existe]
+	// Estamos en ciclofabricante, en el que enviamos el nombre fabricante y si no existe pone en 
+	// ESTADO = [ERROR P2-22]:FABRICANTE cruzado no existe.
 	// y si existe no hace nada...
 	
 
@@ -221,17 +246,21 @@ function errorFab($BDImportRecambios, $BDRecambios) {
     $fab = $_POST['fabricante'];
     $consul = "SELECT * FROM `fabricantes_recambios` WHERE Nombre ='" . $fab . "'";
     $consFa = mysqli_query($BDRecambios, $consul);
-    $ResultadoBusqFabrica = "Si"; 
     if ($consFa == true){
     $consultaFabricante = $consFa->fetch_assoc();
     }
     if ((int) $consultaFabricante['id'] == 0) {
 		// Cambiamos valor variable que respondemos
 		$ResultadoBusqFabrica = "No"; 
-        $con = "UPDATE `referenciascruzadas` SET `Estado`= 'ERR:[FABRICANTE cruzado no existe]' WHERE Fabr_Recambio ='" . $fab . "'";
+        $con = "UPDATE `referenciascruzadas` SET `Estado`= '[ERROR P2-22]:FABRICANTE cruzado no existe' WHERE Fabr_Recambio ='" . $fab . "'";
         $consFa = mysqli_query($BDImportRecambios, $con);
        
-    }
+    } else {
+		// Esto quiere decir que existe el fabricante, guardamos el ID del fabricante en IMPORTARRECAMBIOS.
+		$ResultadoBusqFabrica = "Si"; 
+		$con = "UPDATE `referenciascruzadas` SET `IdFabricanteRec`= '".$consultaFabricante['id']."' WHERE Fabr_Recambio ='" . $fab . "'";
+		$consFa = mysqli_query($BDImportRecambios, $con);
+	}
     //~ $ResultadoBusqFabrica = $consultaFabricante['id'];
     // Vamos enviar si se encontro o no... 
     header("Content-Type: application/json;charset=utf-8");
@@ -239,14 +268,18 @@ function errorFab($BDImportRecambios, $BDRecambios) {
 }
 
 function resumenCruz($BDImportRecambios) {
+	// Consultamos los fabricantes no encontrados.
+	$condicional = "Estado = '[ERROR P2-22]:FABRICANTE cruzado no existe'";
+	$FabriNoEncontrado = DistintoFabCruzTemporal($BDImportRecambios,$condicional);
+	
 	// Contamos los REGISTROS que tiene error: ERR:[FABRICANTE cruzado no existe] 
-    $consulta = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[FABRICANTE cruzado no existe]'";
+    $consulta = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = '[ERROR P2-22]:FABRICANTE cruzado no existe'";
     $conmys = mysqli_query($BDImportRecambios, $consulta);
     if ($conmys == true) {
     $efab = $conmys->fetch_assoc();
     }
     // Contamos los REGISTROS que tiene error: ERR:[CampoVacio] 
-    $consulta2 = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = 'ERR:[CampoVacio]'";
+    $consulta2 = "SELECT count(Fabr_Recambio) as total FROM `referenciascruzadas` WHERE Estado = '[ERROR P2-21]:CampoVacio'";
     $conmys2 = mysqli_query($BDImportRecambios, $consulta2);
     if ($conmys2 == true) {
         $eref = $conmys2->fetch_assoc();
@@ -259,7 +292,7 @@ function resumenCruz($BDImportRecambios) {
     $datos[0]['f'] = $efab['total'];
     $datos[0]['e'] = $eref['total'];
     $datos[0]['c'] = $conpro;
-
+	$datos[0]['FabNo'] = count($FabriNoEncontrado) ;
     header("Content-Type: application/json;charset=utf-8");
     echo json_encode($datos);
 }

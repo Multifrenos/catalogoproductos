@@ -55,7 +55,7 @@ function contador($nombretabla, $BDImportRecambios,$ConsultaImp) {
 	$campo[1]= 'RefFabPrin';
 	$campo[2]= 'linea';
 	$RegistrosBlanco = $ConsultaImp->registroLineas($BDImportRecambios,$nombretabla,$campo,$whereC);
-	// Como queremos devolver java los creamos
+	// Como queremos devolver javascript los creamos
 	$Tresumen['v'] = $RegistrosBlanco['NItems'];
 	$Tresumen['LineasRegistro'] = $RegistrosBlanco; //Registros en blanco
     

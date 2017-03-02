@@ -11,7 +11,7 @@
 // puede modificarse en función servidor y hardware que se tenga.
 function cicloProcesso() {
 	alert('Iniciamo ciclo, recuerda que añade 400 registros \n ' +
-			' Realiza una petición del ciclo cada 3 seg.');
+			' Realiza una petición del ciclo cada 1 seg.');
 
 	bucleProceso(lineaF, lineaActual, fichero);
 	// En la instrucción anterior "bucleProceso(lineaF, lineaActual, fichero)"
@@ -22,7 +22,7 @@ function cicloProcesso() {
 	// Se estudio la posibilidad de hacerlo forma sincrono la peticiones AJAX, pero descarto: http://ayuda.svigo.es/index.php/programacion-2/javascript/176-peticiones-ajax-sincrono-o-asincrono
 	//  Al utilizar setInterval() crea un ciclo ejecutando la funcion cada ms que le indiquemos.
 	// 		- 	Empieza contar el tiempo y realiza petición:
-	ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 3000);
+	ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 1000);
 
 }
 

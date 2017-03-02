@@ -13,11 +13,11 @@
  * 		$pulsado = 'anahirRecam'			-> Ejecuta anahirRecam($BDRecambios);
  * 		$pulsado = 'BuscarError'			-> Ejecuta BuscarError($BDImportRecambios);
  * 												Se ejecuta en Paso 2 de Referencias Cruzadas al mostrar la pagina.
- * 		$pulsado = 'BuscarErrorFab'			-> Ejecuta BuscarErrorFab($BDImportRecambios);
+ * 		$pulsado = 'DistintoFabCruzTemporal'-> Ejecuta DistintoFabCruzTemporal($BDImportRecambios);
  * 		$pulsado = 'comPro'					-> Ejecuta errorFab($BDImportRecambios, $BDRecambios);
  * 		$pulsado = 'resumen'				-> Ejecuta resumen($BDImportRecambios);
- * 		$pulsado = 'contarVacioscruzados'	-> Ejecuta contarVaciosCru($BDImportRecambios);
- * 		$pulsado = 'comprobar2cruz'			-> Ejecuta comprobarCruzadas($BDImportRecambios, $BDRecambios);
+ * 		$pulsado = 'obtenerVacioscruzados'	-> Ejecuta obtenerVaciosCru($BDImportRecambios);
+ * 		$pulsado = 'grabarCruzadas'			-> Ejecuta grabarCruzadas($BDImportRecambios, $BDRecambios);
  * 		$pulsado = 'msql_csv				-> Ejectua MsqlCsv($lineaA, $lineaF,$nombrecsv);
 
  * 
@@ -69,10 +69,16 @@ include_once ("./funcP2ReferCruzad.php");
         echo json_encode($respuesta);
         break;
     case 'BuscarError':
-        BuscarError($BDImportRecambios);
+        $datos = BuscarError($BDImportRecambios);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($datos);
         break;
-    case 'BuscarErrorFab':
-        BuscarErrorFab($BDImportRecambios);
+    case 'DistintoFabCruzTemporal':
+        //~ $condicional ="Estado = ''";
+        $condicional = $_POST['condicional'];
+        $array = DistintoFabCruzTemporal($BDImportRecambios, $condicional);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
         break;
     case 'comPro':
         errorFab($BDImportRecambios, $BDRecambios);
@@ -80,11 +86,13 @@ include_once ("./funcP2ReferCruzad.php");
     case 'resumen':
         resumenCruz($BDImportRecambios);
         break;
-    case 'contarVacioscruzados':
-        contarVaciosCru($BDImportRecambios);
+    case 'ObtenerVacioscruzados':
+        $array = obtenerVaciosCru($BDImportRecambios,$ConsultaImp);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
         break;
-    case 'comprobar2cruz':
-        comprobarCruzadas($BDImportRecambios, $BDRecambios);
+    case 'grabarCruzadas':
+        GrabarCruzadas($BDImportRecambios, $BDRecambios);
         break;
     case 'msql_csv':
         $lineaA = $_POST['lineaI'] ;

@@ -36,11 +36,11 @@ function MsqlCsv($lineaA, $lineaF,$nombrecsv,$ConfDir_subida,$BDImportRecambios)
 			   { 
 					
 					// Comprobamos que los campos contienen datos
-					// - Eliminamos de las linesa los espacios,los puntos,comas,0 para comprobarlo..
+					// - Eliminamos de las lineas los espacios,los puntos,comas,0 para comprobarlo..
 					// sino añadimos error en estado.
-					 $limpiamosLinea = str_replace([",", ".", "0", " "], "", $Textolinea); // Quitamos (,)
+					 $limpiamosLinea = str_replace(["-",",", ".", "0", " "], "", $Textolinea); // Quitamos (,)
 					if (strlen($limpiamosLinea) < 2) {
-						$Estado = 'Campos vacios con menos 2 caracteres';
+						$Estado = '[ERROR-P1-1]: Campos =<2caracteres';
 					}
 					
 					// Obtenemos los campos de la linea en array datos.
@@ -58,7 +58,7 @@ function MsqlCsv($lineaA, $lineaF,$nombrecsv,$ConfDir_subida,$BDImportRecambios)
 					
 				   // Comprobamos cuantos campo hay en el csv y tiene haber los mismo que indicamos en cada fichero.
 					if (count($datos) !== $NumeroCamposCsv){
-					$Estado = 'Campos'.count($datos).' Linea:'.$linea;
+					$Estado = '[ERROR-P1-2]:Campos'.count($datos).' Linea:'.$linea;
 					} 
 				   
 				   //Guardamos en tabla los campos obtenidos en la línea leida
