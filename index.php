@@ -10,10 +10,25 @@
 <?php
 	include 'head.php';
 ?>
+<script>
+            
+            // Se ejecuta cuando termina de carga toda la pagina.
+            $(document).ready(function () {
+				texto = 'Ya tengo la funcion creada .js ( ) y obteniendo el total del as referencias, no las referencias..\n';
+				texto = texto + ' donde debería ejecutar una funcion buscar ya si existe o no la referencia cruzada, pero antes en CicloComprReferenciaPrincipal,\n';
+				texto = texto + ' debería modificarla para meta RecambioID en el resultado.\n ver idea: http://www.ajimix.net/blog/actualizar-diferentes-filas-en-una-sola-consulta-sql/';
+				alert( texto);
+              
+                
+            });
+        </script>
 </head>
 <body>
 	<?php 
 	include 'header.php';
+	
+	
+	
 	?>
 	<section>
 		<div class="container">

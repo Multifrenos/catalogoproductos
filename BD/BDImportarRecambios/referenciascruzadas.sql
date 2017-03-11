@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.2.12deb2+deb8u2
+-- version 4.0.10deb1
 -- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: Oct 14, 2016 at 12:13 PM
--- Server version: 5.5.50-0+deb8u1
--- PHP Version: 5.6.24-0+deb8u1
+-- Servidor: localhost
+-- Tiempo de generación: 11-03-2017 a las 01:17:18
+-- Versión del servidor: 5.5.54-0ubuntu0.14.04.1
+-- Versión de PHP: 5.5.9-1ubuntu4.21
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,13 +17,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `importarrecambios`
+-- Base de datos: `importarrecambios`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `referenciascruzadas`
+-- Estructura de tabla para la tabla `referenciascruzadas`
 --
 
 CREATE TABLE IF NOT EXISTS `referenciascruzadas` (
@@ -33,18 +33,9 @@ CREATE TABLE IF NOT EXISTS `referenciascruzadas` (
   `Ref_Fabricante` text COLLATE utf8_spanish_ci NOT NULL,
   `Estado` text COLLATE utf8_spanish_ci NOT NULL,
   `RecambioID` int(11) NOT NULL,
-  `IdFabricanteRec` int(11) NOT NULL
+  `IdFabricaCruzado` int(11) NOT NULL,
+  UNIQUE KEY `linea` (`linea`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `referenciascruzadas`
---
-ALTER TABLE `referenciascruzadas`
- ADD UNIQUE KEY `linea` (`linea`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -6,137 +6,59 @@
  * @Descripcion	Javascript necesario para paso2ReferenciasCruzadas.php
  * */
  
-// * -------------------------------------------------------------* //
- function modifestadofab() {
-	// Se ejecuta: Al terminar cargar.
-	// Objetivo: Comprueba que no hay registros con nombre Fabricante o referencia con menos 2 caracteres
-	// Estado ='[ERROR P2-21]:CampoVacio'
-	// Devuelve:
-	// 		({
-	// 				conexion:"correcto" -> Donde indica si es correcto o no la conexion
-	//				NItems:[numero] ->	Donde indica la cantidad de item que tiene.
-	// 				Menos2C:[numero] -> Donde indica la cantidad ROW que se cambiaron.
-	//		})
-	var parametros = {
-		'pulsado': 'BuscarError'
-
-	};
-	$.ajax({
-		data: parametros,
-		url: 'tareas.php',
-		type: 'post',
-		beforeSend: function () {
-			$("#resultado").html("Buscando campos con solo 2 caracterres, espere por favor...");
-		},
-		success: function (response) {
-			console.log(response.toSource()); // La forma de ver cuando recibes un objeto.
-			if ( response.conexion == 'correcto'){
-			console.log('Numero Items:'+ response.NItems);
-			console.log('Numero Items Error Campo 2:' + response.RegistrosMenos2C);
-			$("#resultado").html("Termino de buscar campos con solo 2 caracterres....");
-			console.log("Success de modifestado");
-			$("#EstadoBlanco").html(response.NItems);
-			$("#campVa").html(response.RegistrosMenos2C);
-			$("#FabrError21").html(response.FabricanteMenos2C);
-
-			//Iniciamos funcion para comprobar si fabricante cruzado (proveedor) existe 
-			DistintoFabCruzTemporal();
-			} else {
-			// Quiere decir que fallo la conexion por lo que no  continuamos
-			alert('[ERROR PRG 1- Paso2ReferenciasCruzadas]\n Error de conexion con Referencias Cruzadas de BDRecambios\n no puede continuar.')
-			return;
-			}
-
-
-		}
-
-	});
-}
 
 // * -------------------------------------------------------------* //
 function DistintoFabCruzTemporal() {
-	// Se ejecuta:  Si es correcto modifestadofab()
-	// Objetivo:	1 peticion AJAX ->Obtenemos array total fabricantes que hay importar/referenciasCruzadas
-	//				2 peticion AJAX-> Obtenemos array con fabricantes que Estado ='' y IDFabricante = 0 
+	// Se ejecuta:  Si es correcto resumenresul()
+	// Objetivo:	Obtenemos array con fabricantes que Estado ='' y IDFabricante = 0 
 	// Devuelve:
 	
-	
 	var nombretabla = "referenciascruzadas";
-	// Obtenemos total de fabricantes.
-	var parametros = {
-		'nombretabla': nombretabla,
-		'pulsado': 'DistintoFabCruzTemporal',
-		'condicional': ""
-	};
-	$.ajax({
-		//	1 peticion AJAX -> total fabricantes que hay importar/referenciasCruzadas
-		data: parametros,
-		url: 'tareas.php',
-		type: 'post',
-		datatype: 'json',
-		beforeSend: function () {
-			$("#resultado").html("Creamos array con los distintos fabricantes que hay importacion, espere por favor...");
-		},
-		success: function (response) {
-			// cubrimos la linea final y lanzamos el ciclo
-			$("#resultado").html("Ya tenemos los distintos fabricantes de la tabla temporal y lanzamos ciclo ...");
-			lineafinal = response.length;
-			$("#Totfabcru").html(response.length);
-			console.log("Fabricantes encontrados en importacion:" + lineafinal);
-			alert('Fabricantes Encontrados '+ lineafinal);
-
-		}
-	});
-	
-	// Obtenemos fabricantes que están sin analizar.
-	var parametros = {
-		'nombretabla': nombretabla,
-		'pulsado': 'DistintoFabCruzTemporal',
-		'condicional': "IdFabricanteRec= 0 and Estado = ''"
-	};
-	$.ajax({
-		// 2 peticion AJAX-> Obtenemos array con fabricantes que Estado ='' y IDFabricante = 0
-		data: parametros,
-		url: 'tareas.php',
-		type: 'post',
-		datatype: 'json',
-		beforeSend: function () {
-			$("#resultado").html("Creamos array con los fabricantes falta por comprobar si existen,espere por favor...");
-		},
-		success: function (response) {
-			// cubrimos la linea final y lanzamos el ciclo
-			$("#resultado").html("Ya tenemos los distintos fabricantes de la tabla temporal y lanzamos ciclo ...");
-			lineafinal = 0 ;
-			if (response.length > 0) {
-				lineafinal = response.length;
-				$("#fabcru").html(response.length);
-				console.log(response.toSource());
+		// Obtenemos fabricantes que están sin analizar.
+		var parametros = {
+			'nombretabla': nombretabla,
+			'pulsado': 'DistintoFabCruzTemporal',
+			'condicional': "IdFabricaCruzado= 0 and Estado = ''"
+		};
+		$.ajax({
+			data: parametros,
+			url: 'tareas.php',
+			type: 'post',
+			datatype: 'json',
+			beforeSend: function () {
+				$("#resultado").html("Creamos array con los fabricantes falta por comprobar si existen,espere por favor...");
+			},
+			success: function (response) {
+				// cubrimos la linea final y lanzamos el ciclo
+				$("#resultado").html("Ya tenemos los distintos fabricantes de la tabla temporal y lanzamos ciclo ...");
+				lineafinal = 0 ;
+				if (response.length > 0) {
+					lineafinal = response.length;
+					$("#fabcru").html(response.length);
+					console.log('length response.'+response.length);
+				}
+				console.log("Fabricantes con estado en blanco:" + lineafinal);
+				if (response.length > 0) {
+				ciclofabricante(response);
+				} else {
+					// Quiere decir que no encontro fabricantes con su estado ='' y idFabricante en 0
+					// así permitimos continuar paso 3
+					lineaIntermedia = 0;
+					resumenresul();
+				}
 			}
-			console.log("Fabricantes con estado en blanco:" + lineafinal);
-			alert( ' Iniciamos ciclofabricante para \n '+ lineafinal + ' Fabricantes');
-			if (response.length > 0) {
- 			ciclofabricante(response);
-			} else {
-				// Quiere decir que no encontro fabricantes con su estado ='' y idFabricante en 0
-				// así permitimos continuar paso 3
-				lineaIntermedia = 0;
-				resumenresul();
+		});
 
-			}
-		}
-	});
 }
 // * -------------------------------------------------------------* //
 function fabricexist() {
-	// Se ejecuta:  
+	// Se ejecuta: En setInterval ciclofabricante  
 	// Objetivo: 
 	// Devuelve:
-	
 	if (lineaIntermedia < lineafinal) {
 		var parametros = {
 			'pulsado': 'comPro',
 			'fabricante': respuesta[lineaIntermedia].Fabr_Recambio
-
 		};
 		$.ajax({
 			data: parametros,
@@ -150,21 +72,17 @@ function fabricexist() {
 				console.log ( "LineaFinal:" + lineafinal + ' LineaIntermedia:' + lineaIntermedia);
 				// Recuerda que array respuesta empieza en 0, por eso nunca va tener valor lineafinal");
 				if (response == 'No'){
-				console.log ("Repuesta:"+ response);
 				fabricanteserror = fabricanteserror + 1;
 				console.log ( "Error:" + fabricanteserror + 'en fabricante ' + respuesta[lineaIntermedia].Fabr_Recambio );	
 				$("#FabrError22").html(fabricanteserror);
 				}
 				var fabTratados = lineaIntermedia+1 ; // Ya que empieza en el 0
-				$("#fabcru").html(lineafinal+'/'+fabTratados); // Indicamos fabricantes analizados.
+				$("#Bfabcru").html(lineafinal+'/'+fabTratados); // Indicamos fabricantes analizados.
 				$("#resultado").html("Resultado de "+ respuesta[lineaIntermedia].Fabr_Recambio );
 				lineaIntermedia++;
 				ProcesoBarra(lineaIntermedia, lineafinal);
-
 			}
-
 		});
-
 	} else {
 		// Terminamos el ciclo de control de fabricante, es decir
 		// En tabla IMPORTARRECAMBIOS deberíamos tener el IDFabricante en todos aquellos fabricantes que existen o
@@ -172,28 +90,26 @@ function fabricexist() {
 		clearInterval(ciclodefunciones);
 		// Si va muy rápido las peticiones puede fallar el insert, por lo que es conveniente revisar si todos
 		// registros tienen IDFabricante o ESTADO no existe.
+		console.log('Termino comprobar fabricante');
 		lineaIntermedia = 0;
+		alert('Termino comprobacion de fabricante \n Ahora realizamos resumen.');
 		resumenresul();
-
 	}
-
 }
+
 // * -------------------------------------------------------------* //
 
 function ciclofabricante(response) {
-	// Se ejecuta:  Si es correcto modifestadofab()
+	// Se ejecuta:  Si es correcto DistintoFabCruzTemporal()
 	// Objetivo: 
 	// Devuelve: NADA
-	
 	respuesta = response;
-
 	ciclodefunciones = setInterval(fabricexist, 200);
-
 }
-// * -------------------------------------------------------------* //
 
+// * -------------------------------------------------------------* //
 function resumenresul() {
-	// Se ejecuta:  Si es correcto modifestadofab()
+	// Se ejecuta:  Varias veces y al terminar carga la pagina ( Al inicio )
 	// Objetivo: 
 	// Devuelve:
 	
@@ -209,64 +125,99 @@ function resumenresul() {
 			$("#resultado").html("Realizando resumen fichero importar ReferenciasCruzadas, espere por favor...");
 		},
 		success: function (response) {
-			var vacio = response[0].e;// Registros que tiene error campo ( 2 caracteres)
-			var fab = response[0].f; // Registros de fabricantes cruzados no correctos
-			var validos = response[0].c; // Registros que vamos a comprobar.
-			var fabNoEncontrado = response[0].FabNo; // Fabricantes buscados y no encontrados.
-			$("#fabcru").html(lineafinal); // Total fabricantes 
-			$("#campVa").html(vacio);
-			$("#Rfabcru").html(fab);
-			$("#RegBlanco").html(validos);
-			$("#FabrError22").html(fabNoEncontrado);
+			// Añadimos valores a span
+			$("#campVa").html(response.error21);// Registros que tiene error campo ( 2 caracteres)
+			$("#Rfabcru").html(response.error22);// Registros de fabricantes cruzados no correctos
+			$("#RegBlanco").html(response.NItemsEstadoBlanco); // Registros que tiene el Estado = ''.
+			$("#RegBlancoCRecambio").html(response.NItemsCRecambio); // Registros que tiene Estado = '' and IDrecmabio <>0
+			$("#FabrError22").html(response.FabNoEncontrado); // Fabricantes buscados y no encontrados.
+			$("#Bfabcru").html(response.FabNoBuscado); // Fabricantes aun NO buscados (aun).
+			$("#Yafabcru").html(response.FabYaBuscado); //Fabricantes aun YA buscados.
+			$("#Totfabcru").html(response.Totalfabcru); //Total de Fabricantes encontrados.
+			$("#FabrError21").html(response.FabError21); // Fabricantes descartados por error 21
+			console.log('Compruebo que la suma fabricantes buscados,no buscados y encontrados de el total fabricantes');
+			if ( eval($("#Bfabcru").text()) > 0) {
+				// Sigue faltando algun fabricante por buscar.
+				alert ('¿ Faltaran '+ +  $("#Bfabcru").text() +'algún fabricante por buscar ?');
+				$("#resultado").html("Aun no termino el proceso encontrar Fabricantes...");
+				DistintoFabCruzTemporal();
+			} else {
+				// Quiere decir que no hay fabricantes que no se buscaron por lo que 
+				$("#RefPrincipales").html(response.RefPrinEncontradas);// Referencias distintas encontradas en tabla
+				$("#RefPrinPendIDRecam").html(response.RefPrinPendIDRecam);// Referencias Pendientes buscar IDRecambio
+				$("#RefPrincipalesIDRecam").html(response.RefPrinYAIDRecam);// Referencias YA encontrado Recambio
+				$("#RefPrincDescartadas").html(response.NRefPrinNOenc);// Referencias NO se encontro Recambio
+				$("#Error23").html(response.error23); // Registros por referencias descartadas
+				console.log('Compruebo que la Referencias principales tienen Error o IDRecambio');
+				if (response.RefPrinYAIDRecam == 0 || response.NRefPrinNOenc == 0 ) {
+					// Quiere decir que NO ya Referencias principales con ID o con estado mal.
+					$("#RefPrincDescartadas").html('?');
+					$("#RefPrincipalesIDRecam").html('?');
+					$("#Error23").html('?');
+					$("#resultado").html("Estamos PASO2 y terminamos de comprobar FABRICANTES. Selecciona fabricante principal para seguir...");
 
-			$("#resultado").html("COMPLETADO PASO2 (REFERENCIAS CRUZADAS). Selecciona fabricante principal y seguir comprobando...");
-			// Mostramos botton de comprobar.
-			$("#cmp").css("display", "block");
+				}
+				console.log('Compruebo que la Referencias principales le faltan registro por comprobar');
+				if (response.RefPrinPendIDRecam > 0 ) {
+					// Quiere decir que aun no estan todas cubiertas.
+					alert( ' Hay referencias Principales pendiente comprobar si tiene IDRecambio');
+					if (fabricante ==0 || fabricante === undefined){
+						// Mostramos botton de comprobar para que puede seleccionar .
+						$("#cmp").css("display", "block");
+					} else {
+						// Quiere decir que ya se selecciono fabricante entonces ejectuamos
+						// ObtenerReferenciaPrincipales() enviando que paso2 , ya que aun no terminamos de  buscar todas
+						// Referencias Principales.
+						ObtenerReferenciasPrincipales('paso2');	
+					}
+			
+
+
+				} else {
+					// Quiere decir que ya busco todos los fabricantes, ya busco todas las referencias principales.
+					// Entonces los registros hay en la tabla :
+					// SELECT * FROM `referenciascruzadas` WHERE `Estado` = '' AND `RecambioID` <>0 AND `IdFabricaCruzado`<>0
+					// Son los registros que vamos a procesas y Referencias distintas Con IDRecambio 
+					// Vamos añadir NUEVOS y EXISTENTES.
+					$("#resultado").html("Ya termino comprobar la REFERENCIAS PRINCIPALES, ahora empezamos PASO3 ( GRABAR).");
+					P3NuevoExiste();
+				}
+				
+			}
+			
 		}
-
 	});
-
 }
 
 
-
 // * -------------------------------------------------------------* //
-function finalizar(fabri) {
+function comprobar(fabri) {
 	// Se ejecuta:  Despues pulsar comprobar.
-	// Objetivo: Comprueba que se selecciono un fabricante, si selecciono entonces va ComprobarPaso2RefCruzadas()
+	// Objetivo: Comprueba que se selecciono un fabricante
 	// Devuelve: NADA
 	
 	fabricante = fabri;
 	if (fabricante == 0) {
 		alert("Selecciona un Fabricante");
 	} else {
-		// Informamos que ahora si va añadir y que no hay vuelta atrás.
-		var respuestaConf = confirm('Vamos empezar añadir registros a BDRecambios,\n\ ahora si que no hay vuelta atrás, por lo que es conveniente tener una copia de seguridad de BDRecambios\n\ Estas seguro');
-		if (respuestaConf == true) {
-			ComprobarPaso2RefCruzadas();
-		}
+		resumenresul()
 	}
-
 };
 // * -------------------------------------------------------------* //
-function ComprobarPaso2RefCruzadas() {
+function ObtenerReferenciasPrincipales(paso) {
 	// Se ejecuta:  Viene si es correcto finalizar()
-	// Objetivo: 	1.- Primero comprueba si pulso Fabricante
-	// 			  	2.- Obtiene el valor #RegBlanco, para poner como linea final.( Proceso Barra) 
-	//			  	3.- Obtiene un array con 400 registro de máximo que tienen el estado = '' y IDFabricante
+	// Objetivo: 	1.- Obtiene un array con Referencias Principales distintas que el estado = '' y IDFabricante <>0
 	// Devuelve: Array en JSON ,por ejemplo:
-					// [{	id:"A110049",
-					//	 	linea:"1413", 
-					//		F_rec:"QUINTON HA",
-					// 		Ref_F:"WF8232"}
-					// y así con 399 registros mas..
-	finallinea = $("#RegBlanco").html();
-	
-	if (fabricante == 0) {
-		alert("Selecciona un Fabricante");
-	} else {
+					// [{	RefProveedor:"A110049",
+	// INICIALIZAMOS VARIABLES
+	finallinea = 0;
+	intermedia = 0;
+	// Ahora montamos el condicional según quien lo ejecuto la funcion.
+	console.log ('Estamos en ObtenerReferenciaPrincipal y parametro ' + paso);
+	if (fabricante !== 0) {
 		var parametros = {
-			'pulsado': 'ObtenerVacioscruzados'
+			'pulsado': 'ObtenerReferenciasPrincipales',
+			'condicional' : paso
 		};
 		$.ajax({
 			data: parametros,
@@ -274,99 +225,170 @@ function ComprobarPaso2RefCruzadas() {
 			type: 'post',
 			datatype: 'json',
 			beforeSend: function () {
-				console.log ('Obtenemos array con resgistros que tiene estado en blanco');
-				$("#fin").html("Obteniendo registros con ESTADO en BLANCO, espere por favor...");
-
+				console.log ('Obteniendo array con registros que tiene estado en blanco');
 			},
 			success: function (response) {
-
-				if (response.length != 0) {
-					// Nos devuelve array con los datos JSON $BDImportar-referenciascruzadas 
-					arrayConsulta = response;
-					console.log("************ RESPUESTA AJAX FUNCION ComprobarPaso2RefCruzadas *********")
-					console.log("Numero registros obtenidos "+arrayConsulta['NItems']);
-					$("#fin").html("Hemos obtenido "+ arrayConsulta['NItems'] + " con ESTADO en BLANCO,Llevamos " + lineabarra +" de " + finallinea +" procesando...");
-					console.log(arrayConsulta);
-					grabar();
-					
+				arrayConsulta = response;
+				console.log("Respuesta funcion ObtenerReferenciasPrincipales():")
+				console.log("Numero registros obtenidos "+arrayConsulta['NItems']);
+				if (arrayConsulta['NItems'] !== 0 && paso == "paso2") {
+					// Solo ejecutamos cicloComprReferenciaPrincipal si estamos en paso 2
+					finallinea = arrayConsulta['NItems'];
+					// Anotamos referencias encontradas.
+					$("#RefPrincipalesIDRecam").html(arrayConsulta['NItems']);
+					console.log('Estamos en PASO2 :Iniciamos ciclo CicloComprReferenciaPrincipal');
+					cicloComprobarRefPrincipal = setInterval(cicloReferenciaPrincipal,1000);
 				} else {
-					 // Si no devuelve array es que ya no hay vacios, por lo que se termino.
-					 $("#fin").html("Hemos terminado ya que hay" +  arrayConsulta['NItems'] + " con estado en blanco.");
-					 alert ( "Terminamos");
+					// Puede suceder que:
+					// 			- Termino el ciclo
+					// 			- Que venga parametro PASO3 es decir que viene P3NuevoExiste
+					console.log("Termino ObtenerReferenciasPrincipales()");
+					if (paso == "paso3"){
+						// Aquí tiene que volver a P3NuevoExiste
+						P3NuevoExiste();
+						return; // para que vuelva ejecutar resumen...
+					}
+					console.log("Vamos resumenresul()");
+					resumenresul();
 				}
-
 			}
 		});
-
 	} // Fin else fabricante no es 0
 }
+
 // * -------------------------------------------------------------* //
-function grabar() {
-	// Se ejecuta:  Si array tiene datos ComprobarPaso2RefCruzadas()
-	// Objetivo: 
+function cicloReferenciaPrincipal() {
+	// Se ejecuta:  Si array tiene datos ObtenerReferenciasPrincipales()
+	// Objetivo: 	Separar el arrayConsulta y hacer peticion de grabar esos 200
+	//				Recuerda que puede estar limitado el servidor en recibir variables, por eso hace así.
 	// Devuelve:
-	console.log('intermedia:' +intermedia);
-	console.log('RefProveedor:' +arrayConsulta[intermedia].RefProveedor);
-	var parametros = {
-
-		'pulsado': 'grabarCruzadas',
-		'idrecambio':arrayConsulta[intermedia].RefProveedor,
-		'linea': arrayConsulta[intermedia].linea,
-		'fabricante': fabricante,
-		'Ref_fa': arrayConsulta[intermedia].Fabr_Recambio,
-		'Fab_ref': arrayConsulta[intermedia].Ref_Fabricante
-	};
-			console.log("******* FUNCION GRABAR ENVIAMOS AJAX *********************");
-			console.log("que id es "+arrayConsulta[intermedia].RefProveedor);
-			console.log("que linea es "+arrayConsulta[intermedia].linea);
-			console.log("que fabricante es "+fabricante);
-			console.log("que ref_fa es "+arrayConsulta[intermedia].Fabr_Recambio);
-			console.log("que fab_ref es "+arrayConsulta[intermedia].Ref_Fabricante);
-	$.ajax({
-		data: parametros,
-		url: 'tareas.php',
-		type: 'post',
-		datatype: 'json',
-		beforeSend: function () {
-			textoMostrar = "Grabar()- Comprobando Referencia:"+arrayConsulta[intermedia].Ref_Fabricante;
-			textoMostrar = textoMostrar + "\n Fabricantes cruzado es:" + arrayConsulta[intermedia].Fabr_Recambio;
-			$("#resultado").html(textoMostrar);
-
-		},
-		success: function (response) {
-			console.log("******* RESPUESTA AJAX DE GRABAR *************************");
-			//~ console.log( arrayConsulta[intermedia].id);
-			//~ console.log( arrayConsulta[intermedia].linea);
-			//~ console.log( fabricante);
-			//~ console.log("ref cruzada "+ arrayConsulta[intermedia].Ref_F);
-			//~ console.log("prof cruzado"+ arrayConsulta[intermedia].F_rec);
-			//~ console.log("****************");
-			
-			console.log("Respuesta:" + response[0].respuesta);
-			console.log("Busqueda:" + response[0].busqueda);
-
-			// Este if es el que hace ciclo.. es decir
-			// Vuelve ejecutar la misma funcion mientras la 
-			// variable global var intermedia no llege al final de arrayConsulta.length
-			console.log("Maximo ciclo: "+ arrayConsulta['NItems'] );
-
-			if (intermedia == (arrayConsulta['NItems']-1)) {
-				intermedia=0;
-				console.log("Obtener nuevamente array en ComprobarPaso2RefCruzadas");
-				ComprobarPaso2RefCruzadas();
-			} else {
-				console.log("Continuamos con ciclo de grabar..");
-				intermedia++;
-				lineabarra++;
-				ProcesoBarra(lineabarra,finallinea);
-				
-				console.log("Numero que vamos en este ciclo: "+intermedia);
-				console.log("linea final de barra proceso: "+finallinea);
-				console.log("linea actual de barra proceso: "+lineabarra);
-
-				grabar();
+	ProcesoBarra(intermedia, finallinea);
+	var ItemsEnviar = [] ;
+		if ( intermedia < arrayConsulta['NItems']) {
+			for (i = 0; i < 200; i++) {  
+				if (intermedia < arrayConsulta['NItems']){
+				// Montamos array para enviar por AJAX
+				ItemsEnviar[i] = arrayConsulta[intermedia];
+				intermedia = intermedia + 1;
+				}
 			}
+			
+			console.log("Fabricante "+fabricante);
+			console.log('Linea actual:' +intermedia);
+			console.log('final:' + finallinea);
+			console.log('Enviamos Referencias Principales:');
+			console.log(JSON.stringify(ItemsEnviar)); // Mostramos en consola lo contiene ItemsEnviar
+			var parametros = {
+				'pulsado': 'BuscarRecambioPrincipal',
+				'condicional': 'Si', // Quiere que 
+				'Fabricante':fabricante,
+				'ArrayVacios':ItemsEnviar
+				
+			};
+			$.ajax({
+				data: parametros,
+				url: 'tareas.php',
+				type: 'post',
+				datatype: 'json',
+				beforeSend: function () {
+					textoMostrar = "Comprobando Referencias principales si EXISTEN";
+					$("#resultado").html(textoMostrar);
+
+				},
+				success: function (response) {
+					console.log("******* RESPUESTA AJAX DE GRABAR *************************");
+					console.log('Consulta'+ response['Consulta1']);
+					console.log("Errores:" + response['RegistrosErrorRefPrincipal']);
+					textoMostrar = "Terminados revisar los " +intermedia+" referencias, encontradas \n "+ response['RegistrosErrorRefPrincipal']+" registros que no existen referencias.";
+					$("#resultado").html(textoMostrar);
+				}
+			});
+		} else {
+			clearInterval(cicloComprobarRefPrincipal);
+			// Quiere decir que termino... comprobar si existen las REFERENCIAS PRINCIPAL.
+			textoMostrar = "¡¡ TERMINAMOS REVISAR REFERENCIAS, SI EXISTEN !! \n";
+			textoMostrar = textoMostrar + " REALIZAMOS RESUMEN."
+			$("#resultado").html(textoMostrar);
+			// Es mejor esperar un poco antes de hacer resumen ya que puede que no este todos UPDATE terminado.
+			// Si no devuelve array es que ya no hay vacios, por lo que se termino.
+			// Hacemos resumen de nuevo
+			resumenresul();
+			// Empezamos paso 3 P3NuevoExiste()empre
+			P3NuevoExiste();
 		}
-	});
 }
 
+function P3NuevoExiste() {
+		// Ya no deberíamos tener ninguna Referencia Principal para Analizar, 
+		// Comprobamos que existe fabricante, si no existe
+		console.log ('Estoy en P3NuevoExite()');
+		if (fabricante === 0 || fabricante === undefined) {
+		console.log( 'Tuviste que saltar a este paso sin hacer Paso 2, por lo que te muestro solo botton comprobar');
+		alert("¡¡ Peligro no hay fabricante !! \n En su momento seleccionas te un fabricante \ ¿Te acuerdas cual era ? ");
+		$("#cmp").css("display", "block");
+		return ;
+		// Ocultas botton de comprobar y mostramos el grabar.
+		
+		}  
+		// Comprobamos que realmente sea ese el fabricante del que ya buscam
+		$("#cmp").css("display", "none");
+		$("#nuevoExiste").css("display", "block");
+		$("#resultado").html("PASO3: Vamos a crear Nuevas Referencias Cruzadas, nuevos cruces y cambiar fecha actualizacion en los existentes.");
+		alert( 'Pulsa grabar para empezar,\n teniendo encuenta que ahora si graba en BDRecambios\n ten cuidado con el fabricante');
+		// Obtenemos el dato de Distintos Ref_Principales ( Aquellas que tienen estado vacio y ID_Fabricante <>0 )
+		// este datos es el que vamos utilizar para poner  
+		
+		var RefDistintaPrincipal = 	$("#RefPrincipalesIDRecam").text();
+		alert('PASO 3: fabricante es '+fabricante);
+		console.log( "PASO:3 Comprobamos que fabricante es correcto");
+		if (arrayConsulta != undefined){
+		finallinea = arrayConsulta['NItems'];
+		intermedia = 0;
+		cicloNuevoExisteCruce();
+		}
+}
+
+function cicloNuevoExisteCruce (){
+	ProcesoBarra(intermedia, finallinea);
+	var ItemsEnviar = [];
+		if ( intermedia < arrayConsulta['NItems']) {
+			for (i = 0; i < 200; i++) {  
+				if (intermedia < arrayConsulta['NItems']){
+				// Montamos array para enviar por AJAX
+				ItemsEnviar[i] = arrayConsulta[intermedia];
+				intermedia = intermedia + 1;
+				}
+			}
+		}
+		console.log('Fin cicloNuevoexisteCruce()');
+		console.log(JSON.stringify(ItemsEnviar));
+		console.log("Fabricante "+fabricante);
+		console.log('Linea actual:' +intermedia);
+		console.log('final:' + finallinea);
+		// Ahora enviamos datos a funcion por Ajax
+		var parametros = {
+				'pulsado': 'NuevoExisteCruce',
+				'Fabricante':fabricante,
+				'ArrayVacios':ItemsEnviar
+				
+			};
+			$.ajax({
+				data: parametros,
+				url: 'tareas.php',
+				type: 'post',
+				datatype: 'json',
+				beforeSend: function () {
+					textoMostrar = "Comprobando Referencias principales si EXISTEN";
+					$("#resultado").html(textoMostrar);
+				},
+				success: function (response) {
+					console.log('Respuesta'+ response['Respuesta']);
+					exit;
+					textoMostrar = "Terminados revisar los " +intermedia+" referencias, encontradas \n "+ response['RegistrosErrorRefPrincipal']+" registros que no existen referencias.";
+					$("#resultado").html(textoMostrar);
+				}
+			});
+		
+		
+		
+}

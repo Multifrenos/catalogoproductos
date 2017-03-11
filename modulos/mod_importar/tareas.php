@@ -3,22 +3,20 @@
  * 
  * 
  * Con el switch al final y variable $pulsado
- *     	$pulsado = 'borrar'					-> Ejecuta borrar($nombretabla, $BDImportRecambios);
- * 												Se ejecuta en Paso 1  (todos los ficheros )
- *     	$pulsado = 'contar'					-> Ejecuta contador($nombretabla, $BDImportRecambios);
- * 												Se ejecuta en Paso 2 de ListaPrecios --->
- * 		$pulsado = 'comprobar'				-> Ejecuta comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
- * 		$pulsado = 'verNuevos'				-> Ejecuta verNuevosRef($BDImportRecambios);
- * 												Se ejecuta en Paso 3 de ListaPrecios.
- * 		$pulsado = 'anahirRecam'			-> Ejecuta anahirRecam($BDRecambios);
- * 		$pulsado = 'BuscarError'			-> Ejecuta BuscarError($BDImportRecambios);
- * 												Se ejecuta en Paso 2 de Referencias Cruzadas al mostrar la pagina.
- * 		$pulsado = 'DistintoFabCruzTemporal'-> Ejecuta DistintoFabCruzTemporal($BDImportRecambios);
- * 		$pulsado = 'comPro'					-> Ejecuta errorFab($BDImportRecambios, $BDRecambios);
- * 		$pulsado = 'resumen'				-> Ejecuta resumen($BDImportRecambios);
- * 		$pulsado = 'obtenerVacioscruzados'	-> Ejecuta obtenerVaciosCru($BDImportRecambios);
- * 		$pulsado = 'grabarCruzadas'			-> Ejecuta grabarCruzadas($BDImportRecambios, $BDRecambios);
- * 		$pulsado = 'msql_csv				-> Ejectua MsqlCsv($lineaA, $lineaF,$nombrecsv);
+ *     	$pulsado = 'borrar'							-> Ejecuta borrar($nombretabla, $BDImportRecambios);
+ * 														Se ejecuta en Paso 1  (todos los ficheros )
+ *     	$pulsado = 'contar'							-> Ejecuta contador($nombretabla, $BDImportRecambios);
+ * 														Se ejecuta en Paso 2 de ListaPrecios --->
+ * 		$pulsado = 'comprobar'						-> Ejecuta comprobar($nombretabla, $BDImportRecambios, $BDRecambios);
+ * 		$pulsado = 'verNuevos'						-> Ejecuta verNuevosRef($BDImportRecambios);
+ * 														Se ejecuta en Paso 3 de ListaPrecios.
+ * 		$pulsado = 'anahirRecam'					-> Ejecuta anahirRecam($BDRecambios);
+ * 		$pulsado = 'DistintoFabCruzTemporal'		-> Ejecuta DistintoFabCruzTemporal($BDImportRecambios);
+ * 		$pulsado = 'comPro'							-> Ejecuta errorFab($BDImportRecambios, $BDRecambios);
+ * 		$pulsado = 'resumen'						-> Ejecuta resumen($BDImportRecambios);
+ * 		$pulsado = 'obtenerDistintosVacioscruzados'	-> Ejecuta obtenerDistintosVaciosCru($BDImportRecambios);
+ * 		$pulsado = 'grabarCruzadas'					-> Ejecuta grabarCruzadas($BDImportRecambios, $BDRecambios);
+ * 		$pulsado = 'msql_csv						-> Ejectua MsqlCsv($lineaA, $lineaF,$nombrecsv);
 
  * 
  *  */
@@ -68,11 +66,6 @@ include_once ("./funcP2ReferCruzad.php");
         $respuesta= anahirRecam($BDRecambios);
         echo json_encode($respuesta);
         break;
-    case 'BuscarError':
-        $datos = BuscarError($BDImportRecambios);
-        header("Content-Type: application/json;charset=utf-8");
-		echo json_encode($datos);
-        break;
     case 'DistintoFabCruzTemporal':
         //~ $condicional ="Estado = ''";
         $condicional = $_POST['condicional'];
@@ -84,15 +77,27 @@ include_once ("./funcP2ReferCruzad.php");
         errorFab($BDImportRecambios, $BDRecambios);
         break;
     case 'resumen':
-        resumenCruz($BDImportRecambios);
+        resumenCruz($BDImportRecambios,$ConsultaImp);
         break;
-    case 'ObtenerVacioscruzados':
-        $array = obtenerVaciosCru($BDImportRecambios,$ConsultaImp);
+    case 'ObtenerReferenciasPrincipales':
+        $condicional = $_POST['condicional'];
+        $array = obtenerReferenciasPrincipales($BDImportRecambios,$ConsultaImp,$condicional);
         header("Content-Type: application/json;charset=utf-8");
 		echo json_encode($array);
         break;
-    case 'grabarCruzadas':
-        GrabarCruzadas($BDImportRecambios, $BDRecambios);
+    case 'BuscarRecambioPrincipal':
+        $arrayDistintosVacios = $_POST['ArrayVacios'];
+        $Fabricante = $_POST['Fabricante'];
+        $respuesta = BuscarRecamPrincipal($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante);
+        header("Content-Type: application/json;charset=utf-8");
+        echo json_encode($respuesta);
+        break;
+    case 'NuevoExisteCruce':
+        $arrayDistintosVacios = $_POST['ArrayVacios'];
+        $Fabricante = $_POST['Fabricante'];
+        $respuesta = NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante);
+        header("Content-Type: application/json;charset=utf-8");
+        echo json_encode($respuesta);
         break;
     case 'msql_csv':
         $lineaA = $_POST['lineaI'] ;
