@@ -383,7 +383,6 @@ function cicloNuevoExisteCruce (){
 				},
 				success: function (response) {
 					console.log('Respuesta'+ response['Respuesta']);
-					exit;
 					textoMostrar = "Terminados revisar los " +intermedia+" referencias, encontradas \n "+ response['RegistrosErrorRefPrincipal']+" registros que no existen referencias.";
 					$("#resultado").html(textoMostrar);
 				}

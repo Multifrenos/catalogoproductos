@@ -287,7 +287,6 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 		// Creamos array con datos recibidos.
 		$inRefFabricante[$i] = '"'.$referencia['Ref_Fabricante'].'"';
 		$inIdFabricante[$i] = $referencia['IdFabricaCruzado'];
-		$UpDato[$i] = '(0,'.$inRefFabricante[$i].','.$inIdFabricante[$i].',"'.$fecha.'")';
 		$i++;
 	}
 	$ConsulInRefFabricante = implode(',',$inRefFabricante);
@@ -303,17 +302,13 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 	// Quiere decir que hubo resultados, por lo que algunos existen o todos.
 	$i = 0 ;
 	$x= 0;
-	$inRefFabricante = array();
-	$inIdFabricante = array();
-	$IDReferenciaCruzado = array();
-	$UpDato = array();
 	$ArrayEncontrados = array();
 	foreach ($arrayDistintosVacios as $Enviado){
 		$idRefCruzada = 0;
 		$i++;
 		$ArrayEncontrados[$i]['IdFabricaCruzado'] 	= $Enviado['IdFabricaCruzado'];
 		$ArrayEncontrados[$i]['Ref_Fabricante'] 	= $Enviado['Ref_Fabricante'];
-		$ArrayEncontrados[$i]['IDRecambio'] 		= $Enviado['RecambioID'];
+		$ArrayEncontrados[$i]['RecambioID'] 		= $Enviado['RecambioID'];
 		// Ahora creamos foreach del resultado
 		if ($resultados['NItems'] !=0) {
 			foreach ( $resultados as $resultado ) {
@@ -324,27 +319,33 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 				}
 			}
 			// Como salimos foreach anterior, entonces ahora comprobamos si.
-			if ($idRefCruzada == 0) {{
+			if ($idRefCruzada != 0) {
 				// Quiere decir que existe, añadimos a array
 				// Hago array separado para hacer implode ya que no se como hacer... 
 				//~ $inRefFabricante[$i] = '"'.$resultado['RefFabricanteCru'].'"';
 				$ArrayEncontrados[$i]['IDReferenciaCruzado'] = $idRefCruzada;
 				$ArrayEncontrados[$i]['Buscado'] = 'Encontrado';
-		
-						
 			}
 		} 
-		
+		if ($idRefCruzada == 0) {
 		// Quiere decir que NO existe
 		$ArrayEncontrados[$i]['Buscado'] = 'NoEncontrado';
 		}
 		
 	}
 	// Ahora falta añadir a estado, NUEVO o EXISTE en referenciascruzadas de BDImportar
-	
-
-
-	$array['Respuesta'] = $ArrayEncontrados;
+	$i = 0;
+	//~ $consulta = array();
+	foreach ( $ArrayEncontrados as $Encontrado) {
+		$i++;
+		if ($Encontrado['Buscado'] =='NoEncontrado') { 
+			$Estado = 'Nuevo';
+		} else {
+			$Estado = 'Existe Referencia Cruzada';
+		}
+		$consulta[$i] = 'UPDATE referenciascruzadas SET Estado ="'.$Estado.'" WHERE RecambioID ='.$Encontrado['RecambioID'].' AND IdFabricaCruzado ='.$Encontrado['IdFabricaCruzado'].' AND  Ref_Fabricante ="'.$Encontrado['Ref_Fabricante'].'"';
+	}
+	$array['Consultas'] = $consulta;
 
 	return $array;
 }
