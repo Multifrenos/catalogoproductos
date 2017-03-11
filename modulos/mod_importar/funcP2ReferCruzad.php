@@ -317,28 +317,34 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 		// Ahora creamos foreach del resultado
 		if ($resultados['NItems'] !=0) {
 			foreach ( $resultados as $resultado ) {
+			$idRefCruzada = 0;
 				if ($Enviado['Ref_Fabricante'] == $resultado['RefFabricanteCru'] && $Enviado['IdFabricaCruzado'] == $resultado['IdFabricanteCru']){
 					$idRefCruzada = $resultado['id'];
 					break;
 				}
 			}
 			// Como salimos foreach anterior, entonces ahora comprobamos si.
-			if ($Enviado['Ref_Fabricante'] == $resultado['RefFabricanteCru'] && $Enviado['IdFabricaCruzado'] == $resultado['IdFabricanteCru']){
+			if ($idRefCruzada == 0) {{
 				// Quiere decir que existe, añadimos a array
 				// Hago array separado para hacer implode ya que no se como hacer... 
 				//~ $inRefFabricante[$i] = '"'.$resultado['RefFabricanteCru'].'"';
 				$ArrayEncontrados[$i]['IDReferenciaCruzado'] = $idRefCruzada;
 				$ArrayEncontrados[$i]['Buscado'] = 'Encontrado';
+		
+						
 			}
-		} else {
-				// Quiere decir que NO existe
-				$ArrayEncontrados[$i]['Buscado'] = 'NoEncontrado';
+		} 
+		
+		// Quiere decir que NO existe
+		$ArrayEncontrados[$i]['Buscado'] = 'NoEncontrado';
 		}
 		
 	}
+	// Ahora falta añadir a estado, NUEVO o EXISTE en referenciascruzadas de BDImportar
 	
+
+
 	$array['Respuesta'] = $ArrayEncontrados;
-	// Faltan encontrar cuando no son todos los que no existe, me falta encontras los que no existen.
 
 	return $array;
 }
