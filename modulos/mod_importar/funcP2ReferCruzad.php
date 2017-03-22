@@ -11,27 +11,35 @@
  /* Funtion obtenerReferenciasPrincipales
   * 	Devolvemos un array con loss RefProveedor principal, que estado esté blanco y tenga ID_Fabricantes
   * 	obtenemos RefProveedor ( que realmente RefRecambioPrincipal )
-  * 	Esta funcion devuelve dos opciones según el paso que estemos ($condicional)
-  * 			1.- PASO2-> Devuelve Referencias Principales distintas ( campo: RefProveedor )
-  * 			2.- PASO3-> Devuelve RegistroLineas con los campos ( 'Ref_Fabricante','RecambioID','IdFabricaCruzado')
+  * 	Esta funcion devuelve dos opciones según el proceso que estemos ($condicional)
+  * 			1.- PROCESO2-> Devuelve Referencias Principales distintas ( campo: RefProveedor )
+  * 			2.- PROCESO3-> Devuelve RegistroLineas con los campos ( 'Ref_Fabricante','RecambioID','IdFabricaCruzado')
   * */
 function obtenerReferenciasPrincipales($BDImportRecambios,$ConsultaImp,$condicional) {
     $array = array();
     $tabla ="referenciascruzadas";
 	$whereC = " WHERE Estado = '' and IdFabricaCruzado <> 0";
-	if ($condicional == "paso2") {
+	if ($condicional == "proceso2") {
 		$whereC = $whereC." and RecambioID = 0";
 		$campo= 'RefProveedor';
 		//Ejecutamos consulta.
 		$array = $ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
 	}
-	if ($condicional == "paso3"){
+	if ($condicional == "proceso3"){
+		// Obtenemos registros para saber NUEVO o EXISTE
 		$campo = array('Ref_Fabricante','RecambioID','IdFabricaCruzado');
 		$array = $ConsultaImp->registroLineas($BDImportRecambios,$tabla,$campo,$whereC); 	
 	}
 	
-	// Ahora creamos un array con los distintos Recambios .
-	$array['paso'] = $condicional;
+	if ($condicional == "proceso4"){
+		// Obtenemos registros para saber si EXISTE el cruce, por que la referencia existe.
+		// Aquí el where cambia
+		$whereC = " WHERE Estado = 'Existe referencia cruzada' and IdFabricaCruzado <> 0";
+		$campo = array('Ref_Fabricante','RecambioID','IdFabricaCruzado');
+		$array = $ConsultaImp->registroLineas($BDImportRecambios,$tabla,$campo,$whereC); 	
+	}
+	
+	$array['proceso'] = $condicional;
 	return $array;
 }
 
@@ -77,7 +85,6 @@ function BuscarRecamPrincipal($BDImportRecambios, $BDRecambios,$ConsultaImp,$arr
     $f= $Fabricante;
 	$ErrorRefPrincipal = 0;
     $i = 0;
-    //~ foreach ( $arrayDistintosVacios as $referencia) {
 
     foreach ( $arrayDistintosVacios as $referencia) {
 		// Inicializamos varibles
@@ -181,25 +188,14 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
     // Contamos los REGISTROS que tengan ESTADO en Blanco con ID Recambio. 
     $whereC =" WHERE Estado = '' AND RecambioID = 0";
     $datos['NItemsCRecambio'] = $ConsultaImp->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
-    
-    
-    
     // Antes de continuar tenemos comprobar si ya hizo alguna comprobación o no.
    	// Si Registros totales es igual Registros a procesar y ademas estos tiene IDs Fabricantes y Recambio en 0
    	if ( $datos['NItemsCRecambio'] == $totalRegistro ){
 		// Quiere decir que no hizo ninguna comprobación y hacemos la primera comprobación
 		$consul = "UPDATE `referenciascruzadas` SET `Estado`='[ERROR P2-21]:CampoVacio' WHERE LENGTH(Fabr_Recambio) < 2 or LENGTH(Ref_Fabricante) < 2";
 		$ConsErr = $BDImportRecambios->query($consul);
-		// Enviamos este dato por si hace falta.
-		$datos['Iniciar'] = 'Paso2';	
 	}
-   	if ( $datos['NItemsEstadoBlanco'] > 0 ){
-		// Enviamos este dato por si hace falta.
-		$datos['Iniciar'] = 'Paso3';	
-	}
-
-    
-    // Consultamos distintos fabricantes (total, no encontrados, no buscados)
+   	// Consultamos distintos fabricantes (total, no encontrados, no buscados)
 	$campo = 'Fabr_Recambio';
    	$ArrayFabricantes[1] = "Estado = '[ERROR P2-22]:FABRICANTE cruzado no existe'"; //Fabricantes no encontrados.
    	$ArrayFabricantes[2] = "IdFabricaCruzado <>0"; 					// Fabricantes que ya fueron buscados.
@@ -217,10 +213,14 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
 			$ArrayFabricantes[$i]= $ArrayFabricante['NItems'];
 		}   	
    
-	// Contamos registros que tiene errores.
+	// Contamos registros que tiene errores o ya tienen estado.
 	$ArrayErrores[1]['estado'] = '[ERROR P2-22]:FABRICANTE cruzado no existe';
 	$ArrayErrores[2]['estado'] = '[ERROR P2-21]:CampoVacio';
 	$ArrayErrores[3]['estado'] = '[ERROR P2-23]:Referencia Principal no existe.';
+	$ArrayErrores[4]['estado'] = 'Nuevo'; //Que ya esta listo para grabar, pero no se hizo.
+	$ArrayErrores[5]['estado'] = 'Existe referencia cruzada'; //Existe pero no se comprobo si existe cruce.
+
+	
 		// Ahora realizamos bluce de consultas.
 		$NErrores = count($ArrayErrores);
 		for ($i = 1; $i <= $NErrores; $i++) {
@@ -246,7 +246,10 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
 			$ArrayRefPrincipal = $ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
 			$ArrayRefPrincipales[$i] = $ArrayRefPrincipal['NItems'];
 		}
-    
+    // Para terminar de hacer proceso control, volvemos a 
+    // Contamos los REGISTROS que tengan ESTADO en Blanco.Obtenemos NItems y conexion
+    $whereC =" WHERE Estado = '' ";
+    $datos['NItemsEstadoBlanco'] = $ConsultaImp->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
     
     // Cubrimos array que devolvemos.
     $datos['error22'] 	= $ArrayErrores[1]['Nitems'];
@@ -264,19 +267,21 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
 	$datos['RefPrinPendIDRecam']= $ArrayRefPrincipales[3];
 	$datos['NRefPrinNOenc'] 	= $ArrayRefPrincipales[4];
 
+	$datos['NuevRefCruzada'] 	= $ArrayErrores[4]['Nitems']; // No existe Referencia cruzada en BDRecambios
+	$datos['ExisteRefFaltaCruce'] 	= $ArrayErrores[5]['Nitems']; // Existe Referencia Cruzada pero no sabemos si existe cruce.
 	
-
 	
-    header("Content-Type: application/json;charset=utf-8");
-    echo json_encode($datos);
+	return $datos;
 }
 
 
 function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante){
 	$array= array();
+    $resultado = array();
     $inRefFabricante = array();
     $inIdFabricante = array();
     $UpDato = array();
+	$consultas = array();
 	$fecha = date('Y-m-d');
     $array['Ref_Principal_Entregadas'] = count($arrayDistintosVacios);
 	// Campos que encontramos $arrayDistintosVacios
@@ -335,17 +340,78 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 	}
 	// Ahora falta añadir a estado, NUEVO o EXISTE en referenciascruzadas de BDImportar
 	$i = 0;
-	//~ $consulta = array();
+	$WhereEstado = array();
 	foreach ( $ArrayEncontrados as $Encontrado) {
 		$i++;
 		if ($Encontrado['Buscado'] =='NoEncontrado') { 
-			$Estado = 'Nuevo';
+			// Nueva referencia Cruzada
+			$WhereEstado['Nuevo'][$i] = '(RecambioID ='.$Encontrado['RecambioID'].' AND IdFabricaCruzado ='.$Encontrado['IdFabricaCruzado'].' AND  Ref_Fabricante ="'.$Encontrado['Ref_Fabricante'].'")';
 		} else {
-			$Estado = 'Existe Referencia Cruzada';
+			// Existe Referencia Cruzada
+			$WhereEstado['Existe'][$i] = '(RecambioID ='.$Encontrado['RecambioID'].' AND IdFabricaCruzado ='.$Encontrado['IdFabricaCruzado'].' AND  Ref_Fabricante ="'.$Encontrado['Ref_Fabricante'].'")';
 		}
-		$consulta[$i] = 'UPDATE referenciascruzadas SET Estado ="'.$Estado.'" WHERE RecambioID ='.$Encontrado['RecambioID'].' AND IdFabricaCruzado ='.$Encontrado['IdFabricaCruzado'].' AND  Ref_Fabricante ="'.$Encontrado['Ref_Fabricante'].'"';
+		
 	}
-	$array['Consultas'] = $consulta;
-
+	if (isset($WhereEstado['Nuevo'])) {
+		$whereNuevo = implode(' OR ',$WhereEstado['Nuevo']);
+		$consultas[1] = 'UPDATE referenciascruzadas SET Estado ="Nuevo" WHERE '.$whereNuevo;
+	}
+	if (isset($WhereEstado['Existe'])) {
+		$whereExiste = implode(' OR ',$WhereEstado['Existe']);
+		$consultas[2] = 'UPDATE referenciascruzadas SET Estado ="Existe referencia cruzada" WHERE '.$whereExiste;
+	}
+	// Inicializamos porque no hace falta enviar datos de los tres array para evitar error js
+	$array['resultado'][1] =0; // Nuevo
+	$array['resultado'][2]= 0; // Nuevo cruce
+	$array['resultado'][3]= 0; // existe tanto referencia como cruce
+	// Ahora ejecutamos el update
+	$i= 0;
+	foreach  ($consultas as $consulta) { 
+		$i = 0;
+		if ($BDImportRecambios->query($consulta)){;
+			$RegistrosCambiados= $BDImportRecambios->affected_rows;
+			if (isset($consulta[1])){
+				$i = 1;
+			} else {
+				$i = 2;
+			}
+			$array['resultado'][$i] = 	$RegistrosCambiados;
+		} else {
+			// Quiere decir que hubo error en la consulta.
+				$array['consulta'][$i] = $consulta;
+				$array['error'][$i] = $BDImportRecambios->error_list;
+		}
+	}
 	return $array;
 }
+function  AnhadirCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante){
+	$array= array();
+    $resultado = array();
+	$consultas = array();
+	$fecha = date('Y-m-d');
+	$inRefFabricante = array();
+	$inIdFabricante = array();
+	$inRecambioID = array();
+	// Contamos array entrega 
+	$array['Ref_Principal_Entregadas'] = count($arrayDistintosVacios);
+	// Campos que encontramos $arrayDistintosVacios
+	// Ref_Fabricante','RecambioID','IdFabricaCruzado'
+	$i = 0;
+	
+	foreach ( $arrayDistintosVacios as $referencia) {
+		// Creamos array con datos recibidos.
+		$inRefFabricante[$i] = '"'.$referencia['Ref_Fabricante'].'"';
+		$inIdFabricante[$i] = $referencia['IdFabricaCruzado'];
+		$inRecambioID[$i] = $referencia['RecambioID'];
+		$i++;
+	}
+	$ConsulInRefFabricante = implode(',',$inRefFabricante);
+	$ConsulInIdFabricante = implode(',',$inIdFabricante);
+	// Ahora consultamos en tabla referencias cruzadas esos datos para obtener los registros de esos solamente.
+	$campos = array ('id','RecambioID','IdFabricanteCru','RefFabricanteCru','FechaActualiza' ); 
+	$nombretabla = 'referenciascruzadas';
+	$whereC = " WHERE `RefFabricanteCru` IN (".$ConsulInRefFabricante.") AND `IdFabricanteCru` IN (". $ConsulInIdFabricante.")";
+	$resultados = $ConsultaImp->registroLineas($BDRecambios,$nombretabla,$campos,$whereC); 
+
+}
+

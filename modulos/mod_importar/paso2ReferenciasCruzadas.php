@@ -54,7 +54,7 @@
 						}
 						$consultaFabricantes->close();
 						?>
-						<label class="control-label col-md-4">Fabricante</label>
+						<label class="control-label col-md-4">Fabricante Principal<a title="El fabricante que nos dio el fichero de referencias cruzadas, con el que cruzan">(*)</a></label>
 						<select name="fabricante" id="IdFabricante">
 							<option value="0">Seleccione Fabricante</option>
 							<?php echo $htmloptiones; ?>
@@ -84,10 +84,10 @@
 						<td>
 							Total:<strong><?php echo $totalRegistro;?></strong><br/>
 							Estado en blanco
-							<a title="El campo estado esta por defecto en blanco hasta que no se termine el proceso,&#10; o haya encontrado un error, al termina se puede ver NUEVOS,EXISTENTES...">(*)</a>
+							<a title="El campo estado esta por defecto en blanco hasta que no se &#10; termine el proceso, cuando no haya ningún registro con el Estado en blanco, empezará a grabar los Nuevas referenciaas, nuevos cruces o actualiza los existentes.">(*)</a>
 							:<strong><span id="RegBlanco"></strong></span><br/>
 							Registros sin IDs
-							<a title="Registros que tiene estado blanco, tambien el ID Recambio no es 0,&#10; deber ser cero si ya terminamos el PASO 2.">(*)</a>
+							<a title="Los registros que tiene estado blanco y ademas tienen ID Recambio en 0,&#10; aun se busco si existe esa referencia, se hace en el PASO 2.">(*)</a>
 							:<strong><span id="RegBlancoCRecambio"></strong></span>
 							</td>
 						<td>
@@ -103,8 +103,12 @@
 						<td>Fab_Importar
 							<a title="Fabricantes encontrados contando &#10; los descartados.">(*)</a>
 							:<strong><span id="Totfabcru"></span></strong><br/>
-							A buscar:<strong><span id="Bfabcru"></span></strong><br/>
-							YA buscados:<strong><span id="Yafabcru"></span></strong><br/>
+							A buscar
+							<a title="Los registros que tiene estado blanco y ademas tienen ID Fabricante es 0,&#10; aun se busco si el fabricante de ese cruce, se hace en el PASO 2.">(*)</a>
+							:<strong><span id="Bfabcru"></span></strong><br/>
+							YA buscados
+							<a title="Los registros que tiene estado blanco y ademas el ID Fabricante es distinto de 0,&#10; son los fabricantes que busco y se identificaron, se hace en el PASO 2.">(*)</a>
+							:<strong><span id="Yafabcru"></span></strong><br/>
 
 						</td>	
 						<td>
@@ -136,18 +140,18 @@
 					  </tr>
 					  <tr>
 						<th>Referencias Cruzadas</th>
-						<td>Nueva Referencia Cruzada
+						<td>Nuevas Referencias
 						<a title="Nuevas Referencias cruzadas son aquellas que no existe en BDRecambios/referenciacruzadas &#10; y por lo que si añade tanto esa tabla como crucereferencias.">(*)</a>
-						 :<strong><span id="NuevRefCruzada"></strong></span><br/>
+						 :<strong><span id="NuevRefCruzada"></span></strong><br/>
 						Nuevo cruce:
 						<a title="Nuevo cruce es que existe la referencia cruzada en BDRecambios/refernciacruzadas &#10; y pero NO existe el cruce entre el recambio.">(*)</a>
-						 :<strong><span id="NuevoCruce"></strong></span><br/>
+						 :<strong><span id="NuevoCruce"></span></strong><br/>
 						Existe:
 						<a title="Existe tanto cruce como referencia cruzada, por lo que solo se actualiza campo FechaActualiza&#10; y asi queda registrado que se comprobo ese cruce tal fecha.">(*)</a>
-						 :<strong><span id="ExisteCruce"></strong></span>
+						 :<strong><span id="ExisteCruce"></span></strong>
 						 
 						</td>
-						<td>
+						<td> Referencias que existen <strong>(<span id="ExisteRefFaltaCruce"></span>)</strong>
 						</td>
 						<td> </td>
 					  </tr>
@@ -163,19 +167,21 @@
                 <hr />
                 
                 <div class="alert alert-success">
-				<div id="resultado" class="col-md-12">
-                <!-- Aquí mostramos respuestas de AJAX -->
-                </div>
-                <span>Esto puede tardar unos minutos .....</span>
+					<div id="resultado">
+					<!-- Aquí mostramos respuestas de AJAX -->
+					</div>
                 </div>
                 <div>
 					<div class="form-group align-right">
-							<div  id="compFichero">
-								<input type="button" href="javascript:;" onclick="comprobar($('#IdFabricante').val());return false;" value="Comprobar" id="cmp" style="display: none;"/>
+							<div  class="compFichero">
+								<input type="button" href="javascript:;" onclick="comprobar($('#IdFabricante').val());return false;" value="Comprobar Fabricante Principal" id="cmp" style="display: none;"/>
+							</div>
+							<div  class="compFichero">
+								<input type="button" href="javascript:;" onclick="comprobar($('#IdFabricante').val());return false;" value="Comprobar existen Referencias Principales" id="ComprobarRefPrin" style="display: none;"/>
 								
 							</div>	
-							<div  id="compFichero">
-								<input type="button" href="javascript:;" onclick="ObtenerReferenciasPrincipales('paso3')" value="Nuevo o Existe" id="nuevoExiste" style="display: none;"/>
+							<div  class="compFichero">
+								<input type="button" href="javascript:;" onclick="ObtenerReferenciasPrincipales('proceso3')" value="Comprobando si es Referencia Cruzadas nueva o ya existe" id="nuevoExiste" style="display: none;"/>
 								
 							</div>							
 					</div>
@@ -190,7 +196,7 @@
             var respuesta;
             var arrayConsulta;
             var lineaIntermedia = 0;
-            var ciclodefunciones;
+            var ciclo;
             var fabricanteserror = 0;
             var lineabarra=0;
             var fabricante;

@@ -3,8 +3,34 @@
 // Operaciones comunes
 class ConsultaBD 
 {
+	function crearTabla ($nombretabla,$BD,$campos) 
+	{
+		// Creamos una tabla si no existe, con los campos que le indiquemos en el array
+		// Ejemplo:
+		// de $nombreBD.'.'.$nombretabla --> importRecambio.
+		// Ejemplo de array campos:
+		// 		$campos[1] = { 	"nombre": "id",
+		//						"tipo": "INT NOT NULL AUTO_INCREMENT",
+		//						"Primary:" "si"}
+		//		$campos[2] = {"nombre": "descripcion",
+		//						"tipo": "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL",
+		//						"Primary:" "si"}
+		$consulta = "CREATE TABLE IF NOT EXISTS ".$nombreBD.'.'.$nombretabla. ' ('.$campoAuto.','.   $restocampos.','.'PRIMARY KEY ('.$campoKey.')) ENGINE = InnoDB;';
+		
+	}
+	function borrarTabla($nombretabla, $BD)
+	{
+		//Eliminamos la tabla
+		$consulta ="DROP DATABASE IF EXISTS ".$nombretabla;
+		if ($BD->query($consulta)) {
+				$respuesta ="Eliminado la tabla completamente ".$nombretabla;
+			} else {
+				$respuesta= "Error al eliminar la tabla: " . $BD->error;
+		}
+		return $respuesta;
+	}
 	
-	function borrar($nombretabla, $BD) 
+	function borrarContenido($nombretabla, $BD) 
 	{
 		// Eliminamos registros
 		$consulta = "Delete from " . $nombretabla;

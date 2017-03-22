@@ -3,7 +3,7 @@
  * 
  * 
  * Con el switch al final y variable $pulsado
- *     	$pulsado = 'borrar'							-> Ejecuta borrar($nombretabla, $BDImportRecambios);
+ *     	$pulsado = 'borrarContenido'							-> Ejecuta borrarContenido($nombretabla, $BDImportRecambios);
  * 														Se ejecuta en Paso 1  (todos los ficheros )
  *     	$pulsado = 'contar'							-> Ejecuta contador($nombretabla, $BDImportRecambios);
  * 														Se ejecuta en Paso 2 de ListaPrecios --->
@@ -44,8 +44,8 @@ include_once ("./funcP2ReferCruzad.php");
 
  
  switch ($pulsado) {
-    case 'borrar':
-        $respuesta = $ConsultaImp->borrar($nombretabla, $BDImportRecambios);
+    case 'borrarContenido':
+        $respuesta = $ConsultaImp->borrarContenido($nombretabla, $BDImportRecambios);
         echo json_encode($respuesta) ;
         break;
     case 'contar':
@@ -77,7 +77,9 @@ include_once ("./funcP2ReferCruzad.php");
         errorFab($BDImportRecambios, $BDRecambios);
         break;
     case 'resumen':
-        resumenCruz($BDImportRecambios,$ConsultaImp);
+        $array = resumenCruz($BDImportRecambios,$ConsultaImp);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
         break;
     case 'ObtenerReferenciasPrincipales':
         $condicional = $_POST['condicional'];
@@ -96,6 +98,13 @@ include_once ("./funcP2ReferCruzad.php");
         $arrayDistintosVacios = $_POST['ArrayVacios'];
         $Fabricante = $_POST['Fabricante'];
         $respuesta = NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante);
+        header("Content-Type: application/json;charset=utf-8");
+        echo json_encode($respuesta);
+        break;
+    case 'AnhadirCruce':
+        $arrayDistintosVacios = $_POST['ArrayVacios'];
+        $Fabricante = $_POST['Fabricante'];
+        $respuesta = AnhadirCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante);
         header("Content-Type: application/json;charset=utf-8");
         echo json_encode($respuesta);
         break;

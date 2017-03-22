@@ -109,7 +109,7 @@ function FicheroDatos($nombrecsv){
 	// funcion que comprobamos que fichero es y creamos array con sus datos
 	if ($nombrecsv == "ReferenciasCruzadas.csv"){
 		$FicheroDatos['NumeroCampos'] 		= 3;
-		$FicheroDatos['CamposSinCubrir'] 	= "0','0";
+		$FicheroDatos['CamposSinCubrir'] 	= "0','0','0";
 		$FicheroDatos['nombretabla']		= "referenciascruzadas";
 	}elseif ($nombrecsv == "ReferenciasCversionesCoches.csv"){
 		$FicheroDatos['NumeroCampos']		= 11;

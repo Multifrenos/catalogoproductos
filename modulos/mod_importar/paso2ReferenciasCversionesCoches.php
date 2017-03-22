@@ -19,7 +19,7 @@
 		
         ?>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
-
+	    <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/paso2ReferenciasCruzadas.js"></script>
     </head>
     <body >
         <?php 

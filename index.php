@@ -14,9 +14,8 @@
             
             // Se ejecuta cuando termina de carga toda la pagina.
             $(document).ready(function () {
-				texto = 'Ya tengo la funcion creada .js ( ) y obteniendo el total del as referencias, no las referencias..\n';
-				texto = texto + ' donde debería ejecutar una funcion buscar ya si existe o no la referencia cruzada, pero antes en CicloComprReferenciaPrincipal,\n';
-				texto = texto + ' debería modificarla para meta RecambioID en el resultado.\n ver idea: http://www.ajimix.net/blog/actualizar-diferentes-filas-en-una-sola-consulta-sql/';
+				texto = 'Hay un error en importar, en el PASO2 de Referencias curzadas, ya que se bloquea script \n';
+				texto = texto + ' tengo revisar que sucede y como lo arreglo';
 				alert( texto);
               
                 
