@@ -385,6 +385,7 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 	return $array;
 }
 function  AnhadirCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante){
+	// Objetivo: Comprobar los registros que recibimos ($ConsultaImp) si existe en cruce_referencias
 	$array= array();
     $resultado = array();
 	$consultas = array();
@@ -412,6 +413,9 @@ function  AnhadirCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDisti
 	$nombretabla = 'referenciascruzadas';
 	$whereC = " WHERE `RefFabricanteCru` IN (".$ConsulInRefFabricante.") AND `IdFabricanteCru` IN (". $ConsulInIdFabricante.")";
 	$resultados = $ConsultaImp->registroLineas($BDRecambios,$nombretabla,$campos,$whereC); 
+	$array['Resultado' ]= $resultados;
 
+
+	return $array;
 }
 
