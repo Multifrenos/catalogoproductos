@@ -32,12 +32,34 @@ function obtenerReferenciasPrincipales($BDImportRecambios,$ConsultaImp,$condicio
 	}
 	
 	if ($condicional == "proceso4"){
-		// Obtenemos registros para saber si EXISTE el cruce, por que la referencia existe.
+		// Obtenemos registros que son NUEVOs y hay crearlo
+		// Para que no pese, solo vamos obtener lineas.
 		// Aquí el where cambia
-		$whereC = " WHERE Estado = 'Existe referencia cruzada' and IdFabricaCruzado <> 0";
-		$campo = array('Ref_Fabricante','RecambioID','IdFabricaCruzado');
+		$whereC = " WHERE Estado = 'Nuevo' and IdFabricaCruzado <> 0";
+		$campo = array('linea');
 		$array = $ConsultaImp->registroLineas($BDImportRecambios,$tabla,$campo,$whereC); 	
 	}
+	if ($condicional == "proceso5"){
+		// Obtenemos registros Nuevos creados, duplicados y que son Existen 
+		// Solo obtenemos lineas para que no pese mucho.
+		$whereC = " WHERE Estado = 'Nuevo Duplicado' or Estado = '[Añadido] Referencia Cruzada' or Estado = 'Existe referencia cruzada'";
+		$campo = array('linea');
+		$array = $ConsultaImp->registroLineas($BDImportRecambios,$tabla,$campo,$whereC); 	
+	
+	}
+	
+	if ($condicional == "proceso6"){
+		// Obtenemos registros Existe 
+		// Solo obtenemos lineas para que no pese mucho.
+		$whereC = " WHERE Estado = 'Nuevo Duplicado' or Estado = '[Añadido] Referencia Cruzada' or Estado = 'Existe referencia cruzada'";
+		$campo = array('linea', 'RecambioID','IdFabricaCruzado','IDRefCruzada');
+		
+		$array = $ConsultaImp->registroLineas($BDImportRecambios,$tabla,$campo,$whereC); 	
+	
+	}
+	
+	
+	
 	
 	$array['proceso'] = $condicional;
 	return $array;
@@ -201,7 +223,7 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
    	$ArrayFabricantes[2] = "IdFabricaCruzado <>0"; 					// Fabricantes que ya fueron buscados.
    	$ArrayFabricantes[3] = "Estado = '' and IdFabricaCruzado =0";	// Fabricantes que NO fueron buscados.
    	$ArrayFabricantes[4] = "Estado = '[ERROR P2-21]:CampoVacio'"; 	// Fabricantes descartados por campo vacio.
-   	$ArrayFabricantes[5] = ""; 										// Fabricantes que hay en la tabla.
+   	$ArrayFabricantes[5] = ""; 	// Referencias Cruzadas creadas.
 
    	$NErrores = count($ArrayFabricantes);
 		for ($i = 1; $i <= $NErrores; $i++) {
@@ -219,6 +241,8 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
 	$ArrayErrores[3]['estado'] = '[ERROR P2-23]:Referencia Principal no existe.';
 	$ArrayErrores[4]['estado'] = 'Nuevo'; //Que ya esta listo para grabar, pero no se hizo.
 	$ArrayErrores[5]['estado'] = 'Existe referencia cruzada'; //Existe pero no se comprobo si existe cruce.
+	$ArrayErrores[6]['estado'] = 'Nuevo Duplicado'; //Que ya esta listo para grabar, pero no se hizo.
+	$ArrayErrores[7]['estado'] = '[Añadido] Referencia Cruzada'; //Que ya esta listo para grabar, pero no se hizo.
 
 	
 		// Ahora realizamos bluce de consultas.
@@ -255,6 +279,10 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
     $datos['error22'] 	= $ArrayErrores[1]['Nitems'];
     $datos['error21'] 	= $ArrayErrores[2]['Nitems'];
     $datos['error23'] 	= $ArrayErrores[3]['Nitems'];
+	$datos['NuevRefCruzadaPendi'] 	= $ArrayErrores[4]['Nitems']; // No existe Referencia cruzada en BDRecambios
+	$datos['ExisteRefFaltaCruce'] 	= $ArrayErrores[5]['Nitems']; // Existe Referencia Cruzada pero no sabemos si existe cruce.
+	$datos['NuevRefCruzDuplicada'] 	= $ArrayErrores[6]['Nitems']; // Estas son las duplicadas de la Referencia Cruzadas Nuevas
+	$datos['NuevasCreadas'] 	= $ArrayErrores[7]['Nitems']; // Estas son las duplicadas de la Referencia Cruzadas Nuevas
 
 	$datos['FabNoEncontrado'] 	= $ArrayFabricantes[1];
 	$datos['FabYaBuscado'] 		= $ArrayFabricantes[2];
@@ -267,20 +295,24 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
 	$datos['RefPrinPendIDRecam']= $ArrayRefPrincipales[3];
 	$datos['NRefPrinNOenc'] 	= $ArrayRefPrincipales[4];
 
-	$datos['NuevRefCruzada'] 	= $ArrayErrores[4]['Nitems']; // No existe Referencia cruzada en BDRecambios
-	$datos['ExisteRefFaltaCruce'] 	= $ArrayErrores[5]['Nitems']; // Existe Referencia Cruzada pero no sabemos si existe cruce.
+	
 	
 	
 	return $datos;
 }
 
 
-function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante){
+function NuevoExisteDuplicado($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante){
+	// Objetivo: 
+	// 		1.- Buscar Referencias Cruzadas NUEVAS
+	//		2.- Referencias Cruzadas que EXISTEN
+	//		3.- Buscar las referencias NUEVAS que son DUPLICADAS.
+	// Poner como estado: 'Nuevo','Existe referencia cruzada','Nueva Duplicada'
+	
 	$array= array();
     $resultado = array();
     $inRefFabricante = array();
     $inIdFabricante = array();
-    $UpDato = array();
 	$consultas = array();
 	$fecha = date('Y-m-d');
     $array['Ref_Principal_Entregadas'] = count($arrayDistintosVacios);
@@ -315,12 +347,14 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 		$ArrayEncontrados[$i]['Ref_Fabricante'] 	= $Enviado['Ref_Fabricante'];
 		$ArrayEncontrados[$i]['RecambioID'] 		= $Enviado['RecambioID'];
 		// Ahora creamos foreach del resultado
-		if ($resultados['NItems'] !=0) {
+		if (($resultados['NItems'] !=0 )||( isset($resultados['NItems']) == false)) {
 			foreach ( $resultados as $resultado ) {
 			$idRefCruzada = 0;
-				if ($Enviado['Ref_Fabricante'] == $resultado['RefFabricanteCru'] && $Enviado['IdFabricaCruzado'] == $resultado['IdFabricanteCru']){
-					$idRefCruzada = $resultado['id'];
-					break;
+				if (isset($resultado["RefFabricanteCru"])){
+					if ($Enviado['Ref_Fabricante'] == $resultado["RefFabricanteCru"] && $Enviado['IdFabricaCruzado'] == $resultado['IdFabricanteCru']){
+						$idRefCruzada = $resultado['id'];
+						break;
+					}
 				}
 			}
 			// Como salimos foreach anterior, entonces ahora comprobamos si.
@@ -340,6 +374,7 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 	}
 	// Ahora falta añadir a estado, NUEVO o EXISTE en referenciascruzadas de BDImportar
 	$i = 0;
+	$case= '';
 	$WhereEstado = array();
 	foreach ( $ArrayEncontrados as $Encontrado) {
 		$i++;
@@ -348,7 +383,10 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 			$WhereEstado['Nuevo'][$i] = '(RecambioID ='.$Encontrado['RecambioID'].' AND IdFabricaCruzado ='.$Encontrado['IdFabricaCruzado'].' AND  Ref_Fabricante ="'.$Encontrado['Ref_Fabricante'].'")';
 		} else {
 			// Existe Referencia Cruzada
+			// Montamos case para guardar IDReferencia Cruzada en DBImport
 			$WhereEstado['Existe'][$i] = '(RecambioID ='.$Encontrado['RecambioID'].' AND IdFabricaCruzado ='.$Encontrado['IdFabricaCruzado'].' AND  Ref_Fabricante ="'.$Encontrado['Ref_Fabricante'].'")';
+			$case = $case.' WHEN '.$WhereEstado['Existe'][$i].' THEN '.$Encontrado['IDReferenciaCruzado'];
+		
 		}
 		
 	}
@@ -358,64 +396,304 @@ function NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistint
 	}
 	if (isset($WhereEstado['Existe'])) {
 		$whereExiste = implode(' OR ',$WhereEstado['Existe']);
-		$consultas[2] = 'UPDATE referenciascruzadas SET Estado ="Existe referencia cruzada" WHERE '.$whereExiste;
+		$consultas[2] = 'UPDATE referenciascruzadas SET Estado ="Existe referencia cruzada",`IDRefCruzada` = CASE '.$case.' end WHERE '.$whereExiste;
 	}
-	// Inicializamos porque no hace falta enviar datos de los tres array para evitar error js
+	$array['ArrayEncontrados'] =$ArrayEncontrados;
+	$array['WhereEstado'] =$WhereEstado;
+	// Inicializamos porque nos hace falta enviar datos de los tres array para evitar error js
 	$array['resultado'][1] =0; // Nuevo
-	$array['resultado'][2]= 0; // Nuevo cruce
-	$array['resultado'][3]= 0; // existe tanto referencia como cruce
+	$array['resultado'][2]= 0; // Existe 
+	$array['resultado'][3]= 0; // Nuevo duplicado
 	// Ahora ejecutamos el update
-	$i= 0;
+	$i= 1;
 	foreach  ($consultas as $consulta) { 
-		$i = 0;
 		if ($BDImportRecambios->query($consulta)){;
 			$RegistrosCambiados= $BDImportRecambios->affected_rows;
-			if (isset($consulta[1])){
-				$i = 1;
-			} else {
-				$i = 2;
-			}
 			$array['resultado'][$i] = 	$RegistrosCambiados;
 		} else {
 			// Quiere decir que hubo error en la consulta.
 				$array['consulta'][$i] = $consulta;
 				$array['error'][$i] = $BDImportRecambios->error_list;
 		}
+	$i++;
 	}
+	// Ahora tenemos que comprobar si hay duplicados en Nuevos.
+	// Esto realmente solo deberíamos hacerlo al final ciclo, no en todo el ciclo...
+	// Es adsurdo repetir...
+	$consultaDuplicado = "SELECT `linea` , `Ref_Fabricante` , COUNT( * ) Total FROM referenciascruzadas WHERE `Estado` = 'Nuevo' GROUP BY `Ref_Fabricante` , `IdFabricaCruzado` HAVING COUNT( * ) >1";
+	$ReferenciasDuplicadas =$BDImportRecambios->query($consultaDuplicado);
+	if (isset($ReferenciasDuplicadas)){;
+		// Registros que están duplicados.
+		//~ $array['ReferenciasDuplicadas'] = $BDImportRecambios->affected_rows;
+		$array['ReferenciasDuplicadas'] = $ReferenciasDuplicadas->num_rows; 
+	}else {
+	// Quiere decir que hubo error en la consulta.
+		$array['consulta'][3] =$consultaDuplicado;
+		$array['error'][3] = $BDImportRecambios->error_list;
+	}
+	// Ahora creamos array con resultado
+	$arrayDuplicados= array();
+	if ($array['ReferenciasDuplicadas'] >0){
+		// quiere decir hay registros duplicados.
+		$i= 0;
+		while ($row_planets = $ReferenciasDuplicadas->fetch_assoc()) {
+			$arrayDuplicados[$i]='"'.$row_planets['Ref_Fabricante'].'"';
+			$i++;
+		}
+	}
+	// Montamos consulta para obtener todos los registros de las referencias duplicadas.
+	$consultaDuplicado = 'SELECT * FROM `referenciascruzadas` WHERE `Ref_Fabricante` in ('.implode(',',$arrayDuplicados).') and Estado= "Nuevo" ORDER BY `Ref_Fabricante` ASC ';
+	$ResultadoDuplicadas =$BDImportRecambios->query($consultaDuplicado);
+	if (isset($ResultadoDuplicadas)){;
+		// Registros que están duplicados.
+		$array['RegistrosDuplicadas'] = $ResultadoDuplicadas->num_rows; 
+	}else {
+	// Quiere decir que hubo error en la consulta.
+		$array['consulta'][3] =$consultaDuplicado;
+		$array['error'][3] = $BDImportRecambios->error_list;
+	}
+	if ($array['RegistrosDuplicadas'] >0){
+		// quiere decir hay registros duplicados.
+		// Ahora recordamos que tenemos registros por orden Ref_Fabricantes y hay duplicados (Ref_Fabricante y IdFabricaCruzado).
+		// por tenemos que obtener es el listado lineas que son duplicado para cambiar el estado.
+		$i= 0;
+		$linea= 0;
+		$refFabricante ='';
+		$idFabricanteCru = '';
+		$arrayLineasDuplicado = array();
+		while ($row_planets = $ResultadoDuplicadas->fetch_assoc()) {
+			if ( $refFabricante !== $row_planets['Ref_Fabricante']){
+			$refFabricante = $row_planets['Ref_Fabricante'];
+			$idFabricanteCru = $row_planets['IdFabricaCruzado'];
+			$linea = $row_planets['linea'];
+			}
+			if ($linea !== $row_planets['linea']){
+				// Quiere decir es puede ser duplicado
+				// Comprobamos que el mismo idFabricante
+				if ($idFabricanteCru == $row_planets['IdFabricaCruzado']){
+					// Es un duplicado
+					$arrayLineasDuplicado[$i]= $row_planets['linea'];
+					$i++; 
+				}
+
+			}
+		}
+		// Ahora solo falta ejecutar consulta para cambiar Estado : "Nuevo Duplicado"
+		$consulta= ' WHERE linea in ('.implode(',',$arrayLineasDuplicado).')'; 
+		$consulta2= "UPDATE  `referenciascruzadas` SET `Estado`= 'Nuevo Duplicado' ".	$consulta;
+		$Anhadir = $BDImportRecambios->query($consulta2);
+		$array['RegistrosDuplicados'] = $BDImportRecambios->affected_rows;
+	}
+	
 	return $array;
 }
+
+function  ComprobarCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante){
+	// Objetivo:
+	//  El objetivo es comprobar si existe el cruce de los NUEVOS CREADOS,DUPLICADO o EXISTENTES 
+	//				1.- Si existe , entonces se cambia Estado = '[COMPROBADO] EXISTE CRUCE Y REFERENCIA PRINCIPAL'
+	$array= array();
+    $lineas = array();
+	$valores = array();
+	$wheres = array();
+	$Nlinea = array();
+	$fecha = date('Y-m-d');
+	$consulta2 ='';
+	// Contamos array entrega 
+	$array['Ref_Principal_Entregadas'] = count($arrayDistintosVacios);
+	// Campos que encontramos $arrayDistintosVacios
+	// 'Linea'
+	$i=0 ;
+	foreach ($arrayDistintosVacios as $referencia) {
+	$lineas[$i] = $referencia['linea'];
+	$i++;
+	}
+	
+	// El motivo de traer solo esos datos es evitar sobrecargar el ajax.
+	$ObtenerDatos= ' WHERE linea in ('. implode(',',$lineas).')';
+    $tabla ="referenciascruzadas";
+	$campo = array('linea','Ref_Fabricante','IdFabricaCruzado','IDRefCruzada','RecambioID');
+	$arrayNuevo = $ConsultaImp->registroLineas($BDImportRecambios,$tabla,$campo,$ObtenerDatos); 	
+	$i = 0;
+	// Ahora creamos la consulta 
+	// Creamos arrays para hacer consultas.
+	foreach ( $arrayNuevo as $referencia) {
+		// El resultado aparte de los datos trae dos registros mas con dato NItem y ... por eso el if
+		if (isset($referencia['IdFabricaCruzado'])){
+			if ($referencia['IdFabricaCruzado'] >0 && $referencia['IDRefCruzada'] > 0 && $referencia['IDRefCruzada'] > 0){
+				// Los campo que tenemos que busca son : `idReferenciaCruz` `idRecambio` `idFabricanteCruz`
+				$wheres[$i] = '(idReferenciaCruz ='.$referencia['IDRefCruzada'].' and idRecambio ='.$referencia['RecambioID'].' and idFabricanteCruz ='.$referencia['IdFabricaCruzado'].')';
+				$i++;
+				
+			}
+		}
+	}
+	// Obtenemos registro si existe en cruce_referencias.
+	$ConsultInsert = ' WHERE '.implode(' or ',$wheres);
+	$tabla ="cruces_referencias";
+	$campo = array('id','idReferenciaCruz','idRecambio','idFabricanteCruz');
+	$ExisteCruces = $ConsultaImp->registroLineas($BDRecambios,$tabla,$campo,$ConsultInsert); 
+	//~ $array['Encontrados'] = $ExisteCruces;
+	$array['NumerEncontrados'] = $ExisteCruces['NItems'];
+
+	if ($ExisteCruces['NItems'] >0){
+		// Si obtenemos resultados entonces debemos cambiar el Estado en referenciascruzadas de BDImport
+		$wheres = array(); // Reinicio crear una nueva
+		$i= 0 ;
+		foreach ($ExisteCruces  as $ExisteCruce){
+			if (isset($ExisteCruce['idReferenciaCruz'])){
+				// Lo hago para evirta adevertencia ya que el array contiene mas datos aparte de los campos
+				// Montamos consulta para cambiar el estado.
+				$wheres[$i] = '(IDRefCruzada ='.$ExisteCruce['idReferenciaCruz'].' and RecambioID ='.$ExisteCruce['idRecambio'].' and IdFabricaCruzado ='.$ExisteCruce['idFabricanteCruz'].')';
+				$i++;
+			}	
+			
+		} 
+		$ConsultInsert = ' WHERE '.implode(' or ',$wheres);
+		$ConsultInsert1 = ' WHERE '.implode(',',$wheres);
+
+		$consulta2 = "UPDATE  `referenciascruzadas` SET `Estado`= concat('[COMPROBADO-EXISTECRUCE]',referenciascruzadas.Estado) ".$ConsultInsert;
+		$Anhadir = $BDImportRecambios->query($consulta2);
+		$array['NExisteCruce']= $BDImportRecambios->affected_rows;
+		
+	}
+	$array['Consulta2'] = $consulta2;
+
+
+	return $array;
+}
+
+
+
+
+
+
+
+function  AnhadirReferenciaCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante){
+	// Objetivo: 
+	//		1.- Añadir Referencia cruzada.
+	//		2.- Se se cambia Estado = '[ACTUALIZADO] NUEVA REFERENCIA' y añadir IDRefCruzada que acabamos crear.
+	// 		
+	$array= array();
+    $lineas = array();
+	$valores = array();
+	$wheres = array();
+	$Nlinea = array();
+
+	$fecha = date('Y-m-d');
+	// Contamos array entrega 
+	$array['Ref_Principal_Entregadas'] = count($arrayDistintosVacios);
+	// Campos que encontramos $arrayDistintosVacios
+	// 'Linea'
+	$i=0 ;
+	foreach ($arrayDistintosVacios as $referencia) {
+	$lineas[$i] = $referencia['linea'];
+	$i++;
+	}
+	
+	// El motivo de traer solo esos datos es evitar sobrecargar el ajax.
+	$ObtenerDatos= ' WHERE linea in ('. implode(',',$lineas).')';
+    $tabla ="referenciascruzadas";
+	$campo = array('linea','Ref_Fabricante','IdFabricaCruzado');
+	$arrayNuevo = $ConsultaImp->registroLineas($BDImportRecambios,$tabla,$campo,$ObtenerDatos); 	
+	$i = 0;
+	$x = 0;
+	// Ahora creamos la consulta 
+	// Creamos arrays para hacer consultas.
+	foreach ( $arrayNuevo as $referencia) {
+		// El resultado aparte de los datos trae dos registros mas con dato NItem y ... por eso el if
+		if (isset($referencia['IdFabricaCruzado']) && isset($referencia['Ref_Fabricante'])){
+			// Recuerda que RecambioID es 0 ya que son referencias cruzadas , no recambios que ponemos a la venta.
+			$valores[$i] =  '(0,'.$referencia['IdFabricaCruzado'].',"'.$referencia['Ref_Fabricante'].'","'.$fecha.'")';
+			$Nlinea[$i] = $referencia['linea'];
+			$wheres[$i] = '(RefFabricanteCru ="'.$referencia['Ref_Fabricante'].'" and IdFabricanteCru ='.$referencia['IdFabricaCruzado'].')';
+			$i++;
+			
+		}
+	}
+	$ConsultInsert = implode(',',$valores);
+	
+	// Insert Nuevas referencias cruzadas.
+	$consulta1 = "INSERT INTO `referenciascruzadas`(`RecambioID`, `IDFabricanteCru`,`RefFabricanteCru`, `FechaActualiza`) VALUES ".$ConsultInsert;
+	$Anhadir =$BDRecambios->query($consulta1);
+	$array['NuevasReferenciaAnhadidos'] = $BDRecambios->affected_rows;
+
+	// Cambiamos estado ... aquellos correctos
+	$ObtenerDatos= ' WHERE linea in ('. implode(',',$Nlinea).')';
+	$consulta2= "UPDATE  `referenciascruzadas` SET `Estado`= '[Añadido] Referencia Cruzada' ".	$ObtenerDatos;
+    $Anhadir = $BDImportRecambios->query($consulta2);
+    $array['CambioEstado'] = $BDRecambios->affected_rows;
+	// Obtenemos IDRefCruzada para los que acabamos de crear y los duplicados de BDRECAMBIOS 
+	$ObtenerDatos= ' WHERE '.(implode(' or ',$wheres));
+	$tabla ="referenciascruzadas";
+	$campo = array('id','RefFabricanteCru','IdFabricanteCru');
+	$arrayIdNuevo = $ConsultaImp->registroLineas($BDRecambios,$tabla,$campo,$ObtenerDatos); 
+	// Creamos arrays para hacer consultas para meter los ID.
+	$i=0 ;
+	$case= '';
+	$wheres= array();
+	foreach ( $arrayIdNuevo as $referencia) {
+		// El resultado aparte de los datos trae dos registros mas con dato NItem y ... por eso el if
+		if (isset($referencia['IdFabricanteCru']) && isset($referencia['RefFabricanteCru'])){
+			$wheres[$i] = '( IdFabricaCruzado ='.$referencia['IdFabricanteCru'].' AND  Ref_Fabricante ="'.$referencia['RefFabricanteCru'].'")';
+			$case = $case.' WHEN '.$wheres[$i].' THEN '.$referencia['id'];
+			$i++;
+			
+		}
+	}
+	$whereEstado = implode(' OR ',$wheres);
+	$consulta3 = 'UPDATE referenciascruzadas SET `IDRefCruzada` = CASE '.$case.' end WHERE '.$whereEstado;
+	$Anhadir = $BDImportRecambios->query($consulta3);
+    $array['AnhadidoID'] = $BDImportRecambios->affected_rows;
+    
+	$array['Insert'] = $consulta1;
+	$array['UpDATE1'] = $consulta2;
+	$array['Anhadidos']= count($Nlinea);
+	$array['IDNuevos']= $consulta3;
+	//~ 
+	return $array;
+}
+
 function  AnhadirCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante){
-	// Objetivo: Comprobar los registros que recibimos ($ConsultaImp) si existe en cruce_referencias
+	// Objetivo: 
+	// 		1.Añadimos registros a cruce_referencias los Existian,Nuevo y duplicados
+	// 		2.Cambiamos estado 
+	// Creo que faltaría comprobar antes, a lo mejor en el proceso ComprobarCruce si esta duplicado al añadir...
+	// porque quien nos dice que no nos metieron una referencias duplicadas.
 	$array= array();
     $resultado = array();
 	$consultas = array();
 	$fecha = date('Y-m-d');
-	$inRefFabricante = array();
-	$inIdFabricante = array();
-	$inRecambioID = array();
+	$insert = array();
 	// Contamos array entrega 
 	$array['Ref_Principal_Entregadas'] = count($arrayDistintosVacios);
 	// Campos que encontramos $arrayDistintosVacios
-	// Ref_Fabricante','RecambioID','IdFabricaCruzado'
+	// 'linea', 'RecambioID','IdFabricaCruzado','IDRefCruzada'
 	$i = 0;
-	
+	// Creamos arrays para hacer consultas.
 	foreach ( $arrayDistintosVacios as $referencia) {
 		// Creamos array con datos recibidos.
-		$inRefFabricante[$i] = '"'.$referencia['Ref_Fabricante'].'"';
-		$inIdFabricante[$i] = $referencia['IdFabricaCruzado'];
-		$inRecambioID[$i] = $referencia['RecambioID'];
+		$insert[$i] = '('.$referencia['IDRefCruzada'].','. $referencia['RecambioID'].','.$referencia['IdFabricaCruzado'].',"'.$fecha.'")';
 		$i++;
 	}
-	$ConsulInRefFabricante = implode(',',$inRefFabricante);
-	$ConsulInIdFabricante = implode(',',$inIdFabricante);
-	// Ahora consultamos en tabla referencias cruzadas esos datos para obtener los registros de esos solamente.
-	$campos = array ('id','RecambioID','IdFabricanteCru','RefFabricanteCru','FechaActualiza' ); 
-	$nombretabla = 'referenciascruzadas';
-	$whereC = " WHERE `RefFabricanteCru` IN (".$ConsulInRefFabricante.") AND `IdFabricanteCru` IN (". $ConsulInIdFabricante.")";
-	$resultados = $ConsultaImp->registroLineas($BDRecambios,$nombretabla,$campos,$whereC); 
-	$array['Resultado' ]= $resultados;
-
-
+	// Ahora insertamos los registros nuevos.
+	// Campos que necesitamos para cruces_referencias `idReferenciaCruz``idRecambio` `idFabricanteCruz` `FechaActualiza`
+	$ConsultInsert = implode(',',$insert);
+	$consulta1 = "INSERT INTO `cruces_referencias`(`idReferenciaCruz`, `idRecambio`, `idFabricanteCruz`, `FechaActualiza`) VALUES ".$ConsultInsert;
+	$Anhadir =$BDRecambios->query($consulta1);
+	$array['CrucesAnhadidos'] = $BDRecambios->affected_rows;
+	
+	
+	
+	// Ahora añadimos solo idReferenciaCurza en BDImportar y cambiamos estado.
+	$consulWhere = implode(' or ',$insert);
+	
+	$consulta2 = "UPDATE  `referenciascruzadas` SET `Estado`= concat('[Añadido Cruce]',referenciascruzadas.Estado)  WHERE ".$consulWhere;
+    $Anhadir = $BDImportRecambios->query($consulta2);
+	$array['EstadisCrucesAnhadidos']= $BDImportRecambios->affected_rows;
+	
+	$array['consulta1'] = $consulta1;
+	$array['consulta2'] = $consulta2;
+	
 	return $array;
 }
-

@@ -92,14 +92,6 @@ function fabricexist() {
 		// registros tienen IDFabricante o ESTADO no existe.
 		console.log('Termino ciclo de fabricante, hacemos resumen por si falta alguno');
 		lineaIntermedia = 0;
-		var x= 10;
-		while (x > 0) {
-		// Esperamos un poco ya que puede que alguna peticion no teminara.
-		for (i = 0; i <1000 ; i++) {
-		}
-		$("#resultado").html("Terminamos de comprobar fabricantes, hacemos resumen en "+ x);
-		x= x-1;
-		}
 		resumenresul();
 	}
 }
@@ -181,47 +173,69 @@ function resumenresul() {
 			}
 			if (response.RefPrinPendIDRecam >0 ){
 				// Quiere decir que ya se busco Referencias principales.
-				console.log('resumen() = Faltan registros por comprobar las Referencias principales');
+				console.log('resumen() = Faltan registros por comprobar las Referencias principales, volvemos a comprobar');
+				$("#resultado").html("PULSA Comprobar Referencia Principal ya que falta");
 				// Quiere decir que aun no estan todas cubiertas.
-				alert( ' Pulsa "Comprobar Referencias Principales para continuar?');
 				$("#ComprobarRefPrin").css("display", "block"); // Mostramos botton Comprobar existen Referencias Principales
-				// Ejecutamos funcion obtener arrayConsulta.
-				ObtenerReferenciasPrincipales('proceso2');				
+							
 				return; // No permito continuar hasta que termine...	
 			}
 			// Quiere decir que ya busco todas Referencia Principales por lo que no hay registros con la siguiente condiccion
 			// No hay registros con esta condicion `Estado` = '' AND `RecambioID` <>0 AND `IdFabricaCruzado`<>0
 			console.log(' resumen() = No faltan Referencias principales sin ID o estado = [ERROR P2-23]:Referencia Principal no existe.');
-			$("#NuevRefCruzada").html(response.NuevRefCruzada);// Referencias cruzadas nuevas para crear.
-			$("#ExisteRefFaltaCruce").html(response.ExisteRefFaltaCruce);// Referencias existen, falta comprobar cruce.
-			$("#ComprobarRefPrin").css("display", "none"); // Ocultamos botton Comprobar existen Referencias Principales
 			if (response.NItemsEstadoBlanco > 0) {
 				// Aun no se puede pasar al proceso 4 ya que no busco todas referencias cruzadas.
 				// Ya que tendría que poner el estado como:
 				// 		Nuevo -> Registros que no existen en BDRecambios/tabla referencias cruzadas.
+				// 		Nuevo Duplicado-> Solo ponemos un registros Nuevo, no creamos dos referencias cruzadas
 				// 		Existe referencia cruzadas -> Pero tiene pendiente comprobar si existe cruce.
-				console.log('resumen() = Falta por controlar alguna referencia cruzada');
+				// Los registros que no se comprobaron son
+				$("#NuevoExisteDuplicado").html(response.NItemsEstadoBlanco);
 				$("#cmp").css("display", "none");
+				$("#resultado").html( 'Pulsa bottom de Nuevo o Existe \n Y empazaremos a ver que referencias cruzadas (Nuevas,Duplicadas,Existen)');
 				$("#nuevoExiste").css("display", "block");
-				$("#resultado").html('PASO3 - : Pulsa el Bottom de Comprobar si Referencias Curzadas son Nuevas o Existen.');
-				alert( 'Pulsa bottom de Nuevo o Existe \n Y empazaremos a ver que referencias cruzdas va se nuevas o no');
+				$("#ExisteRefFaltaCruce").html(response.ExisteRefFaltaCruce);// Referencias existen, falta comprobar cruce.
+				console.log('resumen() = Se detiene par PULSE bottom y controlar alguna referencia cruzada');
 				return;
 			} 
 			console.log('resumen() = Todos los registros tabla tiene ID o Estado cubierto');
-			// Quiere decir que no hay registros para comprobar, por lo que debemos comprobar cruces.
-			//~ if (response.ExisteRefFaltaCruce > 0 ) {
-				//~ // Quiere decir que hay que comprobar si existe el cruce.
-				//~ alert( "Ahora comprobamos si existen los cruces [PENDIENTE]...");
-			//~ 
-			//~ }
-			// Ahora debemos obtener de nuevo ArrayConsulta pero que tenga Estado con Existe referencia cruzada
-			ObtenerReferenciasPrincipales('proceso4');
-			console.log('resumen() Con arrayConsulta '+arrayConsulta['NItems'] + ' registros que nos sabemos si existe cruce');
+			// Quiere decir que no hay registros para comprobar, por lo que debemos empezar a crear las nuevas.
+			// Ocultamos botton de nuevoExiste.
+			$("#nuevoExiste").css("display", "none");
+			$("#ExisteRefFaltaCruce").html(response.ExisteRefFaltaCruce);// Referencias existen, falta comprobar cruce.
+			$("#NuevRefCruzadaPendi").html(response.NuevRefCruzadaPendi);// Referencias cruzadas nuevas para crear.
+			$("#NuevRefCruzDuplicada").html(response.NuevRefCruzDuplicada);	// Referencias cruzadas nuevas pero duplicadas
+																			// estas se tratan como si existen.
+			$("#NuevasCreadas").html(response.NuevasCreadas);// Referencias Nuevas ya creadas.
 			
-			if (arrayConsulta['proceso']=='proceso4'){
-					// Quiere decir que existe referencias que no se comprobo que si existe cruce
-					alert(' Proceso4:'+arrayConsulta['proceso']+' Debería ir procesoInicioCiclo para que este ejecute ciclo correspondiente.');
-			} 
+			if (response.NuevRefCruzadaPendi > 0) {
+			// Quiere decir que existen referencias Nuevas sin crear..
+			// Mostramos botton de Crear nueva referencia cruzada.
+			$("#btnReferenciasCruzadas").css("display", "block");
+			$("#resultado").html('PASO3 - Proceso 4 : Pulsa el Bottom crear Nueva referencia Cruzada ya que existen referencias Nuevas sin crear.');
+			// Advertencia de que a partir de ahora ya se modifica la BDRECAMBIOS:
+			alert( '¡¡¡ ADVERTENCIA APARTIR DE AHORA YA SE MODIFICA LA BDRECAMBIOS !!!');
+			return
+			}
+			if ( response.ExisteRefFaltaCruce > 0 || response.NuevasCreadas > 0 || response.NuevRefCruzDuplicada > 0 ){
+			// Quiere decir que hay referencias Nuevas creadas, duplicados o existen 
+			// Comprobamos que no haya referencias nuevas sin crear
+				if (response.NuevRefCruzadaPendi == 0) {
+				console.log( 'resumen() = Obtenemos registros que se crearon ( Nuevo), duplicados y existe y comprobamos que no existan en cruce_referencias' );
+				$("#btnComprobarCruce").css("display", "block"); // Mostramos btn Comprobar Cruce
+
+					if (response.ExisteRefFaltaCruce > 0 ) {
+						// Quiere decir que hay referencias con estas Existe cruce (
+						// Ahora debemos obtener de nuevo ArrayConsulta pero que tenga Estado con Existe referencia cruzada y Nuevo Duplicado
+						console.log('resumen() = No debería existir nuevos pendiente... pendiente comprobar');
+						console.log('resumen() = Todos los referencias creadas , nuevas duplicadas y existe cruce deben tener IDRefCruzada');
+						$("#resultado").html("PULSA Crear NUEVOS CRUCES");
+						$("#btnReferenciasCruzadas").css("display", "none");
+						$("#btnFaltaCruce").css("display", "block"); // Mostramos btn Creamos Nuevo Cruce
+
+					}
+				}
+			}
 		}	
 	});
 }
@@ -252,6 +266,16 @@ function ObtenerReferenciasPrincipales(proceso) {
 	// INICIALIZAMOS VARIABLES
 	finallinea = 0;
 	intermedia = 0;
+	// Antes de nada deasctivamos bottones por si el usuario es empaciente y evitar errores.
+	if (proceso == "proceso2") {
+		$("#ComprobarRefPrin").css("display", "none"); // Ocultamos botton Comprobar existen Referencias Principales
+	}
+	if (proceso == "proceso3") {
+		$("#nuevoexiste").css("display", "none"); // Ocultamos botton Nuevo ,Existe o Duplicado
+	}
+	if (proceso == "proceso5") {
+		$("#btnComprobarCruce").css("display", "none"); // Ocultamos botton de comprobar Cruces.
+	}
 	// Ahora montamos el condicional según quien lo ejecuto la funcion.
 	console.log ('Estamos en ObtenerReferenciaPrincipal y parametro ' + proceso);
 	if (fabricante !== 0) {
@@ -284,21 +308,40 @@ function ObtenerReferenciasPrincipales(proceso) {
 					}
 					if (proceso == "proceso3"){
 						// Aquí tiene que ir a procesoInicioCiclo
-						console.log('Estamos en PASO2-Proceso 2 :Iniciamos ciclo CicloComprReferenciaPrincipal');
-						alert(' Proceso3:'+arrayConsulta['proceso']+' Debería ir procesoInicioCiclo para que este ejecute ciclo correspondiente.');
+						console.log('Estamos en PASO2-Proceso 3 :Iniciamos ciclo CicloComprReferenciaPrincipal');
+						$("#resultado").html('Se obtiene '+arrayConsulta['NItems']+' de arrayConsulta del proceso ' + arrayConsulta['proceso'] +' con los registros existen pero no comprobamos si existe cruce');
 						procesoInicioCiclo();
 						return; // para que vuelva ejecutar resumen...
 					}
 					if (proceso == "proceso4"){
-						// Ahora debería iniciar ciclo de comprobar cruce
+						// Iniciamos ciclo de Crear Nueva Referencia Cruzada
 						console.log(' Se obtiene '+arrayConsulta['NItems']+' de arrayConsulta con los registros existen pero no comprobamos si existe cruce');
 						$("#resultado").html('Se obtiene '+arrayConsulta['NItems']+' de arrayConsulta del proceso ' + arrayConsulta['proceso'] +' con los registros existen pero no comprobamos si existe cruce');
 						procesoInicioCiclo();
 						return;
 					}
+					if (proceso == "proceso5"){
+						// Comprobamos que no exista en cruce_referencias los nuevos cruces que vamos crear.
+						console.log(' Se obtiene '+arrayConsulta['NItems']+' de arrayConsulta para comprobar si existe cruce');
+						$("#resultado").html('Se obtiene '+arrayConsulta['NItems']+' para comprobar que si existe cruce: proceso ' + arrayConsulta['proceso']);
+						procesoInicioCiclo();
+						return;
+					}
+					if (proceso == "proceso6"){
+						// Anhadimos crucer.
+						console.log(' Se obtiene '+arrayConsulta['NItems']+' de arrayConsulta para añadir cruce nuevo');
+						$("#resultado").html('Se obtiene '+arrayConsulta['NItems']+' para añadir cruce: proceso ' + arrayConsulta['proceso']);
+						procesoInicioCiclo();
+						return;
+					}
+					
+					
+				
+				} else {
+					$("#resultado").html('No obtuvo arrayConsulta[NItems] en ObtenerReferenciasPrincipales(proceso)');
+				}
 				console.log("Vamos resumenresul()");
 				resumenresul();
-				}
 			}
 		});
 	} // Fin else fabricante no es 0
@@ -383,30 +426,38 @@ function procesoInicioCiclo() {
 		if (finallinea > 0 ) {
 			if (arrayConsulta['proceso'] == 'proceso2'){
 			console.log('Iniciamos ciclo cicloReferenciaPrincipal estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
-			alert ( 'Iniciamos ciclo cicloReferenciaPrincipal ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
+			//~ alert ( 'Iniciamos ciclo cicloReferenciaPrincipal ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
 			ciclo = setInterval(cicloReferenciaPrincipal,1000);
 			}
 			if (arrayConsulta['proceso'] == 'proceso3'){
-			console.log('Iniciamos ciclo cicloNuevoExisteCruce ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
-			alert ( 'Iniciamos ciclo cicloNuevoExisteCruce ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
+			console.log('procesoInicioCiclo() = Iniciamos ciclo cicloNuevoExisteDuplicadoCruce ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
 			// El tiempo espera para enviar solicitudes, tenemos que medirlo ya que segun el peso y servidor puede tardar mas o menos.
 			var tiempotarda= (finallinea/40);
-			
-			ciclo = setInterval(cicloNuevoExisteCruce, tiempotarda);
+			//~ cicloNuevoExisteDuplicadoCruce();
+			ciclo = setInterval(cicloNuevoExisteDuplicadoCruce, tiempotarda);
 			}
 			if (arrayConsulta['proceso'] == 'proceso4'){
-			console.log('Iniciamos cicloAnhadirCruce() ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
-			alert ( 'Iniciamos cicloAnhadirCruce() ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
+			console.log('procesoInicioCiclo() = Iniciamos cicloAnhadirRefCruce() ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
 			//~ ciclo = setInterval(cicloAnhadirCruce,500);
+			ciclo = setInterval(cicloAnhadirRefCruce,1000);
+			}
+			if (arrayConsulta['proceso'] == 'proceso5'){
+			console.log('procesoInicioCiclo() = Iniciamos cicloComprobarCruce() ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
+			//~ cicloComprobarCruce();
+			ciclo = setInterval(cicloComprobarCruce,1000);
+			}
+			if (arrayConsulta['proceso'] == 'proceso6'){
+			console.log('procesoInicioCiclo() = Iniciamos cicloAnhadirCruce() ya estamos en ArrayConsulta[proceso]:'+ arrayConsulta['proceso']);
 			cicloAnhadirCruce();
+			//~ ciclo = setInterval(cicloAnhadirCruce(),1000);
 			}
 		}	
 	return;
 	}
-	console.log( 'No esta definido arrayConsulta');
+	console.log( 'procesoInicioCiclo() = No esta definido arrayConsulta');
 }
 
-function cicloNuevoExisteCruce (){
+function cicloNuevoExisteDuplicadoCruce (){
 	// Se ejecuta:  desde setInterval() desde procesoInicioCiclo())
 	// Objetivo: Cambia el estado aquellas referencias cruzadas que sea NUEVAS o EXISTE, recuerda que se ejecuta cada cierto tiempo que indica setInterval. Ademas recuerda que puede estar limitado el servidor en recibir variables, por eso hace así.
 	// Devuelve: Datos pero no son necesarios para el proceso.
@@ -430,7 +481,7 @@ function cicloNuevoExisteCruce (){
 	
 	// Ahora enviamos datos a funcion por Ajax
 	var parametros = {
-			'pulsado': 'NuevoExisteCruce',
+			'pulsado': 'NuevoExisteDuplicadoCruce',
 			'Fabricante':fabricante,
 			'ArrayVacios':ItemsEnviar
 			
@@ -481,7 +532,8 @@ function cicloNuevoExisteCruce (){
 				}
 				suma = Nexisten + NnuevoCruce + Nnuevo;
 				console.log('suma de Nuevo +Existen +NuevoCruce:' + suma); 
-				$("#NuevRefCruzada").html(Nnuevo );
+				//~ $("#NuevoRefFaltaCruce").html(Nnuevo );
+				//~ exit();
 			} 
 			
 		});
@@ -489,8 +541,8 @@ function cicloNuevoExisteCruce (){
 	} else {// Quiere decir que intermedia es mayo que finallinea por lo se termino.
 				// Quiere decir que termino el ciclo..
 				// Recuerda ciclo es una varible publica.
-				// Ademas la igualamos setInterval(cicloNuevoExisteCruce, 500)
-				console.log('Entro en else fin de ciclo =cicloNuevoExisteCruce');
+				// Ademas la igualamos setInterval(cicloNuevoExisteCruceDuplicado, 500)
+				console.log('Entro en else fin de ciclo =cicloNuevoExisteDuplicadoCruce');
 				console.log(' Intermedia:'+intermedia);
 				console.log(' FinalLinea.'+finallinea);
 				clearInterval(ciclo); 
@@ -499,6 +551,136 @@ function cicloNuevoExisteCruce (){
 	}
 }
 
+
+
+function cicloAnhadirRefCruce(){
+	// Se ejecuta:  desde setInterval() desde procesoInicioCiclo())
+	// Objetivo: El objetivo es añadir nuevo referencia cruzada 
+	//				1.- Se crea la nueva referencia cruzada 
+	//				2.- Se se cambia Estado = '[ACTUALIZADO] NUEVA REFERENCIA'
+	// Devuelve: Datos pero no son necesarios para el proceso.
+	console.log( 'Ciclo AnhardirRefCruce mientras intermedio sea menor o igual arrayConsulta[NItems]');
+	var ItemsEnviar = [];
+	console.log('Linea actual:' +intermedia+' es menor o igual que final:' + finallinea);
+	if ( intermedia <= arrayConsulta['NItems']) {
+		for (i = 0; i < 200; i++) {  
+			if (intermedia <= arrayConsulta['NItems']){
+			// Montamos array para enviar por AJAX
+			ItemsEnviar[i] = arrayConsulta[intermedia];
+			intermedia = intermedia + 1;
+			}
+		}
+	console.log(' Mostramos barra proceso')
+	ProcesoBarra(intermedia, finallinea);
+	console.log(' Creamos ItemsEnviar en Añadir')
+	console.log(JSON.stringify(ItemsEnviar));
+	// Ahora enviamos datos a funcion por Ajax
+	var parametros = {
+			'pulsado': 'AnhadirReferenciaCruce',
+			'Fabricante':fabricante,
+			'ArrayVacios':ItemsEnviar
+			
+		};
+		$.ajax({
+			data: parametros,
+			url: 'tareas.php',
+			type: 'post',
+			datatype: 'json',
+			beforeSend: function () {
+				textoMostrar = "Añadiendo Referencias Cruzadas Nuevas";
+				$("#resultado").html(textoMostrar);
+			},
+			success: function (response) {
+				console.log('Respuesta cicloAnhadirCruce');
+				
+				textoMostrar = "Ya añadimos las referencias cruzadas Nuevas de" +response['Ref_Principal_Entregadas']+" de los "+ finallinea;
+				$("#resultado").html(textoMostrar);
+				// Ahora obtenemos el datos que tiene
+				respuesta = response;
+				console.log(response);
+				//~ alert('Ejecutando cicloAnhadirCruce()');
+				//~ exit();	
+			} 
+			
+		});
+	
+	} else {// Quiere decir que intermedia es mayor que finallinea por lo se termino.
+				// Quiere decir que termino el ciclo..
+				// Recuerda ciclo es una varible publica.
+				// Ademas la igualamos setInterval(cicloNuevoExisteCruce, 500)
+				console.log('Entro fin cicloAnhadirCruceDuplicado');
+				console.log(' Intermedia:'+intermedia);
+				console.log(' FinalLinea.'+finallinea);
+				clearInterval(ciclo); 
+				// Volvemos a realizar resumen
+				resumenresul();
+	}
+}
+
+
+function cicloComprobarCruce(){
+	// Se ejecuta:  desde setInterval() desde procesoInicioCiclo())
+	// Objetivo: El objetivo es comprobar si existe el cruce de los NUEVOS CREADOS,DUPLICADO o EXISTENTES 
+	//				1.- Si existe , entonces se cambia Estado = '[COMPROBADO] EXISTE CRUCE Y REFERENCIA PRINCIPAL'
+	// Devuelve: Datos pero no son necesarios para el proceso.
+	console.log( 'Ciclo ComprobarCruce mientras intermedio sea menor o igual arrayConsulta[NItems]');
+	var ItemsEnviar = [];
+	console.log('Linea actual:' +intermedia+' es menor o igual que final:' + finallinea);
+	if ( intermedia <= arrayConsulta['NItems']) {
+		for (i = 0; i < 200; i++) {  
+			if (intermedia <= arrayConsulta['NItems']){
+			// Montamos array para enviar por AJAX
+			ItemsEnviar[i] = arrayConsulta[intermedia];
+			intermedia = intermedia + 1;
+			}
+		}
+	console.log(' Mostramos barra proceso')
+	ProcesoBarra(intermedia, finallinea);
+	console.log(' Creamos ItemsEnviar en Añadir')
+	console.log(JSON.stringify(ItemsEnviar));
+	
+	// Ahora enviamos datos a funcion por Ajax
+	var parametros = {
+			'pulsado': 'ComprobarCruce',
+			'Fabricante':fabricante,
+			'ArrayVacios':ItemsEnviar
+			
+		};
+		$.ajax({
+			data: parametros,
+			url: 'tareas.php',
+			type: 'post',
+			datatype: 'json',
+			beforeSend: function () {
+				textoMostrar = "Comprobando cruce si EXISTEN";
+				$("#resultado").html(textoMostrar);
+			},
+			success: function (response) {
+				console.log('Respuesta cicloComprobarCruce');
+				
+				textoMostrar = "Ya comprobamos si existe cruce los registros " +response['Ref_Principal_Entregadas']+" de los "+ finallinea +" \n que teniamos para comprobar.";
+				$("#resultado").html(textoMostrar);
+				// Ahora obtenemos el datos que tiene
+				respuesta = response;
+				console.log(response);
+				//~ alert('Ejecutando ComprobarCruce()');
+				//~ exit();	
+			} 
+			
+		});
+	
+	} else {// Quiere decir que intermedia es mayor que finallinea por lo se termino.
+				// Quiere decir que termino el ciclo..
+				// Recuerda ciclo es una varible publica.
+				// Ademas la igualamos setInterval(cicloNuevoExisteCruce, 500)
+				console.log('Entro fin ComprobarCruce');
+				console.log(' Intermedia:'+intermedia);
+				console.log(' FinalLinea.'+finallinea);
+				clearInterval(ciclo); 
+				// Volvemos a realizar resumen
+				resumenresul();
+	}
+}
 function cicloAnhadirCruce(){
 	// Se ejecuta:  desde setInterval() desde procesoInicioCiclo())
 	// Objetivo: El objetivo es comprobar si existe el cruce 
@@ -540,22 +722,22 @@ function cicloAnhadirCruce(){
 			},
 			success: function (response) {
 				console.log('Respuesta cicloAnhadirCruce');
-
-				textoMostrar = "Ya comprobamos si existe cruce los registros " +intermedia+" de los "+ finallinea +" \n que teniamos para comprobar.";
+				
+				textoMostrar = "Ya comprobamos si existe cruce los registros " +response['Ref_Principal_Entregadas']+" de los "+ finallinea +" \n que teniamos para comprobar.";
 				$("#resultado").html(textoMostrar);
 				// Ahora obtenemos el datos que tiene
+				respuesta = response;
 				console.log(response);
 				alert('Ejecutando cicloAnhadirCruce()');
-				exit();	
 			} 
 			
 		});
 	
-	} else {// Quiere decir que intermedia es mayo que finallinea por lo se termino.
+	} else {// Quiere decir que intermedia es mayor que finallinea por lo se termino.
 				// Quiere decir que termino el ciclo..
 				// Recuerda ciclo es una varible publica.
 				// Ademas la igualamos setInterval(cicloNuevoExisteCruce, 500)
-				console.log('Entro fin cicloAnhadirCruce');
+				console.log('Entro fin cicloAnhadirCruceDuplicado');
 				console.log(' Intermedia:'+intermedia);
 				console.log(' FinalLinea.'+finallinea);
 				clearInterval(ciclo); 

@@ -140,18 +140,29 @@
 					  </tr>
 					  <tr>
 						<th>Referencias Cruzadas</th>
-						<td>Nuevas Referencias
-						<a title="Nuevas Referencias cruzadas son aquellas que no existe en BDRecambios/referenciacruzadas &#10; y por lo que si añade tanto esa tabla como crucereferencias.">(*)</a>
-						 :<strong><span id="NuevRefCruzada"></span></strong><br/>
+						<td>Registros:
+						<a title="Registros que aun no se comprobo si son Nuevas o existen en BDRecambios/referenciacruzadas o cruce_referencias.">(*)</a>
+						 :<strong><span id="NuevoExisteDuplicado"></span></strong><br/>
+						Nuevas Referencias:
+						<a title="Referencias que añadimos a BDRecambios/referenciacruzadas y cruce_referencias.">(*)</a>
+						 :<strong><span id="NuevasCreadas"></span></strong><br/>
 						Nuevo cruce:
-						<a title="Nuevo cruce es que existe la referencia cruzada en BDRecambios/refernciacruzadas &#10; y pero NO existe el cruce entre el recambio.">(*)</a>
+						<a title="Nuevo cruce cuando se añadio a cruce_referencia y existia la referencia cruzada en BDRecambios/refernciacruzadas &#10; y pero NO existe el cruce_referencias.">(*)</a>
 						 :<strong><span id="NuevoCruce"></span></strong><br/>
 						Existe:
 						<a title="Existe tanto cruce como referencia cruzada, por lo que solo se actualiza campo FechaActualiza&#10; y asi queda registrado que se comprobo ese cruce tal fecha.">(*)</a>
 						 :<strong><span id="ExisteCruce"></span></strong>
 						 
 						</td>
-						<td> Referencias que existen <strong>(<span id="ExisteRefFaltaCruce"></span>)</strong>
+						<td> Referencias que existen:
+						<a title="Referencias que encontramos pero no existe en cruce_referencias y aun no se añadieron.">(*)</a>
+						<strong><span id="ExisteRefFaltaCruce"></span></strong><br/>
+						Referencias Nuevas Duplicadas:
+						<a title="Referencias Nuevas pero son duplicadas, ya que solo podemos dar un referencia como Nueva.">(*)</a>
+						<strong><span id="NuevRefCruzDuplicada"></span></strong><br/>
+						Referencias Nuevas:
+						<a title="Referencias Nuevas que no existen en referenciascruzadas de BDRecambios y aun no las añadimos.">(*)</a>
+						<strong><span id="NuevRefCruzadaPendi"></span></strong>
 						</td>
 						<td> </td>
 					  </tr>
@@ -177,11 +188,23 @@
 								<input type="button" href="javascript:;" onclick="comprobar($('#IdFabricante').val());return false;" value="Comprobar Fabricante Principal" id="cmp" style="display: none;"/>
 							</div>
 							<div  class="compFichero">
-								<input type="button" href="javascript:;" onclick="comprobar($('#IdFabricante').val());return false;" value="Comprobar existen Referencias Principales" id="ComprobarRefPrin" style="display: none;"/>
+								<input type="button" href="javascript:;" onclick="ObtenerReferenciasPrincipales('proceso2')" value="Comprobar existen Referencias Principales" id="ComprobarRefPrin" style="display: none;"/>
 								
 							</div>	
 							<div  class="compFichero">
 								<input type="button" href="javascript:;" onclick="ObtenerReferenciasPrincipales('proceso3')" value="Comprobando si es Referencia Cruzadas nueva o ya existe" id="nuevoExiste" style="display: none;"/>
+								
+							</div>
+							<div  class="compFichero">
+								<input class="btn btn-danger" type="button" href="javascript:;" onclick="ObtenerReferenciasPrincipales('proceso4')" value="Creamos Nuevas Referencias Cruzadas" id="btnReferenciasCruzadas" style="display: none;"/>
+								
+							</div>	
+							<div  class="compFichero">
+								<input class="btn btn-warning" type="button" href="javascript:;" onclick="ObtenerReferenciasPrincipales('proceso5')" value="Comprobamos si existen CRUCES" id="btnComprobarCruce" style="display: none;"/>
+								
+							</div>	
+							<div  class="compFichero">
+								<input class="btn btn-warning" type="button" href="javascript:;" onclick="ObtenerReferenciasPrincipales('proceso6')" value="Creamos Nuevos CRUCES" id="btnFaltaCruce" style="display: none;"/>
 								
 							</div>							
 					</div>

@@ -94,13 +94,28 @@ include_once ("./funcP2ReferCruzad.php");
         header("Content-Type: application/json;charset=utf-8");
         echo json_encode($respuesta);
         break;
-    case 'NuevoExisteCruce':
+    case 'NuevoExisteDuplicadoCruce':
         $arrayDistintosVacios = $_POST['ArrayVacios'];
         $Fabricante = $_POST['Fabricante'];
-        $respuesta = NuevoExiste($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante);
+        $respuesta = NuevoExisteDuplicado($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante);
         header("Content-Type: application/json;charset=utf-8");
         echo json_encode($respuesta);
         break;
+    case 'ComprobarCruce':
+        $arrayDistintosVacios = $_POST['ArrayVacios'];
+        $Fabricante = $_POST['Fabricante'];
+        $respuesta = ComprobarCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante);
+        header("Content-Type: application/json;charset=utf-8");
+        echo json_encode($respuesta);
+        break;
+    case 'AnhadirReferenciaCruce':
+        $arrayDistintosVacios = $_POST['ArrayVacios'];
+        $Fabricante = $_POST['Fabricante'];
+        $respuesta = AnhadirReferenciaCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDistintosVacios,$Fabricante);
+        header("Content-Type: application/json;charset=utf-8");
+        echo json_encode($respuesta);
+        break;
+    
     case 'AnhadirCruce':
         $arrayDistintosVacios = $_POST['ArrayVacios'];
         $Fabricante = $_POST['Fabricante'];

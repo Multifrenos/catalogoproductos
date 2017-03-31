@@ -10,9 +10,7 @@
 // añadir datos mysql, el intervalo de tiempo
 // puede modificarse en función servidor y hardware que se tenga.
 function cicloProcesso() {
-	alert('Iniciamo ciclo, recuerda que añade 400 registros \n ' +
-			' Realiza una petición del ciclo cada 1 seg.');
-
+	console.log('Iniciamo cicloProceso una petición del ciclo cada 1 seg.');
 	bucleProceso(lineaF, lineaActual, fichero);
 	// En la instrucción anterior "bucleProceso(lineaF, lineaActual, fichero)"
 	// realizamos el primer proceso, antes de empezar el ciclo.
