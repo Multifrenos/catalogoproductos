@@ -74,6 +74,9 @@ function bucleProceso (lineaF,linea,fichero) {
 					case "ListaPrecios.csv":
 						window.location.href='paso2ListaPrecios.php';
 						break;
+					case "ReferenciasCversionesCoches.csv":
+						window.location.href='paso2ReferenciasCversionesCoches.php';
+						break;
 				}
 			}
 		}

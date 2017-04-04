@@ -10,10 +10,24 @@
 <?php
 	include 'head.php';
 ?>
+<script>
+            
+            // Se ejecuta cuando termina de carga toda la pagina.
+            $(document).ready(function () {
+				texto = 'Hay un error en importar, en el PASO2 de Referencias curzadas, ya que se bloquea script \n';
+				texto = texto + ' tengo revisar que sucede y como lo arreglo';
+				alert( texto);
+              
+                
+            });
+        </script>
 </head>
 <body>
 	<?php 
 	include 'header.php';
+	
+	
+	
 	?>
 	<section>
 		<div class="container">

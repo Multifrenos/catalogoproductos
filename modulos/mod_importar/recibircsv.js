@@ -10,9 +10,7 @@
 // añadir datos mysql, el intervalo de tiempo
 // puede modificarse en función servidor y hardware que se tenga.
 function cicloProcesso() {
-	alert('Iniciamo ciclo, recuerda que añade 400 registros \n ' +
-			' Realiza una petición del ciclo cada 1 seg.');
-
+	console.log('Iniciamo cicloProceso una petición del ciclo cada 1 seg.');
 	bucleProceso(lineaF, lineaActual, fichero);
 	// En la instrucción anterior "bucleProceso(lineaF, lineaActual, fichero)"
 	// realizamos el primer proceso, antes de empezar el ciclo.
@@ -22,7 +20,7 @@ function cicloProcesso() {
 	// Se estudio la posibilidad de hacerlo forma sincrono la peticiones AJAX, pero descarto: http://ayuda.svigo.es/index.php/programacion-2/javascript/176-peticiones-ajax-sincrono-o-asincrono
 	//  Al utilizar setInterval() crea un ciclo ejecutando la funcion cada ms que le indiquemos.
 	// 		- 	Empieza contar el tiempo y realiza petición:
-	ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 1000);
+	ciclo = setInterval("bucleProceso(lineaF,lineaActual,fichero)", 500);
 
 }
 
@@ -30,11 +28,11 @@ function cicloProcesso() {
 // valores a las variables.
 // Y empezamos a EJECUTAR cicloProceso() me modo temporal.
 function valoresProceso(valorCaja1, valorCaja2,nombretabla) {
-	var respuestaConf = confirm('Si tiene datos la tabla temporal se va a Borrar ¿Estas seguro? ');
+	var respuestaConf = confirm('Si tiene datos la tabla temporal \n se va a Borrar su Contenido \n ¿Estas seguro? ');
 	if (respuestaConf == true) {
 		var parametros = {
 			'nombretabla': nombretabla,
-			'pulsado': 'borrar'
+			'pulsado': 'borrarContenido'
 		};
 		$.ajax({
 			data: parametros,
