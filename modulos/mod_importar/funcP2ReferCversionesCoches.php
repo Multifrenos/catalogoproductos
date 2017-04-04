@@ -76,6 +76,25 @@
 	}
 	
 	
+	function CochesObtenerRefProveedorTemporal ( $BDRecambios,$BDImportRecambios,$ConsultaImp,$Fabricante) {
+		$array = array();
+		$wheres = array();
+		// obtenemos datos de referenciasCversiones las RefProveedor distintos que estado = blanco y RecambioID sea 0
+	    $tabla ="referenciascversiones";
+		$whereC = " WHERE Estado = '' and RecambioID =0 ";
+		$campo = 'RefProveedor';
+		$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
+		$array['TotalReferenciasDistintas'] = $resultados['NItems'];
+		return $array;
+		
+	
+	}
+	
+	
+	
+	
+	
+	
 	
 	function CochesIDRecambioTemporal ( $BDRecambios,$BDImportRecambios,$ConsultaImp,$Fabricante) {
 		$array = array();
@@ -152,8 +171,7 @@
 		}
 		
 		$array['TotalReferenciasDistintas'] = $resultados['NItems'];
-		$array['NoEncontrados'] =$RefNoencontradas;
-
+		//~ $array['NoEncontrados'] =$RefNoencontradas;
 		return $array;
 	
 		

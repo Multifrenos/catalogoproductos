@@ -89,9 +89,9 @@
                     </tbody>
                 </table>
 				<div class="col-md-6">
-					<form class="form" role="form" id="relaciones" action="javascript:CochesIDRecambioTemporal();">
+					<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRefProveedorTemporal();">
 					<div class="form-group">
-						<button type="submit" class="btn btn-primary btn-sm">ID Recambio</button>
+						<button id="btn-IDRecambio" type="submit" class="btn btn-primary btn-sm">ID Recambio</button>
 					</div>
 					</form>
 				</div>	

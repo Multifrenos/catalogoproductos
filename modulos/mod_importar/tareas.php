@@ -138,8 +138,16 @@ include_once ("./funcP2ReferCversionesCoches.php");
         header("Content-Type: application/json;charset=utf-8");
 		echo json_encode($array);
         break;
-        
-     case 'CochesIDRecambioTemporal':
+    
+    case 'CochesObtenerRefProveedorTemporal':
+        $Fabricante = $_POST['Fabricante'];
+        $array = CochesObtenerRefProveedorTemporal( $BDRecambios,$BDImportRecambios,$ConsultaImp,$Fabricante);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
+        break;
+                
+     
+    case 'CochesIDRecambioTemporal':
         $Fabricante = $_POST['Fabricante'];
         $array = CochesIDRecambioTemporal( $BDRecambios,$BDImportRecambios,$ConsultaImp,$Fabricante);
         header("Content-Type: application/json;charset=utf-8");
