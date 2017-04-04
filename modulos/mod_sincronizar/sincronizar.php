@@ -34,6 +34,7 @@
 			// tenemos que vaciar la tabla viruemart_product de recambios y luego copiarla ( añadir los registros...
 			// ya que sino produce un error .
 			// Error :ERROR 1062: Duplicate entry 
+			
 			$RegistrosEliminado = $Controlador->EliminarTabla('virtuemart_products',$BDRecambios);
 			
 			$ResulCopiaTabla = $ObjSincronizar->CopiarTablasWeb ($BDRecambios,$BDWebJoomla,$Conexiones[2]['NombreBD'],$Conexiones[3]['NombreBD'],$prefijoJoomla); 
@@ -43,7 +44,9 @@
 		} else {
 			$Respuesta1 = '<span class="glyphicon glyphicon-ok-sign"></span>'.' NO SE COPIO: Ya que hay misma cantidad registros entre las dos BD de la tabla '.$Conexiones[2]['NombreBD'];
 		}
-		 echo $Respuesta1
+		 echo $Respuesta1;
+		 
+		 
 		?>
 
 	</div>

@@ -32,14 +32,25 @@
 			 </div>
              <div class="col-md-6">
 				 <h4>Seleccion Fabricante del cual pertenece el fichero</h4>
-				 <form class="form-horizontal" role="form" action="action_page.php">
-                          <div class="form-group">
-                            <label class="control-label col-md-4">Fabricante</label>
-                            <select name="fabricante" id="IdFabricante">
-                                <option value="0">Seleccione Fabricante</option>
-                            </select>
-                        </div>
-                    </form>
+				 <form class="form-horizontal" role="form">
+					
+					<div class="form-group paso3">
+						<?php
+						// Realizamos consulta de Fabricantes
+						$consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `fabricantes_recambios` ORDER BY `Nombre`");
+						// Ahora montamos htmlopciones
+						while ($fila = $consultaFabricantes->fetch_assoc()) {
+							$htmloptiones .= '<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';
+						}
+						$consultaFabricantes->close();
+						?>
+						<label class="control-label col-md-4">Fabricante Principal<a title="El fabricante que nos dio el fichero de referencias cruzadas, con el que cruzan">(*)</a></label>
+						<select name="fabricante" id="IdFabricante">
+							<option value="0">Seleccione Fabricante</option>
+							<?php echo $htmloptiones; ?>
+						</select>
+					</div>
+				</form>
 				 
 				<p> Hay que tener en cuenta que las versiones de coches las comprobamos en la BDCoches y si son correctas entonces se añade esa relacion con el recambio.</p>
 				
@@ -77,11 +88,17 @@
                         </tr>
                     </tbody>
                 </table>
+				<div class="col-md-6">
+					<form class="form" role="form" id="relaciones" action="javascript:CochesIDRecambioTemporal();">
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary btn-sm">ID Recambio</button>
+					</div>
+					</form>
+				</div>	
 
-
-               
 
             </div>
+
             <div class="col-md-6">
 				<div>
 					<h4>Tablas temporales coches</h4>

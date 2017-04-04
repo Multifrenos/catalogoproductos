@@ -75,4 +75,89 @@
 	return $array;
 	}
 	
+	
+	
+	function CochesIDRecambioTemporal ( $BDRecambios,$BDImportRecambios,$ConsultaImp,$Fabricante) {
+		$array = array();
+		$wheres = array();
+		// obtenemos datos de referenciasCversiones las RefProveedor distintos que estado = blanco y RecambioID sea 0
+	    $tabla ="referenciascversiones";
+		$whereC = " WHERE Estado = '' and RecambioID =0 limit 200";
+		$campo = 'RefProveedor';
+		$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
+		if ($resultados['NItems']>0){
+			// Ahora tenemos que buscar el resultado en BDRecambios para obtener ID
+			// Hay que contar con que puede que no existan todas las referencias.
+			$f= $Fabricante;
+			$RefNoencontradas = array();
+			$ReferenciaEncontrada = array();
+			$ErrorRefPrincipal = 0;
+			$i = 0;
+			foreach ( $resultados as $resultado) {
+				// Recuerda que el resultado no tiene un array directo ya tien NItems y alguna cosa mas por eso debemos hacer condicional
+				if (isset($resultado['RefProveedor'])){
+					// Inicializamos varibles
+					$ref = '';
+					$idRecambio = 0 ;
+					// 	1.- Comprobamos si existe la referencia principal.
+					// 		Buscamos en BDRecambios en tabla referencias cruzadas si existe la referencia principal.
+					$ref= $resultado['RefProveedor'];
+					$consul = "SELECT * FROM `referenciascruzadas` WHERE RefFabricanteCru = '" . $ref . "' and IdFabricanteCru = '" . $f . "'";
+					$ejconRefFab = mysqli_query($BDRecambios, $consul);
+					$resul = mysqli_fetch_assoc($ejconRefFab);
+					$idRecambio = $resul['RecambioID']; // Id de recambio que vamos a cruzar
+					if ($idRecambio == 0 ) {
+					// Esto es que no encontro la rreferencia principal
+						$RefNoencontradas[$i] ='"'.$ref.'"';
+					} else {
+					//~ $array[$i] = var_export ($ref);
+					$ReferenciaEncontrada[$i]["id"] = $idRecambio; 
+					$ReferenciaEncontrada[$i]['Referencia'] = $ref; 
+					}	
+					$i++;
+				}
+				
+			}
+			
+			$array['Ref_Principal_Entregadas'] = $i;
+			// Ahora cambiamos el estado de todos las referencias que no se encontraron.
+			// En BDImportar/ReferenciCruzadas en campo Estado
+			// Estado ='[ERROR P2-23]:Referencia Principal no existe.'
+			$ReferenciasError = 'RefProveedor='.implode(' OR RefProveedor=',$RefNoencontradas);
+			$consul = "UPDATE ".$tabla." SET `Estado`='[ERROR P2-23]:Referencia Principal no existe.' WHERE ".$ReferenciasError;
+			$ConsErr = $BDImportRecambios->query($consul);
+			$ErrorRefPrincipal= $BDImportRecambios->affected_rows;
+			$array['RegistrosErrorRefPrincipal'] = $ErrorRefPrincipal;
+			
+			
+			// Ahora creo implode para las encontradas.
+			$array['Consulta1'] = '';
+			$array['Consulta2'] = '';
+			foreach ( $ReferenciaEncontrada as $referencia){
+				$array['Consulta1'] = $array['Consulta1'].' WHEN "'.$referencia['Referencia'].'" THEN '.$referencia["id"];
+				if (strlen($array['Consulta2']) >0 ){
+					$array['Consulta2'] = $array['Consulta2'].',"'.$referencia['Referencia'].'"';
+				} else {
+					$array['Consulta2'] = '"'.$referencia['Referencia'].'"'	;
+				}
+			}
+			// Montamos update para añadir ID de Recambio
+			$consul = "UPDATE ".$tabla." SET `RecambioID` = CASE `RefProveedor` ".$array['Consulta1']." END WHERE RefProveedor IN (".$array['Consulta2'].")";
+			$Anhadir = $BDImportRecambios->query($consul);
+			$AnhadirIDRecambio= $BDImportRecambios->affected_rows;
+			$array['RegistroAnhadirIDRecambio'] = 	$AnhadirIDRecambio;
+					
+			
+			
+		}
+		
+		$array['TotalReferenciasDistintas'] = $resultados['NItems'];
+		$array['NoEncontrados'] =$RefNoencontradas;
+
+		return $array;
+	
+		
+	
+	}
+	
 ?>

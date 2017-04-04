@@ -1,5 +1,6 @@
 var contadorAJAX;
 var resultado;
+var fabricante = 0;
 function crearTablas() {
      var parametros = {
         'pulsado': 'CochesCrearTablas'
@@ -55,4 +56,46 @@ function CochesUpdateTemporal() {
             }
 
         });
+}
+// * -------------------------------------------------------------* //
+function comprobar(fabri) {
+	// Se ejecuta: Solo se ejecuta al pulsar bottom comprobar.
+	// Objetivo: Comprueba que se selecciono un fabricante
+	// Devuelve: NADA
+	fabricante = fabri;
+	if (fabricante == 0) {
+		alert("Selecciona un Fabricante, gracias");
+		return;
+		// No permito continuar.
+	} 
+	
+	// Dehabilito opción de cambiar fabricante principal
+	$('#IdFabricante').prop('disabled', true);
+	
+};
+
+
+function CochesIDRecambioTemporal() {
+    // Primero comprobamos que tengamos selecciona un fabricante.
+    comprobar($('#IdFabricante').val())
+    // No permito continuar si no hay fabricante seleccionado.
+    if (fabricante !== 0) {
+		var parametros = {
+			'pulsado': 'CochesIDRecambioTemporal',
+			'Fabricante': fabricante
+		};
+			$.ajax({
+				data: parametros,
+				url: 'tareas.php',
+				type: 'post',
+				beforeSend: function () {
+					$("#resultado").html('Buscando Referencias Principales para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
+				},
+				success: function (response) {
+					$("#resultado").html('Terminamos de ID de Referencias Principales ....');
+					resultado = response;
+				}
+
+			});
+	}
 }

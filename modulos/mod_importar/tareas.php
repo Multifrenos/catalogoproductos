@@ -138,6 +138,13 @@ include_once ("./funcP2ReferCversionesCoches.php");
         header("Content-Type: application/json;charset=utf-8");
 		echo json_encode($array);
         break;
+        
+     case 'CochesIDRecambioTemporal':
+        $Fabricante = $_POST['Fabricante'];
+        $array = CochesIDRecambioTemporal( $BDRecambios,$BDImportRecambios,$ConsultaImp,$Fabricante);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
+        break;
             
     case 'msql_csv':
         $lineaA = $_POST['lineaI'] ;
