@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 04, 2017 at 04:22 PM
+-- Generation Time: Apr 04, 2017 at 05:29 PM
 -- Server version: 5.5.50-0+deb8u1
 -- PHP Version: 5.6.27-0+deb8u1
 
@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `familias_recambios` (
 `id` int(11) NOT NULL,
   `id_Padre` int(11) NOT NULL,
-  `Familia_es` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL
+  `Familia_es` varchar(50) CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
 
 --

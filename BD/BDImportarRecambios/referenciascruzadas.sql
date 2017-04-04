@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 04, 2017 at 04:31 PM
+-- Generation Time: Apr 04, 2017 at 05:43 PM
 -- Server version: 5.5.50-0+deb8u1
 -- PHP Version: 5.6.27-0+deb8u1
 
@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS `referenciascruzadas` (
   `Ref_Fabricante` text COLLATE utf8_spanish_ci NOT NULL,
   `Estado` text COLLATE utf8_spanish_ci NOT NULL,
   `RecambioID` int(11) NOT NULL,
-  `IdFabricanteRec` int(11) NOT NULL
+  `IdFabricaCruzado` int(11) NOT NULL,
+  `IDRefCruzada` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 --

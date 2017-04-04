@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 04, 2017 at 04:32 PM
+-- Generation Time: Apr 04, 2017 at 05:40 PM
 -- Server version: 5.5.50-0+deb8u1
 -- PHP Version: 5.6.27-0+deb8u1
 
@@ -27,6 +27,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `referenciascversiones` (
+  `linea` int(11) DEFAULT NULL,
   `RefProveedor` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
   `MarcaDescrip` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
   `ModeloVersion` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
@@ -36,9 +37,22 @@ CREATE TABLE IF NOT EXISTS `referenciascversiones` (
   `Cm3` int(4) NOT NULL,
   `Ncilindros` int(2) NOT NULL,
   `FechaInici` date NOT NULL,
-  `FechaFinal` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
-  `TipoCombustible` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL
+  `FechaFinal` date NOT NULL,
+  `TipoCombustible` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
+  `Estado` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
+  `RecambioID` int(11) NOT NULL,
+  `IdVersion` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `referenciascversiones`
+--
+ALTER TABLE `referenciascversiones`
+ ADD UNIQUE KEY `linea` (`linea`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

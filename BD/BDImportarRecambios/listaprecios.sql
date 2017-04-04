@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 04, 2017 at 04:31 PM
+-- Generation Time: Apr 04, 2017 at 05:46 PM
 -- Server version: 5.5.50-0+deb8u1
 -- PHP Version: 5.6.27-0+deb8u1
 
@@ -28,10 +28,10 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `listaprecios` (
   `linea` int(11) NOT NULL,
-  `RefFabPrin` text NOT NULL,
-  `Descripcion` text NOT NULL,
+  `RefFabPrin` varchar(50) NOT NULL,
+  `Descripcion` varchar(100) NOT NULL,
   `Coste` decimal(11,2) NOT NULL,
-  `Estado` text NOT NULL,
+  `Estado` mediumtext NOT NULL,
   `RecambioID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

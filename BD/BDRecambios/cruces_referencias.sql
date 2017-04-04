@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 04, 2017 at 04:22 PM
+-- Generation Time: Apr 04, 2017 at 05:33 PM
 -- Server version: 5.5.50-0+deb8u1
 -- PHP Version: 5.6.27-0+deb8u1
 
@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS `cruces_referencias` (
 `id` int(11) NOT NULL,
   `idReferenciaCruz` int(11) NOT NULL,
   `idRecambio` int(11) NOT NULL,
-  `idFabricanteCruz` int(11) NOT NULL
+  `idFabricanteCruz` int(11) NOT NULL,
+  `FechaActualiza` date NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=147184 DEFAULT CHARSET=latin1;
 
 --

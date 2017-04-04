@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 04, 2017 at 04:22 PM
+-- Generation Time: Apr 04, 2017 at 05:31 PM
 -- Server version: 5.5.50-0+deb8u1
 -- PHP Version: 5.6.27-0+deb8u1
 
@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE IF NOT EXISTS `fabricantes_recambios` (
 `id` int(11) NOT NULL,
-  `Nombre` text CHARACTER SET latin1 COLLATE latin1_spanish_ci NOT NULL,
+  `Nombre` varchar(100) CHARACTER SET latin1 COLLATE latin1_spanish_ci NOT NULL,
   `Descripcion` varchar(100) CHARACTER SET latin1 COLLATE latin1_spanish_ci NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=394 DEFAULT CHARSET=latin1;
 
