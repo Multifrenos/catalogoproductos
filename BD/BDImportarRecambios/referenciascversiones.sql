@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.10deb1
+-- version 4.2.12deb2+deb8u2
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Feb 16, 2017 at 12:37 AM
--- Server version: 5.5.54-0ubuntu0.14.04.1
--- PHP Version: 5.5.9-1ubuntu4.19
+-- Generation Time: Apr 04, 2017 at 04:32 PM
+-- Server version: 5.5.50-0+deb8u1
+-- PHP Version: 5.6.27-0+deb8u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -27,7 +27,6 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `referenciascversiones` (
-  `linea` int(11) NOT NULL,
   `RefProveedor` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
   `MarcaDescrip` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
   `ModeloVersion` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
@@ -37,12 +36,8 @@ CREATE TABLE IF NOT EXISTS `referenciascversiones` (
   `Cm3` int(4) NOT NULL,
   `Ncilindros` int(2) NOT NULL,
   `FechaInici` date NOT NULL,
-  `FechaFinal` date NOT NULL,
-  `TipoCombustible` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
-  `Estado` text CHARACTER SET utf8 COLLATE utf8_spanish2_ci NOT NULL,
-  `RecambioID` int(11) NOT NULL,
-  `IdVersion` int(11) NOT NULL,
-  UNIQUE KEY `linea` (`linea`)
+  `FechaFinal` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL,
+  `TipoCombustible` text CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
