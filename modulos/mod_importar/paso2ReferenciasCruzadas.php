@@ -155,7 +155,7 @@
 						 
 						</td>
 						<td> Referencias que existen:
-						<a title="Referencias que encontramos pero no existe en cruce_referencias y aun no se añadieron.">(*)</a>
+						<a title="Referencias existen / comprobadas si existe en cruce.">(*)</a>
 						<strong><span id="ExisteRefFaltaCruce"></span></strong><br/>
 						Referencias Nuevas Duplicadas:
 						<a title="Referencias Nuevas pero son duplicadas, ya que solo podemos dar un referencia como Nueva.">(*)</a>

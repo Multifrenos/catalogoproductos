@@ -240,15 +240,16 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
 	$ArrayErrores[2]['estado'] = '[ERROR P2-21]:CampoVacio';
 	$ArrayErrores[3]['estado'] = '[ERROR P2-23]:Referencia Principal no existe.';
 	$ArrayErrores[4]['estado'] = 'Nuevo'; //Que ya esta listo para grabar, pero no se hizo.
-	$ArrayErrores[5]['estado'] = 'Existe referencia cruzada'; //Existe pero no se comprobo si existe cruce.
-	$ArrayErrores[6]['estado'] = 'Nuevo Duplicado'; //Que ya esta listo para grabar, pero no se hizo.
+	$ArrayErrores[5]['estado'] = '%Existe referencia cruzada%'; //Existe pero no se comprobo si existe cruce.
+	$ArrayErrores[6]['estado'] = '%Nuevo Duplicado%'; //Contiene -Ya que se pudo o no hacer. .
 	$ArrayErrores[7]['estado'] = '[Añadido] Referencia Cruzada'; //Que ya esta listo para grabar, pero no se hizo.
+	$ArrayErrores[8]['estado'] = '[COMPROBADO]Existe referencia cruzada y cruce'; //Existe y se comprobo que existe cruce.
 
 	
 		// Ahora realizamos bluce de consultas.
 		$NErrores = count($ArrayErrores);
 		for ($i = 1; $i <= $NErrores; $i++) {
-			$whereC = ' WHERE Estado="'.$ArrayErrores[$i]['estado'].'"';
+			$whereC = ' WHERE Estado LIKE "'.$ArrayErrores[$i]['estado'].'"';
 			$ArrayErrores[$i]['Nitems'] = $ConsultaImp->contarRegistro($BDImportRecambios,$nombretabla,$whereC);
 		}
 	// Contamos DISTINTAS REFERENCIAS ( NO REGISTROS)
@@ -283,6 +284,7 @@ function resumenCruz($BDImportRecambios,$ConsultaImp) {
 	$datos['ExisteRefFaltaCruce'] 	= $ArrayErrores[5]['Nitems']; // Existe Referencia Cruzada pero no sabemos si existe cruce.
 	$datos['NuevRefCruzDuplicada'] 	= $ArrayErrores[6]['Nitems']; // Estas son las duplicadas de la Referencia Cruzadas Nuevas
 	$datos['NuevasCreadas'] 	= $ArrayErrores[7]['Nitems']; // Estas son las duplicadas de la Referencia Cruzadas Nuevas
+	$datos['ExisteRefCruce'] 	= $ArrayErrores[8]['Nitems']; // Existe referencia cruzadas y cruce
 
 	$datos['FabNoEncontrado'] 	= $ArrayFabricantes[1];
 	$datos['FabYaBuscado'] 		= $ArrayFabricantes[2];
@@ -398,8 +400,8 @@ function NuevoExisteDuplicado($BDImportRecambios, $BDRecambios,$ConsultaImp,$arr
 		$whereExiste = implode(' OR ',$WhereEstado['Existe']);
 		$consultas[2] = 'UPDATE referenciascruzadas SET Estado ="Existe referencia cruzada",`IDRefCruzada` = CASE '.$case.' end WHERE '.$whereExiste;
 	}
-	$array['ArrayEncontrados'] =$ArrayEncontrados;
-	$array['WhereEstado'] =$WhereEstado;
+	//~ $array['ArrayEncontrados'] =$ArrayEncontrados;
+	//~ $array['WhereEstado'] =$WhereEstado;
 	// Inicializamos porque nos hace falta enviar datos de los tres array para evitar error js
 	$array['resultado'][1] =0; // Nuevo
 	$array['resultado'][2]= 0; // Existe 
@@ -552,12 +554,13 @@ function  ComprobarCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDis
 		$ConsultInsert = ' WHERE '.implode(' or ',$wheres);
 		$ConsultInsert1 = ' WHERE '.implode(',',$wheres);
 
-		$consulta2 = "UPDATE  `referenciascruzadas` SET `Estado`= concat('[COMPROBADO-EXISTECRUCE]',referenciascruzadas.Estado) ".$ConsultInsert;
+		$consulta2 = "UPDATE  `referenciascruzadas` SET `Estado`= concat('[COMPROBADO]',referenciascruzadas.Estado,' y cruce') ".$ConsultInsert;
+		$array['NExisteCruce'] = 0; // Inicializamos para evitar error;
 		$Anhadir = $BDImportRecambios->query($consulta2);
 		$array['NExisteCruce']= $BDImportRecambios->affected_rows;
 		
 	}
-	$array['Consulta2'] = $consulta2;
+	//~ $array['Consulta2'] = $consulta2;
 
 
 	return $array;
@@ -646,10 +649,10 @@ function  AnhadirReferenciaCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$
 	$Anhadir = $BDImportRecambios->query($consulta3);
     $array['AnhadidoID'] = $BDImportRecambios->affected_rows;
     
-	$array['Insert'] = $consulta1;
-	$array['UpDATE1'] = $consulta2;
+	//~ $array['Insert'] = $consulta1;
+	//~ $array['UpDATE1'] = $consulta2;
 	$array['Anhadidos']= count($Nlinea);
-	$array['IDNuevos']= $consulta3;
+	//~ $array['IDNuevos']= $consulta3;
 	//~ 
 	return $array;
 }
@@ -665,6 +668,7 @@ function  AnhadirCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDisti
 	$consultas = array();
 	$fecha = date('Y-m-d');
 	$insert = array();
+	$wheres = array();
 	// Contamos array entrega 
 	$array['Ref_Principal_Entregadas'] = count($arrayDistintosVacios);
 	// Campos que encontramos $arrayDistintosVacios
@@ -674,6 +678,7 @@ function  AnhadirCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDisti
 	foreach ( $arrayDistintosVacios as $referencia) {
 		// Creamos array con datos recibidos.
 		$insert[$i] = '('.$referencia['IDRefCruzada'].','. $referencia['RecambioID'].','.$referencia['IdFabricaCruzado'].',"'.$fecha.'")';
+		$wheres[$i] = $referencia['linea'];
 		$i++;
 	}
 	// Ahora insertamos los registros nuevos.
@@ -686,7 +691,7 @@ function  AnhadirCruce($BDImportRecambios, $BDRecambios,$ConsultaImp,$arrayDisti
 	
 	
 	// Ahora añadimos solo idReferenciaCurza en BDImportar y cambiamos estado.
-	$consulWhere = implode(' or ',$insert);
+	$consulWhere = 'linea in ('.implode(',',$wheres).')';
 	
 	$consulta2 = "UPDATE  `referenciascruzadas` SET `Estado`= concat('[Añadido Cruce]',referenciascruzadas.Estado)  WHERE ".$consulWhere;
     $Anhadir = $BDImportRecambios->query($consulta2);

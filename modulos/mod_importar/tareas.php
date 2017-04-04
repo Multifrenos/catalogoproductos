@@ -41,6 +41,7 @@ $ConsultaImp = new ConsultaBD;
 include_once ("./funciones.php");
 include_once ("./funcP2ListaPrecios.php");
 include_once ("./funcP2ReferCruzad.php");
+include_once ("./funcP2ReferCversionesCoches.php");
 
  
  switch ($pulsado) {
@@ -115,7 +116,6 @@ include_once ("./funcP2ReferCruzad.php");
         header("Content-Type: application/json;charset=utf-8");
         echo json_encode($respuesta);
         break;
-    
     case 'AnhadirCruce':
         $arrayDistintosVacios = $_POST['ArrayVacios'];
         $Fabricante = $_POST['Fabricante'];
@@ -123,6 +123,22 @@ include_once ("./funcP2ReferCruzad.php");
         header("Content-Type: application/json;charset=utf-8");
         echo json_encode($respuesta);
         break;
+    case 'CochesCrearTablas':
+        $array = CochesCrearTablas($BDImportRecambios,$ConsultaImp);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
+        break;
+    case 'CochesInsertTemporal':
+        $array = CochesInsertTemporal($BDImportRecambios,$ConsultaImp);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
+        break;
+    case 'CochesUpdateTemporal':
+        $array = CochesUpdateTemporal($BDImportRecambios,$ConsultaImp);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
+        break;
+            
     case 'msql_csv':
         $lineaA = $_POST['lineaI'] ;
 		$lineaF = $_POST['lineaF'] ;

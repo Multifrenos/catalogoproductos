@@ -19,7 +19,7 @@
 		
         ?>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
-	    <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/paso2ReferenciasCruzadas.js"></script>
+	    <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/paso2ReferenciasCversionesCoches.js"></script>
     </head>
     <body >
         <?php 
@@ -200,7 +200,7 @@
 						</table>
 					</div>
 						
-					<div class="col-md-6">
+					<div class="col-md-2">
 						<form class="form" role="form" id="tablas" action="javascript:crearTablas();">
 							<div class="form-group">
 								<button type="submit" class="btn btn-primary btn-sm">crear tablas</button>
@@ -208,13 +208,19 @@
 						</form>
 					</div>	
 					<div class="col-md-6">
-						<form class="form" role="form" id="relaciones" action="javascript:crearRelaciones();">
+						<form class="form" role="form" id="relaciones" action="javascript:CochesInsertTemporal();">
 						<div class="form-group">
-							<button type="submit" class="btn btn-primary btn-sm">Añadimos tablas temporales</button>
+							<button type="submit" class="btn btn-primary btn-sm">Añadimos datos tablas temporales</button>
 						</div>
 						</form>
 					</div>	
-						
+					<div class="col-md-4">
+						<form class="form" role="form" id="relaciones" action="javascript:CochesUpdateTemporal();">
+						<div class="form-group">
+							<button type="submit" class="btn btn-primary btn-sm">Crear relaciones entre ellas</button>
+						</div>
+						</form>
+					</div>		
 						
                 </div>
                 <div>
@@ -224,8 +230,13 @@
 						<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
 						0 % completado
 						</div>
+					</div>
+					<hr />
+					<div id="resultado" class="col-md-12">
+					<!-- Aquí mostramos respuestas de AJAX -->
 					</div>	
 				</div>
+				
 
 		
     </body>
