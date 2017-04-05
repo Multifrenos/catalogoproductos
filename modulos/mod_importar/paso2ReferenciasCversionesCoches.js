@@ -10,6 +10,8 @@ var contadorAJAX;
 var resultado;
 var fabricante = 0;
 var finallinea = 0;
+var lineaintermedia = 0;
+var ciclo;
 function crearTablas() {
      var parametros = {
         'pulsado': 'CochesCrearTablas'
@@ -104,12 +106,13 @@ function CochesObtenerRefProveedorTemporal() {
 					$("#resultado").html('Buscando Referencias Principales para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
 				},
 				success: function (response) {
-					$("#resultado").html('Terminamos de ID de Referencias Principales ....');
-					resultado = response;
 					finallinea =response['TotalReferenciasDistintas'];
+					lineaintermedia = 0;
+					$("#DistintasReferenPrincipales").html(finallinea); 
+					$("#resultado").html('Terminamos de ID de Referencias Principales ....' + resultado);
 					if (finallinea >0 ) {
 						// Ejecutamos CochesIDRecambioTemporal ciclo
-						CochesIDRecambioTemporal();
+						ciclo = setInterval(CochesIDRecambioTemporal,5000);
 					}
 						
 				}
@@ -133,22 +136,32 @@ function CochesObtenerRefProveedorTemporal() {
 function CochesIDRecambioTemporal() {
     // No permito continuar si no hay fabricante seleccionado.
     if (fabricante !== "0") {
-		var parametros = {
-			'pulsado': 'CochesIDRecambioTemporal',
-			'Fabricante': fabricante
-		};
-			$.ajax({
-				data: parametros,
-				url: 'tareas.php',
-				type: 'post',
-				beforeSend: function () {
-					$("#resultado").html('Buscando Referencias Principales para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
-				},
-				success: function (response) {
-					$("#resultado").html('Terminamos de ID de Referencias Principales ....');
-					resultado = response;
-				}
+		// Mostramos y actualizamos barra
+		ProcesoBarra(lineaintermedia, finallinea);
+		if (finallinea > lineaintermedia ) {
+			
+			var parametros = {
+				'pulsado': 'CochesIDRecambioTemporal',
+				'Fabricante': fabricante
+			};
+				$.ajax({
+					data: parametros,
+					url: 'tareas.php',
+					type: 'post',
+					beforeSend: function () {
+						$("#resultado").html('Buscando Referencias Principales para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
+					},
+					success: function (response) {
+						$("#resultado").html('Terminamos de ID de Referencias Principales ....');
+						resultado = response;
+						lineaintermedia = lineaintermedia + response['TotalReferenciasDistintas'];
+						console.log('LineIntermedia depues resultado:'+lineaintermedia);
+					}
 
-			});
+				});
+		} else {
+			clearInterval(ciclo); // Cancelamos ciclo...
+			
+			}
 	}
 }
