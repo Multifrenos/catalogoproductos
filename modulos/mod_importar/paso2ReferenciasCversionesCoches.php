@@ -1,10 +1,12 @@
 <?php
 /*
  * @version     0.1
- * @copyright   Copyright (C) 2017 Catalogoproductos de Soluciones Vigo.
+ * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
- * @author      Alberto Lago
- */
+ * @author      Ricardo Carpintero && Alberto lago
+ * @Descripcion	Este fichero los utilizamos cmprobar el tabla ReferenciasCversiones temporal y añadir BDRecambios.
+ * 
+ * */ 
 ?>
 
 <!DOCTYPE html>
@@ -58,32 +60,30 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>COMPROBANDO</th>
+                            <th></th>
                             <th>Registros</th>
-                            <th>CAMPO ESTADO</th>
                             <th>Otros Datos</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <th>Campos con menos 2 caracteres</th>
-                            <td>Registro de tabla:<strong><span id="reg2char">0</span></strong><br/>
-                                Registros con ESTADO en blanco:
-                                <strong><span id="emptyState"></span></strong></td>
-                            <td>[ERROR P2-21]:CampoVacio</td>
+                            <th>Referencias <br/> Principales</th>
+                            <td>Distintas Referencias
+                            <a title="Cantidad (distintas) referencias principales encontradas que no tenga RecambioID.">(*)</a>
+                            :<strong>
+								<span id="DistintasReferenPrincipales">0</span></strong><br/>
+                             </td>
                             <td>Registros campos mal:<strong><span id="campVa"></span></strong></td>
                         </tr>
                         <tr>
                             <th>Fabricantes cruzados que no existen</th>
                             <td>Analizando FAB de tabla de importacion:<strong><span id="fabcru"></span></strong><br/>Registros descartados:<strong><span id="Rfabcru"></span></strong></td>
-                            <td>ERR:[FABRICANTE cruzado no existe]</td>
                             <td>De los Fabricantes analizados se descartan:<strong><span id="fabcruDes"></span></strong></td>
 
                         </tr>
                         <tr>
                             <th>PASO 3: Registros Estado Blanco</th>
                             <td>Registros a procesar:<strong><span id="RegBlanco"></strong></span></td>
-                            <td></td>
                             <td> </td>
                         </tr>
                     </tbody>

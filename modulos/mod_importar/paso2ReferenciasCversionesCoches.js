@@ -1,3 +1,11 @@
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogoproductos de Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero && Alberto Lago
+ * @Descripcion	Javascript necesarios para paso2ReferenciCVersiones.php
+ * */
+ 
 var contadorAJAX;
 var resultado;
 var fabricante = 0;
@@ -80,8 +88,9 @@ function CochesObtenerRefProveedorTemporal() {
     // Primero comprobamos que tengamos selecciona un fabricante.
     comprobar($('#IdFabricante').val())
     // No permito continuar si no hay fabricante seleccionado.
-    if (fabricante !== 0) {
+    if (fabricante !== "0") {
 		// Ocultamos bottom para que no pulsemo otra vez
+		alert('Entro distinto 0');
 		$("#btn-IDRecambio").css("display", "none"); // Ocultamos por existe fabricante.
 		var parametros = {
 			'pulsado': 'CochesObtenerRefProveedorTemporal',
@@ -105,7 +114,7 @@ function CochesObtenerRefProveedorTemporal() {
 						
 				}
 
-				}
+				
 
 			});
 	}
@@ -123,7 +132,7 @@ function CochesObtenerRefProveedorTemporal() {
 
 function CochesIDRecambioTemporal() {
     // No permito continuar si no hay fabricante seleccionado.
-    if (fabricante !== 0) {
+    if (fabricante !== "0") {
 		var parametros = {
 			'pulsado': 'CochesIDRecambioTemporal',
 			'Fabricante': fabricante

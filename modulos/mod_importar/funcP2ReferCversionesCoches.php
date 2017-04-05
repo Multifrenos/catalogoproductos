@@ -1,4 +1,11 @@
 <?php 
+/*
+ * @version     0.1
+ * @copyright   Copyright (C) 2017 Catalogo productos Soluciones Vigo.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @author      Ricardo Carpintero && Alberto Lago
+ * @Descripcion	Funciones en php para realizar las tareas de Paso2ReferenciasCVersion.
+ *  */
 
 	function CochesCrearTablas($BDImportRecambios,$ConsultaImp) {
 		$tablas= array('marcas','combustibles','modelos','versiones');
