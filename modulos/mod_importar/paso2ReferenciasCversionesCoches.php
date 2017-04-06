@@ -18,15 +18,27 @@
         $htmlfamilias = '';
         include './../../head.php';
 		include_once './Consultas.php';
-		
+		include_once ("./funcP2ReferCversionesCoches.php");
+
         ?>
         <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/importar.js"></script>
 	    <script src="<?php echo $HostNombre; ?>/modulos/mod_importar/paso2ReferenciasCversionesCoches.js"></script>
     </head>
     <body >
-        <?php 
-        include './../../header.php';
-       
+		<?php 
+		include './../../header.php';
+		// Ahora montamos opciones de select de fabricantes.
+		$consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `fabricantes_recambios` ORDER BY `Nombre`");
+		while ($fila = $consultaFabricantes->fetch_assoc()) {
+			$htmloptiones .= '<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';
+		}
+		$consultaFabricantes->close();
+		// Ahora obtenemos datos inicio para mostrar en resumen.
+		$InicioConsulta = new ConsultaBD;
+		$DistintasRefPrincipales = CochesObtenerRefProveedorTemporal($BDRecambios,$BDImportRecambios,$InicioConsulta);
+		echo '<pre>';
+		print_r($DistintasRefPrincipales);
+		echo '</pre>';
         ?>
         <div class="container">
             <div class="col-md-12 text-center">
@@ -37,15 +49,7 @@
 				 <form class="form-horizontal" role="form">
 					
 					<div class="form-group paso3">
-						<?php
-						// Realizamos consulta de Fabricantes
-						$consultaFabricantes = mysqli_query($BDRecambios, "SELECT `id`,`Nombre` FROM `fabricantes_recambios` ORDER BY `Nombre`");
-						// Ahora montamos htmlopciones
-						while ($fila = $consultaFabricantes->fetch_assoc()) {
-							$htmloptiones .= '<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';
-						}
-						$consultaFabricantes->close();
-						?>
+						
 						<label class="control-label col-md-4">Fabricante Principal<a title="El fabricante que nos dio el fichero de referencias cruzadas, con el que cruzan">(*)</a></label>
 						<select name="fabricante" id="IdFabricante">
 							<option value="0">Seleccione Fabricante</option>

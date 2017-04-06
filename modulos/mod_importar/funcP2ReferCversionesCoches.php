@@ -83,7 +83,7 @@
 	}
 	
 	
-	function CochesObtenerRefProveedorTemporal ( $BDRecambios,$BDImportRecambios,$ConsultaImp,$Fabricante) {
+	function CochesObtenerRefProveedorTemporal ($BDRecambios,$BDImportRecambios,$ConsultaImp) {
 		$array = array();
 		$wheres = array();
 		// obtenemos datos de referenciasCversiones las RefProveedor distintos que estado = blanco y RecambioID sea 0

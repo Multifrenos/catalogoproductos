@@ -84,7 +84,7 @@
 
 	// Ahora vamos comprobar con el clase Consulta si tiene datos ... 
 	$consultaRegistros = new ConsultaBD;
-	$tablasposibles =  array("referenciascruzadas","referenciascversiones","listaprecios");
+	$tablasposibles =  array("listaprecios","referenciascruzadas","referenciascversiones");
 	$i=0;
 	$whereC = "";
 	foreach ($tablasposibles as $tabla){
@@ -133,14 +133,14 @@
 					<p>Este fichero es encargado de indicar el precio coste de cada fabricante (marca).</p>
 					<p>Ver campos y <a href="./../../estatico/recambio.php#importar">más información </a> de como importar el fichero ListaPreciosProveedores.csv</p>
 						<?php
-						if ($Accesofichero[3]['csv'] !='[ERROR: FICHERO]'){
+						if ($Accesofichero[1]['csv'] !='[ERROR: FICHERO]'){
 							?>
 						 <p><strong><a href="./recibircsv.php?subida=1&fichero=ListaPrecios">Ir a PASO 1 </a></strong>donde selecciona las lineas a subir de ListaPrecios</p>
 						<?php
 						}
-						if ($Accesofichero[3]['registros'] > 0 ){
+						if ($Accesofichero[1]['registros'] > 0 ){
 							?>
-							<p><strong><a href="./paso2ListaPrecios.php">Ir a PASO 2</a></strong> donde comprobamos los <strong><?php echo $Accesofichero[3]['registros']; ?></strong> registros que tiene TABLA TEMPORAL Listaprecios.csv</p>
+							<p><strong><a href="./paso2ListaPrecios.php">Ir a PASO 2</a></strong> donde comprobamos los <strong><?php echo $Accesofichero[1]['registros']; ?></strong> registros que tiene TABLA TEMPORAL Listaprecios.csv</p>
 						<?php
 						}
 						?>
@@ -154,14 +154,14 @@
 					<p>Este fichero es el encargado de indicar las referencias de otros fabricantes.</p>
 					<p>Ver campos y <a href="./../../estatico/referenciascruzadas.php#importar">más información </a> de como importar el fichero ReferenciasCruzadas que <strong>existe en temporal</strong></p>
 						<?php
-						if ($Accesofichero[1]['csv'] !='[ERROR: FICHERO]'){
+						if ($Accesofichero[2]['csv'] !='[ERROR: FICHERO]'){
 							?>
 						 <p><strong><a href="./recibircsv.php?subida=1&fichero=ReferenciasCruzadas">Ir a PASO 1 </a></strong>donde selecciona las lineas a subir de ReferenciasCruzadas</p>
 						<?php
 						}
-						if ($Accesofichero[1]['registros'] > 0 ){
+						if ($Accesofichero[2]['registros'] > 0 ){
 							?>
-							<p>La tabla ReferenciasCruzadas tiene <strong><?php echo $Accesofichero[1]['registros']; ?></strong> quieres ir al <a href="./paso2ReferenciasCruzadas.php">PASO 2 de ReferenciasCruzadas</a></p>
+							<p>La tabla ReferenciasCruzadas tiene <strong><?php echo $Accesofichero[2]['registros']; ?></strong> quieres ir al <a href="./paso2ReferenciasCruzadas.php">PASO 2 de ReferenciasCruzadas</a></p>
 						<?php
 						}
 						
@@ -173,14 +173,20 @@
 						<strong>Nombre:</strong>
 						<small>ReferenciasCversionesCoches.csv</small>
 					</div>
-					<p>Este fichero es el encargado de indicar las recambios monta cada version de coches.</p>
+					<p>Este fichero es el encargado de indicar las versiones de coches de montan cada recambio.</p>
 						<?php
-						if ($Accesofichero[2]['csv'] !='[ERROR: FICHERO]'){
+						if ($Accesofichero[3]['csv'] !='[ERROR: FICHERO]'){
 							?>
 						 <p><strong><a href="./recibircsv.php?subida=1&fichero=ReferenciasCversionesCoches">Ir a PASO 1  de ReferenciasCversiones</a></strong></p>
 						<?php
 						}
+						if ($Accesofichero[3]['registros'] > 0 ){
+							?>
+							<p><a href="./paso2ReferenciasCversionesCoches.php">Ir al PASO 2</a> de la tabla temporal ReferenciasCversiones donde comprobamos que tiene <strong><?php echo $Accesofichero[3]['registros']; ?></strong> registros</p>
+						<?php
+						}
 						?>
+						
 									
 					</div>
 					
