@@ -35,7 +35,8 @@
 		$consultaFabricantes->close();
 		// Ahora obtenemos datos inicio para mostrar en resumen.
 		$InicioConsulta = new ConsultaBD;
-		$DistintasRefPrincipales = CochesObtenerRefProveedorTemporal($BDRecambios,$BDImportRecambios,$InicioConsulta);
+		$Buscar = "IDrecambio";
+		$DistintasRefPrincipales = CochesObtenerRegistros($BDImportRecambios,$InicioConsulta,$Buscar);
 		echo '<pre>';
 		print_r($DistintasRefPrincipales);
 		echo '</pre>';
@@ -93,16 +94,32 @@
                     </tbody>
                 </table>
 				<div class="col-md-6">
-					<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRefProveedorTemporal();">
+					
+					<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRegistros('IDrecambio');">
+					
 					<div class="form-group">
 						<button id="btn-IDRecambio" type="submit" class="btn btn-primary btn-sm">ID Recambio</button>
 					</div>
+					
 					</form>
+				</div>
+				<div class="col-md-6">
+	
+					<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRegistros('IDversion');">
+					
+					<div class="form-group">
+						<button id="btn-IDVersion" type="submit" class="btn btn-primary btn-sm">Anotar ID Version</button>
+					</div>
+					
+					
+					</form>
+					
+					
 				</div>	
 
 
             </div>
-
+<!-- Tablas temporales de coches -->
             <div class="col-md-6">
 				<div>
 					<h4>Tablas temporales coches</h4>

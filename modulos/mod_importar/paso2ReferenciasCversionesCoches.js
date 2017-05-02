@@ -85,34 +85,49 @@ function comprobar(fabri) {
 	
 };
 
-
-function CochesObtenerRefProveedorTemporal() {
-    // Primero comprobamos que tengamos selecciona un fabricante.
+function CochesObtenerRegistros(btnPulsado) {
+	// Primero comprobamos que tengamos selecciona un fabricante.
     comprobar($('#IdFabricante').val())
     // No permito continuar si no hay fabricante seleccionado.
     if (fabricante !== "0") {
-		// Ocultamos bottom para que no pulsemo otra vez
-		alert('Entro distinto 0');
-		$("#btn-IDRecambio").css("display", "none"); // Ocultamos por existe fabricante.
 		var parametros = {
-			'pulsado': 'CochesObtenerRefProveedorTemporal',
-			'Fabricante': fabricante
+			'pulsado': 'CochesObtenerRegistros',
+			'Fabricante': fabricante,
+			'Buscar': btnPulsado
 		};
-			$.ajax({
+		
+		$.ajax({
 				data: parametros,
 				url: 'tareas.php',
 				type: 'post',
 				beforeSend: function () {
-					$("#resultado").html('Buscando Referencias Principales para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
+					$("#resultado").html('Obteniendo registros para luego buscar en su proceso determinado');
 				},
 				success: function (response) {
 					finallinea =response['TotalReferenciasDistintas'];
 					lineaintermedia = 0;
-					$("#DistintasReferenPrincipales").html(finallinea); 
-					$("#resultado").html('Terminamos de ID de Referencias Principales ....' + resultado);
-					if (finallinea >0 ) {
-						// Ejecutamos CochesIDRecambioTemporal ciclo
-						ciclo = setInterval(CochesIDRecambioTemporal,5000);
+					console.log (' Pulsado es:'+btnPulsado);
+					if (btnPulsado == 'IDrecambio') {
+						$("#DistintasReferenPrincipales").html(finallinea); 
+						$("#resultado").html('Obtenemos cantidad total de ID de Referencias Principales que tenemos que buscar....' + resultado);
+						console.log(response.toString());
+						
+						if (finallinea >0 ) {
+							// Ejecutamos CochesIDRecambioTemporal ciclo
+							console.log('Ocultamos botton de RecambioID');
+							$("#btn-IDRecambio").css("display", "none"); // Ocultamos por existe fabricante.
+							ciclo = setInterval(CochesIDRecambioTemporal,5000);
+						}
+					} else {
+						$("#DistintasReferenPrincipales").html(finallinea); 
+						$("#resultado").html('Obtenemos cantidad total de ID de Versiones que tenemos buscar ....' + resultado);
+						if (finallinea >0 ) {
+							// Ejecutamos CochesIDRecambioTemporal ciclo
+							//~ ciclo = setInterval(CochesIDRecambioTemporal,5000);
+							console.log('Entre en finalinea de IDversiones');
+							alert ( ' Ahora tenemos que crear funcion para buscar versiones coches ');
+						}
+					
 					}
 						
 				}
@@ -121,15 +136,10 @@ function CochesObtenerRefProveedorTemporal() {
 
 			});
 	}
+	
+
+
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -161,7 +171,9 @@ function CochesIDRecambioTemporal() {
 				});
 		} else {
 			clearInterval(ciclo); // Cancelamos ciclo...
-			
+			console.log('Mostramos botton ID version ');
+			$("#btn-IDVersion").css("display", "block"); // Ocultamos por existe fabricante.
+
 			}
 	}
 }

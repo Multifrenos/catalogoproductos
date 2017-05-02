@@ -139,8 +139,12 @@ include_once ("./funcP2ReferCversionesCoches.php");
 		echo json_encode($array);
         break;
     
-    case 'CochesObtenerRefProveedorTemporal':
-        $array = CochesObtenerRefProveedorTemporal( $BDRecambios,$BDImportRecambios,$ConsultaImp);
+    case 'CochesObtenerRegistros':
+		// Solo obtenemos el numero Items que vamos a gestionar.
+        $Buscar = $_POST['Buscar'];
+        $array = CochesObtenerRegistros($BDImportRecambios,$ConsultaImp,$Buscar);
+        //~ $array = 'Algo';
+
         header("Content-Type: application/json;charset=utf-8");
 		echo json_encode($array);
         break;
