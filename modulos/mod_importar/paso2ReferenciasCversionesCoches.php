@@ -35,10 +35,12 @@
 		$consultaFabricantes->close();
 		// Ahora obtenemos datos inicio para mostrar en resumen.
 		$InicioConsulta = new ConsultaBD;
-		$Buscar = "IDrecambio";
-		$DistintasRefPrincipales = CochesObtenerRegistros($BDImportRecambios,$InicioConsulta,$Buscar);
+		// Realizamos resumen 
+		$Resumen =CochesResumen($BDImportRecambios,$InicioConsulta);
+		$RefDistintaSinIdRecambio = $Resumen[0]['TotalReferenciasDistintas'];
+		$RefDistintaSinIdversion = $Resumen[1]['TotalReferenciasDistintas'];
 		echo '<pre>';
-		print_r($DistintasRefPrincipales);
+		print_r($Resumen);
 		echo '</pre>';
         ?>
         <div class="container">
@@ -72,19 +74,50 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <th>Referencias <br/> Principales</th>
+                            <th>IDRecambio</th>
                             <td>Distintas Referencias
                             <a title="Cantidad (distintas) referencias principales encontradas que no tenga RecambioID.">(*)</a>
                             :<strong>
-								<span id="DistintasReferenPrincipales">0</span></strong><br/>
+							<span id="DistintasReferenPrincipales">
+								<?php 
+								if ($RefDistintaSinIdRecambio >0 ){
+								echo $RefDistintaSinIdRecambio;
+								} else {
+								echo '0';
+								}
+								?>
+							</span>
+							</strong><br/>
+							<span>Sin ID Recambio.</span>
                              </td>
-                            <td>Registros campos mal:<strong><span id="campVa"></span></strong></td>
+                            <td>Registros con ID Recambio:<strong>
+								<span id="campVa">0</span>
+								</strong><br/>
+                            <span>Y el estado esta blanco.</span>
+                            </td>
                         </tr>
                         <tr>
-                            <th>Fabricantes cruzados que no existen</th>
-                            <td>Analizando FAB de tabla de importacion:<strong><span id="fabcru"></span></strong><br/>Registros descartados:<strong><span id="Rfabcru"></span></strong></td>
-                            <td>De los Fabricantes analizados se descartan:<strong><span id="fabcruDes"></span></strong></td>
-
+                            <th>IDVersiones</th>
+                            <td>Distintas Referencias
+                            <a title="Cantidad (distintas) referencias principales encontradas que no tenga RecambioID.">(*)</a>
+                            :<strong>
+							<span id="DistintasReferenPrincipales">
+								<?php 
+								if ($RefDistintaSinIdversion >0 ){
+								echo $RefDistintaSinIdversion;
+								} else {
+								echo '0';
+								}
+								?>
+							</span>
+							</strong><br/>
+							<span>Sin ID Recambio.</span>
+                             </td>
+                            <td>Registros con IDVersiones:<strong>
+								<span id="campVa">0</span>
+								</strong><br/>
+                            <span>Y el estado esta blanco.</span>
+                            </td>
                         </tr>
                         <tr>
                             <th>PASO 3: Registros Estado Blanco</th>
@@ -93,8 +126,12 @@
                         </tr>
                     </tbody>
                 </table>
+				
 				<div class="col-md-6">
-					
+					<?php 
+					if ($RefDistintaSinIdRecambio >0 ){
+					// Quiere decir que tiene registros sin IDRecambio ...
+					?>
 					<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRegistros('IDrecambio');">
 					
 					<div class="form-group">
@@ -102,21 +139,28 @@
 					</div>
 					
 					</form>
+					<?php
+					} // Cerramos el if anterior
+					?>
 				</div>
+				
 				<div class="col-md-6">
-	
+					<?php 
+					if ($RefDistintaSinIdversion >0 ){
+					// Quiere decir que tiene registros sin IDversiones
+					?>
 					<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRegistros('IDversion');">
 					
 					<div class="form-group">
 						<button id="btn-IDVersion" type="submit" class="btn btn-primary btn-sm">Anotar ID Version</button>
 					</div>
-					
-					
 					</form>
-					
+					<?php 
+					}
+					?>
 					
 				</div>	
-
+				
 
             </div>
 <!-- Tablas temporales de coches -->

@@ -195,4 +195,34 @@
 	
 	}
 	
+	
+	
+	function CochesResumen($BDImportRecambios,$ConsultaImp) {
+		// En esta función lo que vamos a realizar es el resumen de tabla referenciascversiones
+		// y obtenemos los datos para mostralos.
+		$array = array();
+		$andWheres = array('RecambioID','IdVersion');
+		// obtenemos datos de referenciasCversiones las RefProveedor distintos que estado = blanco y RecambioID sea 0
+	    $tabla ="referenciascversiones";
+		$i = 0;
+		foreach ($andWheres as $andWhere) {
+	   		$whereC = " WHERE Estado = '' and ".$andWhere.'= 0';
+			$campo = 'RefProveedor';
+			$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
+			$array[$i]['TotalReferenciasDistintas'] = $resultados['NItems'];
+			//~ $array[$i]['consulta'] = $whereC;
+			$i++;
+		}
+		// Ahora volvemos hacer lo mismo pero comprobando aquellos que tiene registros.. esto solo debe suceder cuando ya ejecutamos AJAX
+		$i = 0;
+		foreach ($andWheres as $andWhere) {
+	   		$whereC = " WHERE Estado = '' and ".$andWhere.'> 0';
+			$campo = 'RefProveedor';
+			$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
+			$array[$i]['RefDistintasConID'] = $resultados['NItems'];
+			$array[$i]['consulta'] = $whereC;
+			$i++;
+		}
+		return $array;
+	}
 ?>

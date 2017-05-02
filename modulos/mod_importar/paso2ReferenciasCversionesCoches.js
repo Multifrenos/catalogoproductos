@@ -109,23 +109,22 @@ function CochesObtenerRegistros(btnPulsado) {
 					console.log (' Pulsado es:'+btnPulsado);
 					if (btnPulsado == 'IDrecambio') {
 						$("#DistintasReferenPrincipales").html(finallinea); 
-						$("#resultado").html('Obtenemos cantidad total de ID de Referencias Principales que tenemos que buscar....' + resultado);
-						console.log(response.toString());
-						
+						$("#resultado").html('Obtenemos cantidad total de ID de Referencias Principales que tenemos que buscar....' + finallinea );
 						if (finallinea >0 ) {
 							// Ejecutamos CochesIDRecambioTemporal ciclo
 							console.log('Ocultamos botton de RecambioID');
 							$("#btn-IDRecambio").css("display", "none"); // Ocultamos por existe fabricante.
-							ciclo = setInterval(CochesIDRecambioTemporal,5000);
+							//~ ciclo = setInterval(CochesIDRecambioTemporal,6000);
+							CochesIDRecambioTemporal();
 						}
 					} else {
 						$("#DistintasReferenPrincipales").html(finallinea); 
-						$("#resultado").html('Obtenemos cantidad total de ID de Versiones que tenemos buscar ....' + resultado);
+						$("#resultado").html('Obtenemos cantidad total de ID de Versiones que tenemos buscar ....' + finallinea);
 						if (finallinea >0 ) {
 							// Ejecutamos CochesIDRecambioTemporal ciclo
 							//~ ciclo = setInterval(CochesIDRecambioTemporal,5000);
 							console.log('Entre en finalinea de IDversiones');
-							alert ( ' Ahora tenemos que crear funcion para buscar versiones coches ');
+							alert ( ' Ahora tenemos que crear funcion para buscar versiones coches '+finallinea);
 						}
 					
 					}
@@ -165,15 +164,38 @@ function CochesIDRecambioTemporal() {
 						$("#resultado").html('Terminamos de ID de Referencias Principales ....');
 						resultado = response;
 						lineaintermedia = lineaintermedia + response['TotalReferenciasDistintas'];
-						console.log('LineIntermedia depues resultado:'+lineaintermedia);
+						console.log('LineIntermedia despues resultado:'+lineaintermedia);
+						console.log (' Ejecutamos nuevamente..CochesIDRecambioTemporal');
+						CochesIDRecambioTemporal();
 					}
 
 				});
 		} else {
-			clearInterval(ciclo); // Cancelamos ciclo...
+			//~ clearInterval(ciclo); // Cancelamos ciclo...
 			console.log('Mostramos botton ID version ');
 			$("#btn-IDVersion").css("display", "block"); // Ocultamos por existe fabricante.
 
-			}
+		}
 	}
 }
+function CochesResumen() {
+	console.log ( ' Ejecutamos funcion CocheResumen ' );
+	var parametros = {
+		'pulsado': 'CochesResumen',
+	};
+	$.ajax({
+		data: parametros,
+		url: 'tareas.php',
+		type: 'post',
+		beforeSend: function () {
+			$("#resultado").html('Realizando resumen......<span><img src="./img/ajax-loader.gif"/></span>');
+		},
+		success: function (response) {
+			$("#resultado").html('Terminado resumen ....');
+			resultado = response;
+			console.log( ' Queda recojer datos y mostralos en pantalla' );
+		}
+
+	});		
+}
+
