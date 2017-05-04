@@ -223,6 +223,30 @@
 			$array[$i]['consulta'] = $whereC;
 			$i++;
 		}
+		// Ahora obtenemos la NItems distintos que tiene error en campo.
+		// El error de:
+		// Estado ='[ERROR P2-23]:Referencia Principal no existe.
+			$whereC = " WHERE Estado = '[ERROR P2-23]:Referencia Principal no existe.'";
+			$campo = 'RefProveedor';
+			$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
+			$array['RefDistintasError'] = $resultados['NItems'];
+		
 		return $array;
+	}
+	
+	
+	
+	function CochesIDVersiones($BDVehiculos,$BDImportRecambios,$ConsultaImp) {
+		// Buscamos los IDVersiones de la tabla 
+		
+		
+		// Consultamos tabla recambiosVersiones y obtenemos los datos 
+		$campo = array('MarcaDescrip','ModeloVersion','VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');
+		$nombretabla= "referenciascversiones";
+		$whereC = " WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 100";
+		$resultado = $ConsultaImp->registroLineas($BDImportRecambios,$nombretabla,$campo,$whereC);
+		
+		return $resultado;
+	
 	}
 ?>

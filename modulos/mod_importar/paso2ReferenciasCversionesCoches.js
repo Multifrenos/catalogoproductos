@@ -125,6 +125,7 @@ function CochesObtenerRegistros(btnPulsado) {
 							//~ ciclo = setInterval(CochesIDRecambioTemporal,5000);
 							console.log('Entre en finalinea de IDversiones');
 							alert ( ' Ahora tenemos que crear funcion para buscar versiones coches '+finallinea);
+							CochesIDversiones();
 						}
 					
 					}
@@ -178,6 +179,44 @@ function CochesIDRecambioTemporal() {
 		}
 	}
 }
+function CochesIDversiones(){
+	// Lo que pretendemos es encontrar las IDVersion de la tabla temporal.
+	// para ello necesitamos las conexion a la BD de coches.
+	
+	// No permito continuar si no hay fabricante seleccionado.
+	alert( "Algo 1");
+    if (fabricante !== "0") {
+		var parametros = {
+				'pulsado': 'CochesIDVersiones',
+				'Fabricante': fabricante
+			};
+		$.ajax({
+					data: parametros,
+					url: 'tareas.php',
+					type: 'post',
+					beforeSend: function () {
+						$("#resultado").html('Buscando versiones de la tabla referenciasCVersiones para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
+					},
+					success: function (response) {
+						$("#resultado").html('Terminamos de ID de Referencias Principales ....');
+						resultado = response;
+						console.log(resultado);
+						console.log('Algo');
+						//~ lineaintermedia = lineaintermedia + response['TotalReferenciasDistintas'];
+						
+						
+					}
+
+				});
+	
+	
+	} else {
+	   alert( 'Selecciona un fabricante por lo menos');	
+	}
+
+}
+
+
 function CochesResumen() {
 	console.log ( ' Ejecutamos funcion CocheResumen ' );
 	var parametros = {

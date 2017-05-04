@@ -74,4 +74,28 @@ if ($BDWebJoomla->connect_errno) {
 	mysqli_query ($BDWebJoomla,"SET NAMES 'utf8'");
 }
 
+
+
+/************************************************************************************************/
+/*****************   Realizamos conexion de base de datos de Recambios.          ****************/
+/************************************************************************************************/
+$Conexiones [4]['NombreBD'] = "vehiculos";
+$BDVehiculos = @new mysqli("localhost", "coches", "coches", "vehiculos");
+// Como connect_errno , solo muestra el error de la ultima instrucción mysqli, tenemos que crear una propiedad, en la que 
+// está vacía, si no se produce error.
+
+if ($BDVehiculos->connect_errno) {
+		$Conexiones [4]['conexion'] = 'Error';
+		$Conexiones [4]['respuesta'] = $BDVehiculos->connect_errno.' '.$BDVehiculos->connect_error;
+		$BDVehiculos->controlError = $BDVehiculos->connect_errno.':'.$BDVehiculos->connect_error;
+} else {
+	/** cambio del juego de caracteres a utf8 */
+	$Conexiones [4]['conexion'] ='Correcto';
+	$Conexiones [4]['respuesta'] = $BDVehiculos->host_info;
+	mysqli_query ($BDVehiculos,"SET NAMES 'utf8'");	
+}
+
+
+
+
 ?>

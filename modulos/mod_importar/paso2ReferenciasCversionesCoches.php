@@ -90,10 +90,16 @@
 							</strong><br/>
 							<span>Sin ID Recambio.</span>
                              </td>
-                            <td>Registros con ID Recambio:<strong>
-								<span id="campVa">0</span>
+                            <td>Con ID Recambio
+                             <a title="Cantidad (distintas) referencias principales encontradas que tiene IDRecambio.">(*)</a>
+                            :<strong>
+								<span id="NItemIDRecambio"><?php echo $Resumen[0]['RefDistintasConID'];?></span>
 								</strong><br/>
-                            <span>Y el estado esta blanco.</span>
+                            Error Recambio
+                             <a title="Cantidad (distintas) referencias principales con ERROR.">(*)</a>
+                            :<strong>
+								<span id="NItemError"><?php echo $Resumen['RefDistintasError'];?></span>
+								</strong><br/>
                             </td>
                         </tr>
                         <tr>
@@ -114,7 +120,7 @@
 							<span>Sin ID Recambio.</span>
                              </td>
                             <td>Registros con IDVersiones:<strong>
-								<span id="campVa">0</span>
+								<span id="NItemIDVersiones"><?php echo $Resumen[1]['RefDistintasConID'];?></span>
 								</strong><br/>
                             <span>Y el estado esta blanco.</span>
                             </td>

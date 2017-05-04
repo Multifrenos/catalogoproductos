@@ -156,6 +156,12 @@ include_once ("./funcP2ReferCversionesCoches.php");
         header("Content-Type: application/json;charset=utf-8");
 		echo json_encode($array);
         break;
+    case 'CochesIDVersiones':
+        $array = CochesIDVersiones($BDVehiculos,$BDImportRecambios,$ConsultaImp);
+        header("Content-Type: application/json;charset=utf-8");
+		echo json_encode($array);
+        break;       
+ 
     case 'CochesResumen':
         $array = CochesResumen($BDImportRecambios,$ConsultaImp);
         header("Content-Type: application/json;charset=utf-8");
