@@ -241,12 +241,68 @@
 		
 		
 		// Consultamos tabla recambiosVersiones y obtenemos los datos 
-		$campo = array('MarcaDescrip','ModeloVersion','VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');
+		$array = array();
+		$campos = array('VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');
 		$nombretabla= "referenciascversiones";
 		$whereC = " WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 100";
-		$resultado = $ConsultaImp->registroLineas($BDImportRecambios,$nombretabla,$campo,$whereC);
+		//~ $resultado = $ConsultaImp->registroLineas($BDImportRecambios,$nombretabla,$campo,$whereC);
 		
-		return $resultado;
+		$CampoDistinct = implode(",", $campos);
+		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 10";
+		//~ $QueryDis = "SELECT * FROM ".$nombretabla." WHERE Estado = '' and RecambioID >0  limit 10";
+
+		$resultado = $BDImportRecambios->query($QueryDis);
+		// Ahora obtenemos los datos de 100
+		$array['NItems'] = $resultado->num_rows;
+
+		if ($array['NItems']>0){
+			$i=0;
+			while ($row_planets = $resultado->fetch_assoc()) {
+				$array[$i]['concatenado'] = $row_planets['concatenado'];
+				$array[$i]['marca'] = $row_planets['MarcaDescrip'];
+				$array[$i]['modelo'] = $row_planets['ModeloVersion'];
+				$BuscarMarca = "Select id FROM vehiculo_marcas where nombre='".$array[$i]['marca']."'";
+				$idMarca = $BDVehiculos->query($BuscarMarca);
+				if ($idMarca->num_rows ==1) {
+					while ($row = $idMarca->fetch_assoc()){
+					$array[$i]['IDmarca'] = $row['id'];
+					}
+				} else {
+					// Error en marca, se encontro mas de una...
+				}
+				$BuscarModelo = "Select id FROM vehiculo_modelos where nombre='".$array[$i]['modelo']."'";
+				$idModelo = $BDVehiculos->query($BuscarModelo);
+				if ($idModelo->num_rows ==1) {
+					while ($row = $idModelo->fetch_assoc()){
+					$array[$i]['IDmodelo'] =$row['id'] ;
+					}
+				} else {
+					// Error en marca, se encontro mas de una...
+				}
+				$i++;
+			}
+		}
+		// Ahora tenmos que buscar modelo ...
+		//~ $nombretabla1= "vehiculo_modelos";
+		//~ $nombretabla2= "vehiculo_marcas";
+//~ 
+		//~ $i= 0;
+		//~ 
+		//~ 
+		//~ 
+		//~ $QueryDis = "SELECT ".$nombretabla1.".id,".$nombretabla1.".nombre,".$nombretabla2.".nombre FROM ".$nombretabla1.",".$nombretabla2." WHERE ".$nombretabla1.".nombre = '".$array[$i]['modelo']."'";
+		//~ $resultado = $BDVehiculos->query($QueryDis);
+		//~ $array['NItems'] = $resultado->num_rows;
+		//~ if ($array['NItems']>0){
+			//~ $i=0;
+			//~ while ($row_planets = $resultado->fetch_assoc()) {
+				//~ 
+				//~ $i++;
+			//~ }
+		//~ }
+		//~ $array['consulta'] =$QueryDis;
+
+		return $array;
 	
 	}
 ?>
