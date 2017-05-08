@@ -237,19 +237,41 @@
 	
 	
 	function CochesIDVersiones($BDVehiculos,$BDImportRecambios,$ConsultaImp) {
-		// Buscamos los IDVersiones de la tabla 
-		
-		
-		// Consultamos tabla recambiosVersiones y obtenemos los datos 
 		$array = array();
+		$combustibles = array();
+		// Antes de hacer nada creamos array de combustible
+		$nombretabla = 'vehiculo_combustibles';
+		$BuscarTipoCombustible = "Select * FROM ".$nombretabla;
+		$Bcombustible = $BDVehiculos->query($BuscarTipoCombustible);
+		
+		while ($row = $Bcombustible->fetch_assoc()){
+			$OtrasDecripciones = array();
+			// Añadimos si hay mas descripciones , sino no.
+			if (strlen($row['OtrasDescripciones']) > 0 ) {
+				$OtrasDecripciones = explode(",",$row['OtrasDescripciones']);
+			}
+			// Añadimos descripcion principal si no existe en array.
+			
+			$Expresion = "/".$row['nombre']."/i";
+			if (!preg_grep($Expresion,$OtrasDecripciones)){
+				// Si no existe entonces añadimos el principal.
+				$OtrasDecripciones[] =  $row['nombre'];
+			}
+			$combustibles[$row['id']] = $OtrasDecripciones;
+		}
+	
+	
+		// Consultamos tabla recambiosVersiones y obtenemos los datos 
+		
 		$campos = array('VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');
 		$nombretabla= "referenciascversiones";
 		$whereC = " WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 100";
 		//~ $resultado = $ConsultaImp->registroLineas($BDImportRecambios,$nombretabla,$campo,$whereC);
 		
 		$CampoDistinct = implode(",", $campos);
-		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 10";
-		//~ $QueryDis = "SELECT * FROM ".$nombretabla." WHERE Estado = '' and RecambioID >0  limit 10";
+		// Realizamos un select con concatenado campos para buscar las versiones distintas que hay.
+		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion,FechaInici,FechaFinal,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 10";
+		//~ $array['consulta'] = $QueryDis;
 
 		$resultado = $BDImportRecambios->query($QueryDis);
 		// Ahora obtenemos los datos de 100
@@ -258,19 +280,35 @@
 		if ($array['NItems']>0){
 			$i=0;
 			while ($row_planets = $resultado->fetch_assoc()) {
-				$array[$i]['concatenado'] = $row_planets['concatenado'];
+				$array[$i]['concatenado1'] = $row_planets['concatenado'];
 				$array[$i]['marca'] = $row_planets['MarcaDescrip'];
 				$array[$i]['modelo'] = $row_planets['ModeloVersion'];
-				$BuscarMarca = "Select id FROM vehiculo_marcas where nombre='".$array[$i]['marca']."'";
+				$array[$i]['TipoCombustible'] = $row_planets['TipoCombustible'];
+				$array[$i]['VersionAcabado'] = $row_planets['VersionAcabado'];
+				$array[$i]['kw'] = $row_planets['kw'];
+				$array[$i]['cv'] = $row_planets['cv'];
+				$array[$i]['Cm3'] = $row_planets['Cm3'];
+				$array[$i]['Ncilindros'] = $row_planets['Ncilindros'];
+				$array[$i]['FechaInici'] = $row_planets['FechaInici'];
+				$array[$i]['FechaFinal'] = $row_planets['FechaFinal'];
+
+				// Ahora Buscamos ID Marca
+				$nombretabla = 'vehiculo_marcas';
+				$BuscarMarca = "Select id FROM ".$nombretabla." where nombre='".$array[$i]['marca']."'";
 				$idMarca = $BDVehiculos->query($BuscarMarca);
 				if ($idMarca->num_rows ==1) {
 					while ($row = $idMarca->fetch_assoc()){
 					$array[$i]['IDmarca'] = $row['id'];
+					
 					}
 				} else {
 					// Error en marca, se encontro mas de una...
+					// Deberiamos marcar error:
+					$array[$i]['IDmarca'] ='Error' ;
 				}
-				$BuscarModelo = "Select id FROM vehiculo_modelos where nombre='".$array[$i]['modelo']."'";
+				// Ahora Buscamos ID Modelo
+				$nombretabla = 'vehiculo_modelos';
+				$BuscarModelo = "Select id FROM ".$nombretabla." where nombre='".$array[$i]['modelo']."'";
 				$idModelo = $BDVehiculos->query($BuscarModelo);
 				if ($idModelo->num_rows ==1) {
 					while ($row = $idModelo->fetch_assoc()){
@@ -278,30 +316,56 @@
 					}
 				} else {
 					// Error en marca, se encontro mas de una...
+					// Deberiamos marcar error:
+					$array[$i]['IDmodelo'] ='Error' ;
+
 				}
+				// Ahora Buscamos el ID Tipo combustible 
+				$IDCombustibles = array_keys($combustibles);
+				foreach ($IDCombustibles as $ID){
+					foreach ($combustibles[$ID] as $combustible){
+						
+						if ($array[$i]['TipoCombustible'] == $combustible){
+							$array[$i]['IDCombustible'] = $ID;
+						}
+					}
+				}
+				
+				
+				$array[$i]['concatenado2'] = $array[$i]['IDmarca'].$array[$i]['IDmodelo'].$row_planets['concatenado'];
+				$array[$i]['BusquedaIDVersion'] = "where `idMarca`=".
+												$array[$i]['IDmarca']." and idModelo=".
+												$array[$i]['IDmodelo']." and nombre ='".
+												$array[$i]['VersionAcabado']. "' and kw=".
+												$array[$i]['kw']. " and cv=".
+												$array[$i]['cv']. " and Cm3=".
+												$array[$i]['Cm3']. " and Ncilindros=".
+												$array[$i]['Ncilindros'];
+															
+																	
+				
+
+				$array[$i]['concatenado1'] = $array[$i]['marca'].$array[$i]['modelo'].$row_planets['concatenado'];
+
 				$i++;
 			}
 		}
-		// Ahora tenmos que buscar modelo ...
-		//~ $nombretabla1= "vehiculo_modelos";
-		//~ $nombretabla2= "vehiculo_marcas";
-//~ 
-		//~ $i= 0;
-		//~ 
-		//~ 
-		//~ 
-		//~ $QueryDis = "SELECT ".$nombretabla1.".id,".$nombretabla1.".nombre,".$nombretabla2.".nombre FROM ".$nombretabla1.",".$nombretabla2." WHERE ".$nombretabla1.".nombre = '".$array[$i]['modelo']."'";
-		//~ $resultado = $BDVehiculos->query($QueryDis);
-		//~ $array['NItems'] = $resultado->num_rows;
-		//~ if ($array['NItems']>0){
-			//~ $i=0;
-			//~ while ($row_planets = $resultado->fetch_assoc()) {
-				//~ 
-				//~ $i++;
-			//~ }
-		//~ }
-		//~ $array['consulta'] =$QueryDis;
-
+		// Ahora tenemos una array con datos IDMarca y IDModelo para buscar la version.
+		// Realizamo consulta en BDvehiculos-> Tabla versiones para saber si existe esa version de coche.
+		
+		$nombretabla= "vehiculo_versiones";
+		$i= 0;
+		foreach ($array as $vehiculo) {
+		//~ $BuscarIDversion = "Select id FROM ".$nombretabla." where nombre='".$array[$i]['concatenado2']."'";
+		$idVersiones = $BDVehiculos->query($vehiculo['BuscarIDversion']);
+			if ($idVersiones->num_rows ==1) {
+				while ($row = $idVersiones->fetch_assoc()){
+				$array[$i]['IDversion'] =$row['id'] ;
+				}
+			}
+		$i++;
+		}
+		
 		return $array;
 	
 	}
