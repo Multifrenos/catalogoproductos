@@ -118,13 +118,19 @@ function CochesObtenerRegistros(btnPulsado) {
 							CochesIDRecambioTemporal();
 						}
 					} else {
-						$("#DistintasReferenPrincipales").html(finallinea); 
+						$("#DistintasRefPrinSIDversion").html(finallinea); 
 						$("#resultado").html('Obtenemos cantidad total de ID de Versiones que tenemos buscar ....' + finallinea);
 						if (finallinea >0 ) {
 							// Ejecutamos CochesIDRecambioTemporal ciclo
 							//~ ciclo = setInterval(CochesIDRecambioTemporal,5000);
 							console.log('Entre en finalinea de IDversiones');
 							alert ( ' Ahora tenemos que crear funcion para buscar versiones coches '+finallinea);
+							console.log('Ejecutamos resumen');
+							CochesResumen();
+							console.log ('Resultado de resumen');
+							console.log (resultado['EstadoCubierto']);
+							
+							console.log('Ejecutamos CochesIDresumen');
 							CochesIDversiones();
 						}
 					
@@ -184,7 +190,6 @@ function CochesIDversiones(){
 	// para ello necesitamos las conexion a la BD de coches.
 	
 	// No permito continuar si no hay fabricante seleccionado.
-	alert( "Algo 1");
     if (fabricante !== "0") {
 		var parametros = {
 				'pulsado': 'CochesIDVersiones',
@@ -198,11 +203,31 @@ function CochesIDversiones(){
 						$("#resultado").html('Buscando versiones de la tabla referenciasCVersiones para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
 					},
 					success: function (response) {
-						$("#resultado").html('Terminamos de ID de Referencias Principales ....');
+						var total = response['TotalRegistrosAfectados'];
+						var totalID = response['TotalRegistrosIDRecambios'];
+						var totalError = response['TotalRegistrosError'];
+					
+						var texto = 'Terminamos añalizar de 50 versiones distintas donde:<br/> Se cambian un total de'
+						if (total !=undefined){
+							texto = texto + ' ' +response['TotalRegistrosAfectados'];
+						} else {
+							texto = texto + ' 0';
+						}
+						texto =texto + '<br/> Total IDVersiones encontrados';
+						if (totalID !=undefined){
+							texto = texto + ' ' + response['TotalRegistrosIDRecambios'];
+						} else {
+							texto = texto + ' 0';
+						}
+						texto = texto +'<br/> Total errores encontrados';
+						if (totalError !=undefined){
+							texto = texto + ' ' + response['TotalRegistrosError'];
+						} else {
+							texto = texto + ' 0';
+						}
+						$("#resultado").html(texto);
 						resultado = response;
 						console.log(resultado);
-						console.log('Algo');
-						//~ lineaintermedia = lineaintermedia + response['TotalReferenciasDistintas'];
 						
 						
 					}
@@ -233,6 +258,7 @@ function CochesResumen() {
 			$("#resultado").html('Terminado resumen ....');
 			resultado = response;
 			console.log( ' Queda recojer datos y mostralos en pantalla' );
+			console.log(resultado);
 		}
 
 	});		

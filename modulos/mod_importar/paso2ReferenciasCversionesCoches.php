@@ -39,6 +39,9 @@
 		$Resumen =CochesResumen($BDImportRecambios,$InicioConsulta);
 		$RefDistintaSinIdRecambio = $Resumen[0]['TotalReferenciasDistintas'];
 		$RefDistintaSinIdversion = $Resumen[1]['TotalReferenciasDistintas'];
+		$TotalRegistros =  $Resumen['TotalRegistro'];
+		$ConEstado =  $Resumen['EstadoCubierto'];
+
 		echo '<pre>';
 		print_r($Resumen);
 		echo '</pre>';
@@ -74,7 +77,27 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <th>IDRecambio</th>
+                            <th>Registros de <br/>Referencias Versiones</th>
+                            <td>Total Registros
+                            <a title="Total de registros que contiene la tabla referenciacversiones de BDImportar.">(*)</a>
+                            :<strong>
+							<span id="TotalRegistros">
+								<?php echo $TotalRegistros;?>
+							</span>
+							</strong>
+							
+                             </td>
+                            <td>
+                             Con ESTADO cubierto:
+							<strong>
+							<span id="EstadoCubierto">
+								<?php echo $ConEstado;?>
+							</span>
+							</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Distintos <br/>IDRecambio</th>
                             <td>Distintas Referencias
                             <a title="Cantidad (distintas) referencias principales encontradas que no tenga RecambioID.">(*)</a>
                             :<strong>
@@ -96,18 +119,18 @@
 								<span id="NItemIDRecambio"><?php echo $Resumen[0]['RefDistintasConID'];?></span>
 								</strong><br/>
                             Error Recambio
-                             <a title="Cantidad (distintas) referencias principales con ERROR.">(*)</a>
+                             <a title="Cantidad (distintas) referencias principales con ERROR:[ERROR P2-23]:Referencia Principal no existe.">(*)</a>
                             :<strong>
 								<span id="NItemError"><?php echo $Resumen['RefDistintasError'];?></span>
 								</strong><br/>
                             </td>
                         </tr>
                         <tr>
-                            <th>IDVersiones</th>
+                            <th>Distintos <br/>IDVersiones</th>
                             <td>Distintas Referencias
-                            <a title="Cantidad (distintas) referencias principales encontradas que no tenga RecambioID.">(*)</a>
+                            <a title="Cantidad (distintas) referencias principales encontradas que no tenga IDVersiones.">(*)</a>
                             :<strong>
-							<span id="DistintasReferenPrincipales">
+							<span id="DistintasRefPrinSIDversion">
 								<?php 
 								if ($RefDistintaSinIdversion >0 ){
 								echo $RefDistintaSinIdversion;
@@ -172,9 +195,25 @@
 <!-- Tablas temporales de coches -->
             <div class="col-md-6">
 				<div>
+					
+					<h4>Barra de Proceso</h4>
+					<div class="progress" style="margin:0 100px">
+						<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+						0 % completado
+						</div>
+					</div>
+					<div id="resultado" class="col-md-12">
+					<!-- Aquí mostramos respuestas de AJAX -->
+					</div>
+					
+				</div>
+				<hr />
+
+				<div>
+					<hr/>	
 					<h4>Tablas temporales coches</h4>
-					<p>En BDimportarRecambios hay las tablas temporales de coches (marcas,modelos,versiones), que debemos comprobar si existen en BDCoches o si las añadimos.</p>
-					<p>Las tablas temporales coches las puedes volver a crear, teniendo en cuenta elimina los datos que puedan tener.</p>
+					<p>En BDimportarRecambios no hay tablas temporales de coches (marcas,modelos,versiones,combustible), lo que hacemos es crearla por si queremos añadirlas a BDCoches,<strong> pero de momento no tengo el proceso hecho.</strong></p>
+					<p>Las tablas temporales coches en BDimportaRecambios las puedes volver a crear siempre que quieras, teniendo en cuenta elimina los datos que puedan tener.</p>
 					<div class="col-md-6">
 						<table class="table table-bordered text-center">
 						<thead>
@@ -311,20 +350,8 @@
 					</div>		
 						
                 </div>
-                <div>
-					
-					<h4>Barra de Proceso</h4>
-					<div class="progress" style="margin:0 100px">
-						<div id="bar" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
-						0 % completado
-						</div>
-					</div>
-					<hr />
-					<div id="resultado" class="col-md-12">
-					<!-- Aquí mostramos respuestas de AJAX -->
-					</div>	
-				</div>
-				
+                
+			</div>	
 
 		
     </body>

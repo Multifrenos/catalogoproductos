@@ -231,6 +231,14 @@
 			$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
 			$array['RefDistintasError'] = $resultados['NItems'];
 		
+		// Ahora contamos registros
+			$whereC= ' ';
+			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+			$array['TotalRegistro'] = $resultado;
+		// Ahora contamos con estado cubierto:
+			$whereC= " WHERE Estado <>''";
+			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+			$array['EstadoCubierto'] = $resultado;
 		return $array;
 	}
 	
@@ -238,6 +246,7 @@
 	
 	function CochesIDVersiones($BDVehiculos,$BDImportRecambios,$ConsultaImp) {
 		$array = array();
+		$Resumen = array();
 		$combustibles = array();
 		// Antes de hacer nada creamos array de combustible
 		$nombretabla = 'vehiculo_combustibles';
@@ -270,7 +279,7 @@
 		
 		$CampoDistinct = implode(",", $campos);
 		// Realizamos un select con concatenado campos para buscar las versiones distintas que hay.
-		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion,FechaInici,FechaFinal,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 10";
+		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion,FechaInici,FechaFinal,RecambioID,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 25";
 		//~ $array['consulta'] = $QueryDis;
 
 		$resultado = $BDImportRecambios->query($QueryDis);
@@ -291,6 +300,8 @@
 				$array[$i]['Ncilindros'] = $row_planets['Ncilindros'];
 				$array[$i]['FechaInici'] = $row_planets['FechaInici'];
 				$array[$i]['FechaFinal'] = $row_planets['FechaFinal'];
+				$array[$i]['Estado'] = $row_planets['Estado'];
+				$array[$i]['RecambioID'] = $row_planets['RecambioID'];
 
 				// Ahora Buscamos ID Marca
 				$nombretabla = 'vehiculo_marcas';
@@ -308,14 +319,14 @@
 				}
 				// Ahora Buscamos ID Modelo
 				$nombretabla = 'vehiculo_modelos';
-				$BuscarModelo = "Select id FROM ".$nombretabla." where nombre='".$array[$i]['modelo']."'";
+				$BuscarModelo = 'Select id FROM '.$nombretabla.' where nombre="'.$array[$i]['modelo'].'"';
 				$idModelo = $BDVehiculos->query($BuscarModelo);
 				if ($idModelo->num_rows ==1) {
 					while ($row = $idModelo->fetch_assoc()){
 					$array[$i]['IDmodelo'] =$row['id'] ;
 					}
 				} else {
-					// Error en marca, se encontro mas de una...
+					// Error en modelo, se encontro mas de una...
 					// Deberiamos marcar error:
 					$array[$i]['IDmodelo'] ='Error' ;
 
@@ -333,6 +344,7 @@
 				
 				
 				$array[$i]['concatenado2'] = $array[$i]['IDmarca'].$array[$i]['IDmodelo'].$row_planets['concatenado'];
+				// Este es where que vamos utilizar para buscar en versiones de BD vehiculos
 				$array[$i]['BusquedaIDVersion'] = "where `idMarca`=".
 												$array[$i]['IDmarca']." and idModelo=".
 												$array[$i]['IDmodelo']." and nombre ='".
@@ -341,7 +353,18 @@
 												$array[$i]['cv']. " and Cm3=".
 												$array[$i]['Cm3']. " and Ncilindros=".
 												$array[$i]['Ncilindros'];
-															
+				// Este es where que vamos utilizar para buscar nuevamente en referenciasCversiones en BDImport
+				$array[$i]['BusquedaRefCversion'] = 'where `MarcaDescrip`="'.
+												$array[$i]['marca'].'" and ModeloVersion="'.
+												$array[$i]['modelo'].'" and VersionAcabado ="'.
+												$array[$i]['VersionAcabado']. '" and kw='.
+												$array[$i]['kw']. ' and cv='.
+												$array[$i]['cv']. ' and Cm3='.
+												$array[$i]['Cm3']. ' and Ncilindros='.
+												$array[$i]['Ncilindros']. ' and FechaInici="'.
+												$array[$i]['FechaInici']. '" and FechaFinal="'.
+												$array[$i]['FechaFinal']. '" and TipoCombustible="'.
+												$array[$i]['TipoCombustible'].'"';
 																	
 				
 
@@ -354,19 +377,54 @@
 		// Realizamo consulta en BDvehiculos-> Tabla versiones para saber si existe esa version de coche.
 		
 		$nombretabla= "vehiculo_versiones";
-		$i= 0;
-		foreach ($array as $vehiculo) {
-		//~ $BuscarIDversion = "Select id FROM ".$nombretabla." where nombre='".$array[$i]['concatenado2']."'";
-		$idVersiones = $BDVehiculos->query($vehiculo['BuscarIDversion']);
+		for ( $i=0; $i< $array['NItems']; $i++) {
+		$BuscarIDversion = "Select id FROM ".$nombretabla." ".$array[$i]['BusquedaIDVersion'];
+		$idVersiones = $BDVehiculos->query($BuscarIDversion);
+			$array[$i]['NumeroRowversiones']=$idVersiones->num_rows;
 			if ($idVersiones->num_rows ==1) {
 				while ($row = $idVersiones->fetch_assoc()){
 				$array[$i]['IDversion'] =$row['id'] ;
 				}
+			} else {
+				// Error en versiones, se encontro mas de una...
+				// Deberiamos marcar error:
+				$array[$i]['IDversion'] ='Error' ;
 			}
-		$i++;
+			
 		}
 		
-		return $array;
+		// Ahora ya tenemos el id de los distintos vehiculos obtenido, ahora tenemos grabar dato id version en BDimport
+		$nombretabla= "referenciascversiones";
+		
+		for ( $i=0; $i< $array['NItems']; $i++) {
+			$whereC = $array[$i]['BusquedaRefCversion'];
+			// Si el IDversiones tiene como valor "Error" en vez de numero , lo que hacemos es cambiar el estado a los registros
+
+			if ($array[$i]['IDversion']=== 'Error'){
+			// Aqui quedaría pendiente ver errores de marca y modelo.
+			$QueryDis = 'UPDATE `referenciascversiones` SET `Estado`=concat(Estado," - Error de version") '.$whereC;
+			
+			} else {
+			$QueryDis = 'UPDATE `referenciascversiones` SET `IdVersion`='.$array[$i]['IDversion'].' '.$whereC;
+			}
+			$IdLineas = $BDImportRecambios->query($QueryDis);
+			$array[$i]['UpdateCambiados']=$QueryDis;
+			$array[$i]['RegistrosCambiados'] = $BDImportRecambios->affected_rows;
+			// Ahora tenemos un sumamos la cantidad de registros que cambiamos tanto añadiendo IDVersiones como poniendo error
+			$Resumen['TotalRegistrosAfectados'] = $Resumen['TotalRegistrosAfectados']+$array[$i]['RegistrosCambiados'];
+			if ($array[$i]['IDversion']=== 'Error'){
+				$Resumen['TotalRegistrosError']= $Resumen['TotalRegistrosError']+ $array[$i]['RegistrosCambiados'];
+			} else {
+				$Resumen['TotalRegistrosIDRecambios'] = $Resumen['TotalRegistrosIDRecambios']+ $array[$i]['RegistrosCambiados'];
+			}
+		}
+		//~ 
+		//~ 
+		//~ 
+		
+		//~ $Resumen['Array'] = $array; // Lo añado para ver que sucede, solo es un control debug
+		
+		return $Resumen;
 	
 	}
 ?>
