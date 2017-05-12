@@ -40,7 +40,7 @@
 		$RefDistintaSinIdRecambio = $Resumen[0]['TotalReferenciasDistintas'];
 		$RefDistintaSinIdversion = $Resumen[1]['TotalReferenciasDistintas'];
 		$TotalRegistros =  $Resumen['TotalRegistro'];
-		$ConEstado =  $Resumen['EstadoCubierto'];
+		$RegistrosVisto =  $Resumen['RegistroVistos'];
 
 		echo '<pre>';
 		print_r($Resumen);
@@ -88,10 +88,11 @@
 							
                              </td>
                             <td>
-                             Con ESTADO cubierto:
-							<strong>
+                             Registros Analizados
+                            <a title="Registros analizados que tiene Estado o tienen cubierto IDrecambio y IDversion.">(*)</a>
+                            :<strong>
 							<span id="EstadoCubierto">
-								<?php echo $ConEstado;?>
+								<?php echo $RegistrosVisto;?>
 							</span>
 							</strong>
                             </td>

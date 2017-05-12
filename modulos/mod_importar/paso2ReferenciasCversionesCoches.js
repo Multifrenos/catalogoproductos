@@ -7,7 +7,7 @@
  * */
  
 var contadorAJAX;
-var resultado;
+var resultado = [];
 var fabricante = 0;
 var finallinea = 0;
 var lineaintermedia = 0;
@@ -128,10 +128,14 @@ function CochesObtenerRegistros(btnPulsado) {
 							console.log('Ejecutamos resumen');
 							CochesResumen();
 							console.log ('Resultado de resumen');
-							console.log (resultado['EstadoCubierto']);
-							
+							if (resultado['RegistroVistos'] != undefined) {
+							alert( 'ver si entro ');
+							$('#EstadoCubierto').html(resultado['RegistroVistos']);
+							console.log (resultado['RegistroVistos']);
 							console.log('Ejecutamos CochesIDresumen');
 							CochesIDversiones();
+							}
+							
 						}
 					
 					}

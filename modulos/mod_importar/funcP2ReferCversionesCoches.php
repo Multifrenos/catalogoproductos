@@ -236,9 +236,9 @@
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
 			$array['TotalRegistro'] = $resultado;
 		// Ahora contamos con estado cubierto:
-			$whereC= " WHERE Estado <>''";
+			$whereC= "  WHERE `Estado`<>' ' or (`RecambioID`>0 and `IdVersion`>0)";
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
-			$array['EstadoCubierto'] = $resultado;
+			$array['RegistroVistos'] = $resultado;
 		return $array;
 	}
 	
