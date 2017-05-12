@@ -245,9 +245,17 @@
 	
 	
 	function CochesIDVersiones($BDVehiculos,$BDImportRecambios,$ConsultaImp) {
-		$array = array();
+		// Reinicio de variables
 		$Resumen = array();
+		$array = array();
 		$combustibles = array();
+	    $tabla ="referenciascversiones";
+
+		// Ahora contamos con estado cubierto o ID cubierto:
+			$whereC= "  WHERE `Estado`<>' ' or (`RecambioID`>0 and `IdVersion`>0)";
+			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+		
+		$Resumen['RegistroVistos'] = $resultado;
 		// Antes de hacer nada creamos array de combustible
 		$nombretabla = 'vehiculo_combustibles';
 		$BuscarTipoCombustible = "Select * FROM ".$nombretabla;
@@ -269,17 +277,18 @@
 			$combustibles[$row['id']] = $OtrasDecripciones;
 		}
 	
-	
+		// Ahora empezamos para buscar IDVersiones
+
 		// Consultamos tabla recambiosVersiones y obtenemos los datos 
 		
 		$campos = array('VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');
 		$nombretabla= "referenciascversiones";
-		$whereC = " WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 100";
+		//~ $whereC = " WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 100";
 		//~ $resultado = $ConsultaImp->registroLineas($BDImportRecambios,$nombretabla,$campo,$whereC);
 		
 		$CampoDistinct = implode(",", $campos);
 		// Realizamos un select con concatenado campos para buscar las versiones distintas que hay.
-		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion,FechaInici,FechaFinal,RecambioID,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 25";
+		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion,FechaInici,FechaFinal,RecambioID,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 40";
 		//~ $array['consulta'] = $QueryDis;
 
 		$resultado = $BDImportRecambios->query($QueryDis);

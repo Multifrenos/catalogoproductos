@@ -124,17 +124,12 @@ function CochesObtenerRegistros(btnPulsado) {
 							// Ejecutamos CochesIDRecambioTemporal ciclo
 							//~ ciclo = setInterval(CochesIDRecambioTemporal,5000);
 							console.log('Entre en finalinea de IDversiones');
-							alert ( ' Ahora tenemos que crear funcion para buscar versiones coches '+finallinea);
-							console.log('Ejecutamos resumen');
-							CochesResumen();
-							console.log ('Resultado de resumen');
-							if (resultado['RegistroVistos'] != undefined) {
-							alert( 'ver si entro ');
-							$('#EstadoCubierto').html(resultado['RegistroVistos']);
-							console.log (resultado['RegistroVistos']);
+							console.log( 'Antes obtener valor, finallinea es'+finallinea);
+							finallinea = parseInt($("#TotalRegistros").text());
+							lineaintermedia = parseInt($("#EstadoCubierto").text());
 							console.log('Ejecutamos CochesIDresumen');
 							CochesIDversiones();
-							}
+							
 							
 						}
 					
@@ -157,9 +152,8 @@ function CochesIDRecambioTemporal() {
     // No permito continuar si no hay fabricante seleccionado.
     if (fabricante !== "0") {
 		// Mostramos y actualizamos barra
-		ProcesoBarra(lineaintermedia, finallinea);
 		if (finallinea > lineaintermedia ) {
-			
+			ProcesoBarra(lineaintermedia, finallinea);
 			var parametros = {
 				'pulsado': 'CochesIDRecambioTemporal',
 				'Fabricante': fabricante
@@ -192,55 +186,66 @@ function CochesIDRecambioTemporal() {
 function CochesIDversiones(){
 	// Lo que pretendemos es encontrar las IDVersion de la tabla temporal.
 	// para ello necesitamos las conexion a la BD de coches.
-	
-	// No permito continuar si no hay fabricante seleccionado.
-    if (fabricante !== "0") {
-		var parametros = {
-				'pulsado': 'CochesIDVersiones',
-				'Fabricante': fabricante
-			};
-		$.ajax({
-					data: parametros,
-					url: 'tareas.php',
-					type: 'post',
-					beforeSend: function () {
-						$("#resultado").html('Buscando versiones de la tabla referenciasCVersiones para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
-					},
-					success: function (response) {
-						var total = response['TotalRegistrosAfectados'];
-						var totalID = response['TotalRegistrosIDRecambios'];
-						var totalError = response['TotalRegistrosError'];
-					
-						var texto = 'Terminamos añalizar de 50 versiones distintas donde:<br/> Se cambian un total de'
-						if (total !=undefined){
-							texto = texto + ' ' +response['TotalRegistrosAfectados'];
-						} else {
-							texto = texto + ' 0';
-						}
-						texto =texto + '<br/> Total IDVersiones encontrados';
-						if (totalID !=undefined){
-							texto = texto + ' ' + response['TotalRegistrosIDRecambios'];
-						} else {
-							texto = texto + ' 0';
-						}
-						texto = texto +'<br/> Total errores encontrados';
-						if (totalError !=undefined){
-							texto = texto + ' ' + response['TotalRegistrosError'];
-						} else {
-							texto = texto + ' 0';
-						}
-						$("#resultado").html(texto);
-						resultado = response;
-						console.log(resultado);
-						
-						
-					}
+	console.log( 'Ahora en CochesIDVersiones');
+	console.log(' finallinea:'+finallinea);
+	console.log(' lineaIntermedia:'+lineaintermedia);
+	ProcesoBarra(lineaintermedia, finallinea);
+	// Ahora compruebo que sea inferior.
+	if (finallinea > lineaintermedia) {						
 
-				});
-	
-	
-	} else {
-	   alert( 'Selecciona un fabricante por lo menos');	
+	// No permito continuar si no hay fabricante seleccionado.
+		if (fabricante !== "0") {
+			var parametros = {
+					'pulsado': 'CochesIDVersiones',
+					'Fabricante': fabricante
+				};
+			$.ajax({
+						data: parametros,
+						url: 'tareas.php',
+						type: 'post',
+						beforeSend: function () {
+							$("#resultado").html('Buscando versiones de la tabla referenciasCVersiones para anotar ID, espere por favor......<span><img src="./img/ajax-loader.gif"/></span>');
+						},
+						success: function (response) {
+							$("#EstadoCubierto").html(response['RegistroVistos']); 
+							lineaintermedia = response['RegistroVistos'];
+							console.log('Linea Intermedia : '+ response['RegistroVistos']);
+							console.log('Linea final : '+ finallinea);
+							var total = response['TotalRegistrosAfectados'];
+							var totalID = response['TotalRegistrosIDRecambios'];
+							var totalError = response['TotalRegistrosError'];
+						
+							var texto = 'Terminamos añalizar de 50 versiones distintas donde:<br/> Se cambian un total de'
+							if (total !=undefined){
+								texto = texto + ' ' +response['TotalRegistrosAfectados'];
+							} else {
+								texto = texto + ' 0';
+							}
+							texto =texto + '<br/> Total IDVersiones encontrados';
+							if (totalID !=undefined){
+								texto = texto + ' ' + response['TotalRegistrosIDRecambios'];
+							} else {
+								texto = texto + ' 0';
+							}
+							texto = texto +'<br/> Total errores encontrados';
+							if (totalError !=undefined){
+								texto = texto + ' ' + response['TotalRegistrosError'];
+							} else {
+								texto = texto + ' 0';
+							}
+							$("#resultado").html(texto);
+							resultado = response;
+							console.log(resultado);
+							console.log( ' Repetimos CochesIDVersiones ');
+							CochesIDversiones();
+						}
+
+					});
+		
+		
+		} else {
+		   alert( 'Selecciona un fabricante por lo menos');	
+		}
 	}
 
 }
