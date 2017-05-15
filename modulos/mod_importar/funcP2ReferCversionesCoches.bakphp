@@ -210,7 +210,7 @@
 			$campo = 'RefProveedor';
 			$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
 			$array[$i]['TotalReferenciasDistintas'] = $resultados['NItems'];
-			//~ $array[$i]['consultaTodos'] = $whereC;
+			//~ $array[$i]['consulta'] = $whereC;
 			$i++;
 		}
 		// Ahora volvemos hacer lo mismo pero comprobando aquellos que tiene registros.. esto solo debe suceder cuando ya ejecutamos AJAX
@@ -246,15 +246,17 @@
 	
 	function CochesIDVersiones($BDVehiculos,$BDImportRecambios,$ConsultaImp) {
 		// Reinicio de variables
-		$Resumen = array(); // Metemos los datos generales que vamos a necesitar
-		$array = array(); // Metemos los dastos de las distinta versiones
+		$Resumen = array();
+		
+		$array = array();
 		$combustibles = array();
 	    $tabla ="referenciascversiones";
 
 		// Ahora contamos con estado cubierto o ID cubierto:
 			$whereC= "  WHERE `Estado`<>' ' or (`RecambioID`>0 and `IdVersion`>0)";
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
-			$Resumen['RegistroVistos'] = $resultado;
+		
+		$Resumen['RegistroVistos'] = $resultado;
 		// Antes de hacer nada creamos array de combustible
 		$nombretabla = 'vehiculo_combustibles';
 		$BuscarTipoCombustible = "Select * FROM ".$nombretabla;
@@ -288,13 +290,13 @@
 		$CampoDistinct = implode(",", $campos);
 		// Realizamos un select con concatenado campos para buscar las versiones distintas que hay.
 		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion,FechaInici,FechaFinal,RecambioID,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 40";
-		$Resumen['consulta'] = $QueryDis;
+		//~ $array['consulta'] = $QueryDis;
 
 		$resultado = $BDImportRecambios->query($QueryDis);
 		// Ahora obtenemos los datos de 100
-		$Resumen['NItems'] = $resultado->num_rows;
+		$array['NItems'] = $resultado->num_rows;
 
-		if ($Resumen['NItems']>0){
+		if ($array['NItems']>0){
 			$i=0;
 			while ($row_planets = $resultado->fetch_assoc()) {
 				$array[$i]['concatenado1'] = $row_planets['concatenado'];
@@ -308,10 +310,8 @@
 				$array[$i]['Ncilindros'] = $row_planets['Ncilindros'];
 				$array[$i]['FechaInici'] = $row_planets['FechaInici'];
 				$array[$i]['FechaFinal'] = $row_planets['FechaFinal'];
-
-				// Evitar que genere error.
-				if ( isset ($row_planets['Estado'])){
-				$array[$i]['Estado'] = $row_planets['Estado'];
+				if (isset($row_planets['Estado'])){
+					$array[$i]['Estado'] = $row_planets['Estado'];
 				} else {
 					$array[$i]['Estado'] = '';
 				}
@@ -359,7 +359,7 @@
 				
 				$array[$i]['concatenado2'] = $array[$i]['IDmarca'].$array[$i]['IDmodelo'].$row_planets['concatenado'];
 				// Este es where que vamos utilizar para buscar en versiones de BD vehiculos
-				$array[$i]['BusquedaIDVersion'] = "where `idMarca`=".
+				$array[$i]['BusquedaIDVersion'] = " where `idMarca`=".
 												$array[$i]['IDmarca']." and idModelo=".
 												$array[$i]['IDmodelo']." and nombre ='".
 												$array[$i]['VersionAcabado']. "' and kw=".
@@ -368,20 +368,7 @@
 												$array[$i]['Cm3']. " and Ncilindros=".
 												$array[$i]['Ncilindros'];
 				// Este es where que vamos utilizar para buscar nuevamente en referenciasCversiones en BDImport
-				$array[$i]['BusquedaRefCversion'] = 'where `MarcaDescrip`="'.
-												$array[$i]['marca'].'" and ModeloVersion="'.
-												$array[$i]['modelo'].'" and VersionAcabado ="'.
-												$array[$i]['VersionAcabado']. '" and kw='.
-												$array[$i]['kw']. ' and cv='.
-												$array[$i]['cv']. ' and Cm3='.
-												$array[$i]['Cm3']. ' and Ncilindros='.
-												$array[$i]['Ncilindros']. ' and FechaInici="'.
-												$array[$i]['FechaInici']. '" and FechaFinal="'.
-												$array[$i]['FechaFinal']. '" and TipoCombustible="'.
-												$array[$i]['TipoCombustible'].'"';
-																	
-				// El siguiente montaje arrays es para utilizar un udpate unico, pero de momento no lo utilizo.
-				$array[$i]['UPDateunico'] = '(`MarcaDescrip`="'.
+				$array[$i]['BusquedaRefCversion'] = '(`MarcaDescrip`="'.
 												$array[$i]['marca'].'" and ModeloVersion="'.
 												$array[$i]['modelo'].'" and VersionAcabado ="'.
 												$array[$i]['VersionAcabado']. '" and kw='.
@@ -392,6 +379,8 @@
 												$array[$i]['FechaInici']. '" and FechaFinal="'.
 												$array[$i]['FechaFinal']. '" and TipoCombustible="'.
 												$array[$i]['TipoCombustible'].'")';
+																	
+				
 
 				$array[$i]['concatenado1'] = $array[$i]['marca'].$array[$i]['modelo'].$row_planets['concatenado'];
 
@@ -400,63 +389,64 @@
 		}
 		// Ahora tenemos una array con datos IDMarca y IDModelo para buscar la version.
 		// Realizamo consulta en BDvehiculos-> Tabla versiones para saber si existe esa version de coche.
+		
 		$nombretabla= "vehiculo_versiones";
-		for ( $i=0; $i< $Resumen['NItems']; $i++) {
-			// Ahora los que tiene tiene Marca y Modelo buscamos IDVersion
-			if ($array[$i]['IDmodelo'] <> 'Error' and $array[$i]['IDmarca']<> 'Error') {
-				$BuscarIDversion = "Select id FROM ".$nombretabla." ".$array[$i]['BusquedaIDVersion'];
-				$idVersiones = $BDVehiculos->query($BuscarIDversion);
-					$array[$i]['NumeroRowversiones']=$idVersiones->num_rows;
-					if ($idVersiones->num_rows ==1) {
-						while ($row = $idVersiones->fetch_assoc()){
-						$array[$i]['IDversion'] =$row['id'] ;
-						}
-					} else {
-						// Error en versiones, se encontro mas de una...
-						// Deberiamos marcar error:
-						$array[$i]['IDversion'] ='Error Version' ;
-					}
-					
+		for ( $i=0; $i< $array['NItems']; $i++) {
+		$BuscarIDversion = "Select id FROM ".$nombretabla." ".$array[$i]['BusquedaIDVersion'];
+		$idVersiones = $BDVehiculos->query($BuscarIDversion);
+			$array[$i]['NumeroRowversiones']=$idVersiones->num_rows;
+			if ($idVersiones->num_rows ==1) {
+				while ($row = $idVersiones->fetch_assoc()){
+				$array[$i]['IDversion'] =$row['id'] ;
+				}
 			} else {
-				// Quiere decir que tiene un error en marca o modelo
-				$array[$i]['IDversion'] ='Error Marca o Modelo' ;
-
+				// Error en versiones, se encontro mas de una...
+				// Deberiamos marcar error:
+				$array[$i]['IDversion'] ='Error' ;
 			}
+			
 		}
+		
 		// Ahora ya tenemos el id de los distintos vehiculos obtenido, ahora tenemos grabar dato id version en BDimport
 		$nombretabla= "referenciascversiones";
-		$Resumen['TotalRegistrosIDRecambios'] = 0 ;
-		$Resumen['TotalRegistrosConError']= 0;
-		// Este array de momento no lo utilizo es para montar un update unico.
-		$arrayWhere = array() ; 
-		for ( $i=0; $i< $Resumen['NItems']; $i++) {
-			$whereC = $array[$i]['BusquedaRefCversion'];
-			
-			if ($array[$i]['IDversion']=== 'Error Version' or $array[$i]['IDversion'] ==='Error Marca o Modelo'){
-				// Quiere decir que tiene un error en version, marca o modelo.
-				// Si el IDversiones tiene como valor "Error" en vez de numero , lo que hacemos es cambiar el estado a los registros
-				//~ $QueryDis = 'UPDATE `referenciascversiones` SET `Estado`=concat(Estado," -'.$array[$i]['IDversion'].'") '.$whereC;
-				$arrayWhere['error'][] ='when '.$array[$i]['UPDateunico'].' then "'.$array[$i]['IDversion'].'"';
+		// Ahora montamos array de wheres para hacer un UPDATE unico para los que tienen error y para añadir id 
+		$arrayWhereError = array();
+		$x = 0;
+		$y = 0;
+		for ( $i=0; $i< $array['NItems']; $i++) {
+			if ( $array[$i]['IDversion'] ==='Error') {
+				$arrayWhereError[$x] = $array[$i]['BusquedaRefCversion'];
+				$x++;
 			} else {
-				// Quiere decir que tiene IDVersion
-				//~ $QueryDis = 'UPDATE `referenciascversiones` SET `IdVersion`='.$array[$i]['IDversion'].' '.$whereC;
-				$arrayWhere['insert'][] = 'when '.$array[$i]['UPDateunico'].' then '.$array[$i]['IDversion'];
-
+				$arrayWhere[$y]	= 'when '.$array[$i]['BusquedaRefCversion'].' then '.$array[$i]['IDversion'];
+				$y++;
 			}
 		}
-		// Creamos variable con la que vamos hacer UPDATE unico, donde añadirmo IDVersion o Error a la tabla referenciaCversiones
-		if (isset($arrayWhere['error'])){
-			$QueryDis='UPDATE '.$nombretabla.' SET Estado=  case '.implode(' ', $arrayWhere['error']).' else Estado end where Estado=""';
-			$resultado = $BDImportRecambios->query($QueryDis);
-			$Resumen['TotalRegistrosConError'] = $BDImportRecambios->affected_rows;
-			$Resumen['UPDATEUnicoError'] =$QueryDis;
-		}
-		if (isset($arrayWhere['insert'])){
-			$QueryDis='UPDATE '.$nombretabla.' SET IdVersion=  case '.implode(' ', $arrayWhere['insert']).' else IdVersion end';
-			$resultado = $BDImportRecambios->query($QueryDis);
+		// Si el IDversiones tiene como valor "Error" en vez de numero , lo que hacemos es cambiar el estado a los registros
+		// Aqui quedaría pendiente ver errores de marca y modelo.
+		
+		$Resumen['TotalRegistrosIDRecambios'] = 0;
+		$Resumen['TotalRegistrosError'] = 0;
+		
+		if (count($arrayWhereError)>0) {
+			//~ $whereC = implode(' or ',$arrayWhereError);
+			//~ $QueryDis = 'UPDATE `referenciascversiones` SET `Estado`=" - Error de version" where '.$whereC;
+			//~ $IdLineas = $BDImportRecambios->query($QueryDis);
+			//~ $Resumen['TotalRegistrosError'] = $BDImportRecambios->affected_rows;
+			//~ $Resumen['UPDATEerror'] = $QueryDis;
+
+		}	
+		if (count($arrayWhere)>0){
+			$whereC = implode(' ',$arrayWhere);
+			$QueryDis = 'UPDATE `referenciascversiones` SET `IdVersion`= CASE '.$whereC.' END';
+			$IdLineas = $BDImportRecambios->query($QueryDis);
 			$Resumen['TotalRegistrosIDRecambios'] = $BDImportRecambios->affected_rows;
-			$Resumen['UPDATEUnicoInsert'] =$QueryDis;
+			$Resumen['UPDATEID'] = $QueryDis;
+
 		}
+			$Resumen['TotalRegistrosAfectados'] = $Resumen['TotalRegistrosIDRecambios']+ $Resumen['TotalRegistrosError'];
+			
+				
 		$Resumen['Array'] = $array; // Lo añado para ver que sucede, solo es un control debug
 		
 		return $Resumen;

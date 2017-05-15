@@ -153,7 +153,6 @@ function CochesIDRecambioTemporal() {
     if (fabricante !== "0") {
 		// Mostramos y actualizamos barra
 		if (finallinea > lineaintermedia ) {
-			ProcesoBarra(lineaintermedia, finallinea);
 			var parametros = {
 				'pulsado': 'CochesIDRecambioTemporal',
 				'Fabricante': fabricante
@@ -181,6 +180,7 @@ function CochesIDRecambioTemporal() {
 			$("#btn-IDVersion").css("display", "block"); // Ocultamos por existe fabricante.
 
 		}
+	ProcesoBarra(lineaintermedia, finallinea);
 	}
 }
 function CochesIDversiones(){
