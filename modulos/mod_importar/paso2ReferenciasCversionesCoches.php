@@ -33,18 +33,18 @@
 			$htmloptiones .= '<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';
 		}
 		$consultaFabricantes->close();
-		// Ahora obtenemos datos inicio para mostrar en resumen.
-		$InicioConsulta = new ConsultaBD;
-		// Realizamos resumen 
-		$Resumen =CochesResumen($BDImportRecambios,$InicioConsulta);
-		$RefDistintaSinIdRecambio = $Resumen[0]['TotalReferenciasDistintas'];
-		$RefDistintaSinIdversion = $Resumen[1]['TotalReferenciasDistintas'];
-		$TotalRegistros =  $Resumen['TotalRegistro'];
-		$RegistrosVisto =  $Resumen['RegistroVistos'];
-
-		echo '<pre>';
-		print_r($Resumen);
-		echo '</pre>';
+		//~ // Ahora obtenemos datos inicio para mostrar en resumen.
+		//~ $InicioConsulta = new ConsultaBD;
+		//~ // Realizamos resumen 
+		//~ $Resumen =CochesResumen($BDImportRecambios,$InicioConsulta);
+		//~ $RefDistintaSinIdRecambio = $Resumen[0]['TotalReferenciasDistintas'];
+		//~ $RefDistintaSinIdversion = $Resumen[1]['TotalReferenciasDistintas'];
+		//~ $TotalRegistros =  $Resumen['TotalRegistro'];
+		//~ $RegistrosVisto =  $Resumen['RegistroVistos'];
+//~ 
+		//~ echo '<pre>';
+		//~ print_r($Resumen);
+		//~ echo '</pre>';
         ?>
         <div class="container">
             <div class="col-md-12 text-center">
@@ -64,9 +64,9 @@
 					</div>
 				</form>
 				 
-				<p> Hay que tener en cuenta que las versiones de coches las comprobamos en la BDCoches y si son correctas entonces se añade esa relacion con el recambio.</p>
+				<p> Comprobamos versiones coches en BDCoches y añadir relacion BDRecambio.</p>
 				
-                <h4>Resumen de comprobación de tabla temporal ReferenciaCVersiones</h4>
+                <h4>Resumen de comprobación de ReferenciasCversiones</h4>
                 <table class="table">
                     <thead>
                         <tr>
@@ -82,7 +82,7 @@
                             <a title="Total de registros que contiene la tabla referenciacversiones de BDImportar.">(*)</a>
                             :<strong>
 							<span id="TotalRegistros">
-								<?php echo $TotalRegistros;?>
+								
 							</span>
 							</strong>
 							
@@ -92,61 +92,76 @@
                             <a title="Registros analizados que tiene Estado o tienen cubierto IDrecambio y IDversion.">(*)</a>
                             :<strong>
 							<span id="EstadoCubierto">
-								<?php echo $RegistrosVisto;?>
+								
 							</span>
 							</strong>
                             </td>
                         </tr>
                         <tr>
                             <th>Distintos <br/>IDRecambio</th>
-                            <td>Distintas Referencias
+                            <td>
+							<div style="text-align:center;text-decoration: underline;">Sin IDRecambio</div>
+							Referencias
                             <a title="Cantidad (distintas) referencias principales encontradas que no tenga RecambioID.">(*)</a>
                             :<strong>
 							<span id="DistintasReferenPrincipales">
-								<?php 
-								if ($RefDistintaSinIdRecambio >0 ){
-								echo $RefDistintaSinIdRecambio;
-								} else {
-								echo '0';
-								}
-								?>
+								
 							</span>
 							</strong><br/>
-							<span>Sin ID Recambio.</span>
                              </td>
-                            <td>Con ID Recambio
+                            <td>
+								<div style="text-align:center;text-decoration: underline;">Con IDRecambio</div>
+								Referencias
                              <a title="Cantidad (distintas) referencias principales encontradas que tiene IDRecambio.">(*)</a>
                             :<strong>
-								<span id="NItemIDRecambio"><?php echo $Resumen[0]['RefDistintasConID'];?></span>
+								<span id="NItemIDRecambio">0</span>
 								</strong><br/>
                             Error Recambio
                              <a title="Cantidad (distintas) referencias principales con ERROR:[ERROR P2-23]:Referencia Principal no existe.">(*)</a>
                             :<strong>
-								<span id="NItemError"><?php echo $Resumen['RefDistintasError'];?></span>
+								<span id="NItemError0"></span>
 								</strong><br/>
                             </td>
                         </tr>
                         <tr>
                             <th>Distintos <br/>IDVersiones</th>
-                            <td>Distintas Referencias
+                            <td>
+								<div style="text-align:center;text-decoration: underline;">Sin IDVersiones</div>
+							Referencias
                             <a title="Cantidad (distintas) referencias principales encontradas que no tenga IDVersiones.">(*)</a>
                             :<strong>
 							<span id="DistintasRefPrinSIDversion">
-								<?php 
-								if ($RefDistintaSinIdversion >0 ){
-								echo $RefDistintaSinIdversion;
-								} else {
-								echo '0';
-								}
-								?>
+								
 							</span>
 							</strong><br/>
-							<span>Sin ID Recambio.</span>
+								<div style="text-align:center;text-decoration: underline;">Errores</div>
+							Version
+							<a title="Registros con Estado = Error Version.">(*)</a>
+                            :<strong>
+							<span id="NItemError1">
+								
+							</span>
+							</strong><br/>
+							Marca/Modelo
+							<a title="Registros con Estado = Error Marca o Modelo.">(*)</a>
+                            :<strong>
+							<span id="NItemError2">
+								
+							</span>
+							</strong><br/>
                              </td>
-                            <td>Registros con IDVersiones:<strong>
-								<span id="NItemIDVersiones"><?php echo $Resumen[1]['RefDistintasConID'];?></span>
+                            <td>
+								<div style="text-align:center;text-decoration: underline;">Con IDVersiones</div>
+                            Referencias
+                            <a title="Referencias principales distintas que tienen IDVersiones.">(*)</a>
+                            :<strong>
+								<span id="NItemIDVersiones"></span>
 								</strong><br/>
-                            <span>Y el estado esta blanco.</span>
+                            Versiones
+                            <a title="Versiones distintas que tienen IDVersiones.">(*)</a>
+                            :<strong>
+								<span id="NItemVersionesCIDVersiones"></span>
+								</strong><br/>
                             </td>
                         </tr>
                         <tr>
@@ -156,41 +171,35 @@
                         </tr>
                     </tbody>
                 </table>
-				
-				<div class="col-md-6">
-					<?php 
-					if ($RefDistintaSinIdRecambio >0 ){
-					// Quiere decir que tiene registros sin IDRecambio ...
-					?>
-					<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRegistros('IDrecambio');">
-					
-					<div class="form-group">
-						<button id="btn-IDRecambio" type="submit" class="btn btn-primary btn-sm">ID Recambio</button>
+				<div id="capa-botones" style="display:none;">
+					<p> Presentacion de botones acciones.</p>
+					<div class="col-md-4" >
+						<form class="form" role="form" id="recambios" action="javascript:CochesObtenerRegistros('IDrecambio');">
+						
+						<div class="form-group">
+							<button id="btn-IDRecambio" type="submit" class="btn btn-primary btn-sm">ID Recambio</button>
+						</div>
+						
+						</form>
 					</div>
 					
-					</form>
-					<?php
-					} // Cerramos el if anterior
-					?>
+					<div class="col-md-4">
+						<form class="form" role="form" id="versiones" action="javascript:CochesObtenerRegistros('IDversion');">
+						
+						<div class="form-group">
+							<button id="btn-IDVersion" type="submit" class="btn btn-primary btn-sm">Anotar ID Version</button>
+						</div>
+						</form>
+					</div>	
+					<div class="col-md-4">
+						<form class="form" role="form" id="relaciones" action="javascript:CochesNuevaExiste();">
+						
+						<div class="form-group">
+							<button id="btn-Relaciones" type="submit" class="btn btn-primary btn-sm">Añadimos DBRecambios</button>
+						</div>
+						</form>
+					</div>	
 				</div>
-				
-				<div class="col-md-6">
-					<?php 
-					if ($RefDistintaSinIdversion >0 ){
-					// Quiere decir que tiene registros sin IDversiones
-					?>
-					<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRegistros('IDversion');">
-					
-					<div class="form-group">
-						<button id="btn-IDVersion" type="submit" class="btn btn-primary btn-sm">Anotar ID Version</button>
-					</div>
-					</form>
-					<?php 
-					}
-					?>
-					
-				</div>	
-				
 
             </div>
 <!-- Tablas temporales de coches -->
@@ -353,7 +362,18 @@
                 </div>
                 
 			</div>	
-
+	<script>
+		var contadorAJAX;
+		var resultado = [];
+		var fabricante = 0;
+		var finallinea = 0;
+		var lineaintermedia = 0;
+		var ciclo;
+		// Ejecutamos resumen al terminar cargar
+		$(function() {
+			CochesResumen();
+		})
+	</script>
 		
     </body>
 </html>

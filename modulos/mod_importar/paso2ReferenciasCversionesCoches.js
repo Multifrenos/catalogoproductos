@@ -6,12 +6,7 @@
  * @Descripcion	Javascript necesarios para paso2ReferenciCVersiones.php
  * */
  
-var contadorAJAX;
-var resultado = [];
-var fabricante = 0;
-var finallinea = 0;
-var lineaintermedia = 0;
-var ciclo;
+
 function crearTablas() {
      var parametros = {
         'pulsado': 'CochesCrearTablas'
@@ -187,14 +182,16 @@ function CochesIDversiones(){
 	// Lo que pretendemos es encontrar las IDVersion de la tabla temporal.
 	// para ello necesitamos las conexion a la BD de coches.
 	console.log( 'Ahora en CochesIDVersiones');
-	console.log(' finallinea:'+finallinea);
-	console.log(' lineaIntermedia:'+lineaintermedia);
+	//~ console.log(' finallinea:'+finallinea);
+	//~ console.log(' lineaIntermedia:'+lineaintermedia);
 	ProcesoBarra(lineaintermedia, finallinea);
 	// Ahora compruebo que sea inferior.
 	if (finallinea > lineaintermedia) {						
 
 	// No permito continuar si no hay fabricante seleccionado.
 		if (fabricante !== "0") {
+			// Ocultamos btn-IDRecmabios para que no lo vuelva ejecutar.
+			$("#btn-IDRecambio").css("display", "none"); // Ocultamos por no hay datos a analizar.
 			var parametros = {
 					'pulsado': 'CochesIDVersiones',
 					'Fabricante': fabricante
@@ -235,7 +232,7 @@ function CochesIDversiones(){
 							}
 							$("#resultado").html(texto);
 							resultado = response;
-							console.log(resultado);
+							//~ console.log(resultado);
 							console.log( ' Repetimos CochesIDVersiones ');
 							CochesIDversiones();
 						}
@@ -246,6 +243,10 @@ function CochesIDversiones(){
 		} else {
 		   alert( 'Selecciona un fabricante por lo menos');	
 		}
+	} else {
+		alert ( 'Terminamos de buscar IDversiones ');
+		CochesResumen();
+		
 	}
 
 }
@@ -267,9 +268,98 @@ function CochesResumen() {
 			$("#resultado").html('Terminado resumen ....');
 			resultado = response;
 			console.log( ' Queda recojer datos y mostralos en pantalla' );
+			// Obtenemos datos de resultado:
+			// Cuantos registros tiene la tabla.
+			$("#TotalRegistros").html(resultado['TotalRegistro']);
+
+				// Error de [ERROR P2-23]:Referencia Principal no existe.
+				$("#NItemError0").html(resultado['Errores'][0]);
+			
+				// Error de no encontrada version
+				$("#NItemError1").html(resultado['Errores'][1]);
+			
+				// Error de Marca o Modelo
+				$("#NItemError2").html(resultado['Errores'][2]);
+
+
+			
+			
+				// Cantidad de registros con estado o idRecambios o idVersiones cubierto.
+				$("#EstadoCubierto").html(resultado['RegistroVistos']);
+			
+				// Quiere decir que hay Registros sin IDRecambio puesto.
+				$("#DistintasReferenPrincipales").html(resultado[0]['TotalReferenciasDistintas']);
+				// Ademas vamos comprobar si es mayor cero para mostrar el btn sino no se muestra por defecto
+				if (resultado[0]['TotalReferenciasDistintas'] >0) {
+					$("#btn-IDRecambio").css("display", "block"); // Mostramos por hay datos a analizar.
+				} else {
+					$("#btn-IDRecambio").css("display", "none"); // Ocultamos por no hay datos a analizar.
+
+				}
+				// Quiere decir que hay Registros con IDRecambio puesto.
+				$("#NItemIDRecambio").html(resultado[0]['RefDistintasConID']);
+
+			// Cubrimos los datos de la tercera fila de tabla.
+			
+			
+				// Quiere decir que hay Registros con IDVersiones puesto.
+				$("#DistintasRefPrinSIDversion").html(resultado[1]['TotalReferenciasDistintas']);
+
+				if (resultado[1]['TotalReferenciasDistintas'] >0) {
+					$("#btn-IDVersion").css("display", "block"); // Mostramos por hay datos a analizar.
+				} else {
+					$("#btn-IDVersion").css("display", "none"); // Ocultamos por no hay datos a analizar.
+
+				}
+				// Quiere decir que hay Registros con IDVersiones puesto.
+				$("#NItemIDVersiones").html(resultado[1]['RefDistintasConID']);
+
+				// Quiere decir que hay Registros con IDVersiones puesto.
+				$("#NItemVersionesCIDVersiones").html(resultado['NVersionesDifCIDversion']);
+
+				// Controlamos si mostramos btn-AñadirRelaciones ya que si tiene registros sin estado y 
+				// sin IDrecambio y sin IDVCersiones no se muestra.
+				if (resultado[1]['TotalReferenciasDistintas'] >0 || resultado[0]['TotalReferenciasDistintas'] >0) {
+					$("#btn-Relaciones").css("display", "none"); // No se muestra ya que queda registros por analizar.
+				} else {
+					$("#btn-Relaciones").css("display", "block"); // Ocultamos por no hay datos a analizar.
+				}
+
 			console.log(resultado);
+			// Activamos capa de botones ( div) 
+			$("#capa-botones").css("display", "block"); // Ocultamos por existe fabricante.
+
 		}
 
 	});		
 }
 
+function CochesNuevaExiste(){
+	// Funcion que comprobamos si existe el cruce o si va se nuevo.
+	// En esta función simplemente cubrimos estado de registro como nuevo o si existe.
+	// Es un bucle mientras no cubra el Estado de todos los registros 
+	
+	// -- Primero comprobamos que tenga fabricante --
+	if (fabricante !== "0") {
+		// Ahora ejecutamos funcion de php.
+		console.log('Ejecutamos CochesNuevosExiste');
+		var parametros = {
+		'pulsado': 'CochesNuevaExiste',
+		};
+		$.ajax({
+			data: parametros,
+			url: 'tareas.php',
+			type: 'post',
+			beforeSend: function () {
+				$("#resultado").html('Comprobamos que las relaciones son Nuevas o Existentes de los primeros 500 registros.......<span><img src="./img/ajax-loader.gif"/></span>');
+			},
+			success: function (response) {
+				console.log ('volvio de CocheNuevaExite');
+			}
+		});
+	
+	}  else {
+		   alert( 'Selecciona un fabricante es necesario');	
+	}
+
+}

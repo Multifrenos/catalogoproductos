@@ -223,14 +223,20 @@
 			$array[$i]['consulta'] = $whereC;
 			$i++;
 		}
-		// Ahora obtenemos la NItems distintos que tiene error en campo.
-		// El error de:
+		// Ahora obtenemos la NItems distintos tipo errores o advertencias.
 		// Estado ='[ERROR P2-23]:Referencia Principal no existe.
-			$whereC = " WHERE Estado = '[ERROR P2-23]:Referencia Principal no existe.'";
+		// Estado = 'Error Version';
+		// Estado = 'Error Marca o Modelo';
+			$arrayErrores = array('[ERROR P2-23]:Referencia Principal no existe.','Error Version','Error Marca o Modelo');
 			$campo = 'RefProveedor';
+			$i=0;
+			foreach ($arrayErrores as $arrayError) {
+			$whereC = ' WHERE Estado="'.$arrayError.'"';
 			$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
-			$array['RefDistintasError'] = $resultados['NItems'];
-		
+			$array['Errores'][$i] = $resultados['NItems'];
+			$i++;
+			}
+					
 		// Ahora contamos registros
 			$whereC= ' ';
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
@@ -239,6 +245,26 @@
 			$whereC= "  WHERE `Estado`<>' ' or (`RecambioID`>0 and `IdVersion`>0)";
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
 			$array['RegistroVistos'] = $resultado;
+			
+		// Ahora contamos las distintas versiones que existe.
+			$campos = array('MarcaDescrip','ModeloVersion','VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');
+			$nombretabla= "referenciascversiones";
+			$CampoDistinct = implode(",", $campos);
+			// Realizamos un select con concatenado campos para buscar las versiones distintas que hay.
+			$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and IdVersion=0";
+			
+			$resultado = $BDImportRecambios->query($QueryDis);
+			$array['NVersionesDifSIDversion'] = $resultado->num_rows;
+			
+		// Ahora contamos las distintas versiones que existen pero con IDVersiones.
+			$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and IdVersion<>0";
+			
+			$resultado = $BDImportRecambios->query($QueryDis);
+			$array['NVersionesDifCIDversion'] = $resultado->num_rows;
+		
+		
+		
+		
 		return $array;
 	}
 	
@@ -282,13 +308,10 @@
 		
 		$campos = array('VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');
 		$nombretabla= "referenciascversiones";
-		//~ $whereC = " WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 100";
-		//~ $resultado = $ConsultaImp->registroLineas($BDImportRecambios,$nombretabla,$campo,$whereC);
-		
 		$CampoDistinct = implode(",", $campos);
 		// Realizamos un select con concatenado campos para buscar las versiones distintas que hay.
-		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion,FechaInici,FechaFinal,RecambioID,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 40";
-		$Resumen['consulta'] = $QueryDis;
+		$QueryDis = 'SELECT distinct(concat('.$CampoDistinct.")) as concatenado,MarcaDescrip,ModeloVersion,FechaInici,FechaFinal,RecambioID,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and ( RecambioID >0 and IdVersion=0) limit 350";
+		//~ $Resumen['consulta'] = $QueryDis;
 
 		$resultado = $BDImportRecambios->query($QueryDis);
 		// Ahora obtenemos los datos de 100
@@ -449,17 +472,40 @@
 			$QueryDis='UPDATE '.$nombretabla.' SET Estado=  case '.implode(' ', $arrayWhere['error']).' else Estado end where Estado=""';
 			$resultado = $BDImportRecambios->query($QueryDis);
 			$Resumen['TotalRegistrosConError'] = $BDImportRecambios->affected_rows;
-			$Resumen['UPDATEUnicoError'] =$QueryDis;
+			//~ $Resumen['UPDATEUnicoError'] =$QueryDis;
 		}
 		if (isset($arrayWhere['insert'])){
 			$QueryDis='UPDATE '.$nombretabla.' SET IdVersion=  case '.implode(' ', $arrayWhere['insert']).' else IdVersion end';
 			$resultado = $BDImportRecambios->query($QueryDis);
 			$Resumen['TotalRegistrosIDRecambios'] = $BDImportRecambios->affected_rows;
-			$Resumen['UPDATEUnicoInsert'] =$QueryDis;
+			//~ $Resumen['UPDATEUnicoInsert'] =$QueryDis;
 		}
-		$Resumen['Array'] = $array; // Lo añado para ver que sucede, solo es un control debug
+		//~ $Resumen['Array'] = $array; // Lo añado para ver que sucede, solo es un control debug
 		
 		return $Resumen;
 	
 	}
+	
+	
+	function CochesNuevaExiste($BDVehiculos,$BDImportRecambios,$ConsultaImp) {
+			// Obtener Cruces distintos que no tienen Estado.
+			$resumen = array();
+			// Ahora contamos las distintas versiones que existen pero con IDVersiones.
+			$campos = array('RecambioID','IdVersion');
+			$nombretabla= "referenciascversiones";
+			$CampoDistinct = implode(",", $campos);
+			$QueryDis = 'SELECT count(distinct(concat('.$CampoDistinct."))) as concatenado,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and IdVersion<>0";
+			
+			$resultado = $BDImportRecambios->query($QueryDis);
+			$resumen['totalRegistros'] = $resultado->num_rows;
+			$resumen['consulta'] = $QueryDis;
+
+		return $resumen ;
+		
+	
+	
+	
+	
+	}
+	
 ?>
