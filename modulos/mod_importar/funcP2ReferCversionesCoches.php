@@ -202,19 +202,34 @@
 		// y obtenemos los datos para mostralos.
 		// Recibimos parametro $Paso para poder descartar algunas consultas, según el paso que estemos.
 		$array = array();
-		$andWheres = array('RecambioID','IdVersion');
-		// obtenemos datos de referenciasCversiones las RefProveedor distintos que estado = blanco y RecambioID sea 0
-	    $tabla ="referenciascversiones";
+		$tabla ="referenciascversiones";
+	    // 1.- Contamos registros
+			$whereC= ' ';
+			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+			$array['TotalRegistro'] = $resultado;
+		// 2.- Contamos registros que tengan Estado Blanco y no tengas IDś cubiertos ( Recambio y Versiones)
+		// Si el resultado de esto es 0 , quiere decir que ya se busco IDś por lo debemos pasar a NuevosExiste.
+			$whereC= "  WHERE `Estado`='' and (`RecambioID`>0 and `IdVersion`>0)";
+			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+			$array['RegistroVistos'] = $resultado;
+		// 3.- Contamos Registros que el Estado este en Blanco.
+		// Si el resultado de esto es 0 , quiere decir que ya tenemos cubierto todos los estaso por lo que no podemos 
+		// hacer nada más... solo arreglar a MANO los que esten mal.
+			$whereC= "  WHERE `Estado`=''";
+			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+			$array['RegistroBlanco'] = $resultado;
+			
+	    // 4.- Ahora obtenemos cuantas RefProveedor distintas con Estado Blanco y IDRecambio =0  o IDversiones = 0 
+	    $andWheres = array('RecambioID','IdVersion');
 		$i = 0;
 		foreach ($andWheres as $andWhere) {
 	   		$whereC = " WHERE Estado = '' and ".$andWhere.'= 0';
 			$campo = 'RefProveedor';
 			$resultados =$ConsultaImp->distintosCampo($BDImportRecambios,$tabla,$campo,$whereC);
 			$array[$i]['TotalReferenciasDistintas'] = $resultados['NItems'];
-			//~ $array[$i]['consultaTodos'] = $whereC;
 			$i++;
 		}
-		// Ahora volvemos hacer lo mismo pero comprobando aquellos que tiene registros.. esto solo debe suceder cuando ya ejecutamos AJAX
+		// 5.- Ahora obtenemos cuantas RefProveedor distintas con Estado Blanco y IDRecambio >0  o IDversiones > 0 
 		$i = 0;
 		foreach ($andWheres as $andWhere) {
 	   		$whereC = " WHERE Estado = '' and ".$andWhere.'> 0';
@@ -238,19 +253,7 @@
 			$i++;
 			}
 					
-		// Ahora contamos registros
-			$whereC= ' ';
-			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
-			$array['TotalRegistro'] = $resultado;
-		// Ahora contamos con estado cubierto:
-			$whereC= "  WHERE `Estado`='' and (`RecambioID`>0 and `IdVersion`>0)";
-			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
-			$array['RegistroVistos'] = $resultado;
-		// Ahora contamos con estado blanco:
-			$whereC= "  WHERE `Estado`=''";
-			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
-			$array['RegistroBlanco'] = $resultado;
-			
+		
 		// Ahora contamos las distintas versiones que existe.
 			$campos = array('MarcaDescrip','ModeloVersion','VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');
 			$nombretabla= "referenciascversiones";

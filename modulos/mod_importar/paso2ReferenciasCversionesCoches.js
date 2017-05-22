@@ -144,6 +144,7 @@ function CochesObtenerRegistros(btnPulsado) {
 
 
 function CochesIDRecambioTemporal() {
+    // Esta funcion la ejecuta: 
     // No permito continuar si no hay fabricante seleccionado.
     if (fabricante !== "0") {
 		// Ocultamos el btn , para que el usuario no pueda volver a pulsarlo.
@@ -171,9 +172,9 @@ function CochesIDRecambioTemporal() {
 
 				});
 		} else {
-			console.log('Mostramos botton ID version ');
-			$("#btn-IDVersion").css("display", "block"); // Ocultamos por existe fabricante.
-
+			console.log('No hay IDRecambios sin buscar. ');
+			CochesResumen('FinIDRecambios');
+			
 		}
 	ProcesoBarra(lineaintermedia, finallinea);
 	}
@@ -257,7 +258,7 @@ function CochesResumen(paso) {
 	console.log ( ' Ejecutamos funcion CocheResumen ' );
 	var parametros = {
 		'pulsado': 'CochesResumen',
-		'paso' : paso
+		'Paso' : paso
 	};
 	$.ajax({
 		data: parametros,
@@ -307,7 +308,7 @@ function CochesResumen(paso) {
 				// Quiere decir que hay Registros con IDVersiones puesto.
 				$("#DistintasRefPrinSIDversion").html(resultado[1]['TotalReferenciasDistintas']);
 
-				if (resultado[1]['TotalReferenciasDistintas'] >0) {
+				if (resultado[1]['TotalReferenciasDistintas'] >0 && resultado[0]['TotalReferenciasDistintas'] === 0) {
 					$("#btn-IDVersion").css("display", "block"); // Mostramos por hay datos a analizar.
 				} else {
 					$("#btn-IDVersion").css("display", "none"); // Ocultamos por no hay datos a analizar.

@@ -33,18 +33,7 @@
 			$htmloptiones .= '<option value="' . $fila["id"] . '">' . $fila["Nombre"] . '</option>';
 		}
 		$consultaFabricantes->close();
-		//~ // Ahora obtenemos datos inicio para mostrar en resumen.
-		//~ $InicioConsulta = new ConsultaBD;
-		//~ // Realizamos resumen 
-		//~ $Resumen =CochesResumen($BDImportRecambios,$InicioConsulta);
-		//~ $RefDistintaSinIdRecambio = $Resumen[0]['TotalReferenciasDistintas'];
-		//~ $RefDistintaSinIdversion = $Resumen[1]['TotalReferenciasDistintas'];
-		//~ $TotalRegistros =  $Resumen['TotalRegistro'];
-		//~ $RegistrosVisto =  $Resumen['RegistroVistos'];
-//~ 
-		//~ echo '<pre>';
-		//~ print_r($Resumen);
-		//~ echo '</pre>';
+		
         ?>
         <div class="container">
             <div class="col-md-12 text-center">
