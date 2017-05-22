@@ -197,9 +197,10 @@
 	
 	
 	
-	function CochesResumen($BDImportRecambios,$ConsultaImp) {
+	function CochesResumen($BDImportRecambios,$ConsultaImp,$Paso) {
 		// En esta función lo que vamos a realizar es el resumen de tabla referenciascversiones
 		// y obtenemos los datos para mostralos.
+		// Recibimos parametro $Paso para poder descartar algunas consultas, según el paso que estemos.
 		$array = array();
 		$andWheres = array('RecambioID','IdVersion');
 		// obtenemos datos de referenciasCversiones las RefProveedor distintos que estado = blanco y RecambioID sea 0
@@ -242,9 +243,13 @@
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
 			$array['TotalRegistro'] = $resultado;
 		// Ahora contamos con estado cubierto:
-			$whereC= "  WHERE `Estado`<>' ' or (`RecambioID`>0 and `IdVersion`>0)";
+			$whereC= "  WHERE `Estado`='' and (`RecambioID`>0 and `IdVersion`>0)";
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
 			$array['RegistroVistos'] = $resultado;
+		// Ahora contamos con estado blanco:
+			$whereC= "  WHERE `Estado`=''";
+			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+			$array['RegistroBlanco'] = $resultado;
 			
 		// Ahora contamos las distintas versiones que existe.
 			$campos = array('MarcaDescrip','ModeloVersion','VersionAcabado','kw','cv','Cm3','Ncilindros','TipoCombustible');

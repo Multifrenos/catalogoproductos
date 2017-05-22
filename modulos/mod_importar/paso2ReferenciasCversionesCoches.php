@@ -371,7 +371,7 @@
 		var ciclo;
 		// Ejecutamos resumen al terminar cargar
 		$(function() {
-			CochesResumen();
+			CochesResumen('FinCargaPagina');
 		})
 	</script>
 		

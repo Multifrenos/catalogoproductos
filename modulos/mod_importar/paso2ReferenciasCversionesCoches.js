@@ -146,7 +146,8 @@ function CochesObtenerRegistros(btnPulsado) {
 function CochesIDRecambioTemporal() {
     // No permito continuar si no hay fabricante seleccionado.
     if (fabricante !== "0") {
-		// Mostramos y actualizamos barra
+		// Ocultamos el btn , para que el usuario no pueda volver a pulsarlo.
+		$("#btn-IDVersion").css("display", "none");
 		if (finallinea > lineaintermedia ) {
 			var parametros = {
 				'pulsado': 'CochesIDRecambioTemporal',
@@ -170,7 +171,6 @@ function CochesIDRecambioTemporal() {
 
 				});
 		} else {
-			//~ clearInterval(ciclo); // Cancelamos ciclo...
 			console.log('Mostramos botton ID version ');
 			$("#btn-IDVersion").css("display", "block"); // Ocultamos por existe fabricante.
 
@@ -182,8 +182,8 @@ function CochesIDversiones(){
 	// Lo que pretendemos es encontrar las IDVersion de la tabla temporal.
 	// para ello necesitamos las conexion a la BD de coches.
 	console.log( 'Ahora en CochesIDVersiones');
-	//~ console.log(' finallinea:'+finallinea);
-	//~ console.log(' lineaIntermedia:'+lineaintermedia);
+	console.log(' finallinea:'+finallinea);
+	console.log(' lineaIntermedia:'+lineaintermedia);
 	ProcesoBarra(lineaintermedia, finallinea);
 	// Ahora compruebo que sea inferior.
 	if (finallinea > lineaintermedia) {						
@@ -191,7 +191,8 @@ function CochesIDversiones(){
 	// No permito continuar si no hay fabricante seleccionado.
 		if (fabricante !== "0") {
 			// Ocultamos btn-IDRecmabios para que no lo vuelva ejecutar.
-			$("#btn-IDRecambio").css("display", "none"); // Ocultamos por no hay datos a analizar.
+			console.log('Deberiamos ocultar botton');
+			$("#btn-IDVersion").css("display", "none"); // Ocultamos por no hay datos a analizar.
 			var parametros = {
 					'pulsado': 'CochesIDVersiones',
 					'Fabricante': fabricante
@@ -245,17 +246,18 @@ function CochesIDversiones(){
 		}
 	} else {
 		alert ( 'Terminamos de buscar IDversiones ');
-		CochesResumen();
+		CochesResumen('FinIDversiones');
 		
 	}
 
 }
 
 
-function CochesResumen() {
+function CochesResumen(paso) {
 	console.log ( ' Ejecutamos funcion CocheResumen ' );
 	var parametros = {
 		'pulsado': 'CochesResumen',
+		'paso' : paso
 	};
 	$.ajax({
 		data: parametros,

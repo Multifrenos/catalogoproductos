@@ -163,7 +163,8 @@ include_once ("./funcP2ReferCversionesCoches.php");
         break;       
  
     case 'CochesResumen':
-        $array = CochesResumen($BDImportRecambios,$ConsultaImp);
+        $Paso = $_POST['Paso'];
+        $array = CochesResumen($BDImportRecambios,$ConsultaImp,$Paso);
         header("Content-Type: application/json;charset=utf-8");
 		echo json_encode($array);
         break;       
