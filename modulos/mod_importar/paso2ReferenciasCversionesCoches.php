@@ -78,7 +78,9 @@
                              </td>
                             <td>
                              Registros Analizados
-                            <a title="Registros analizados que tiene Estado o tienen cubierto IDrecambio y IDversion.">(*)</a>
+                            <a title="Registros analizados:
+Tienen el Estado cubierto o tienen IDrecambio y IDversion.
+Ten en cuenta que si Num Registros es igual al de analizados, entonces ya hizo proceso IDś">(*)</a>
                             :<strong>
 							<span id="EstadoCubierto">
 								
@@ -154,9 +156,35 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>PASO 3: Registros Estado Blanco</th>
-                            <td>Registros a procesar:<strong><span id="RegBlanco"></strong></span></td>
-                            <td> </td>
+                            <th>Estado Final <br>Nuevo-Existe-Duplicado</th>
+                            <td><div style="text-align:center;text-decoration: underline;">Pendiente Comprobar</div>
+								Registros
+								<a title="Registros que tienen ID Recambio y Versiones , con estado en blanco.">(*)</a>
+								:<strong><span id="RegCIDsEstadoBlanco"></strong></span><br/>
+								Duplicado
+                            <a title="Son los cruces que en este fichero vienen duplicados.&#10 No es un numero registros, sino que la cantidad distintas versiones que tienen cruces duplicados.">(*)</a>
+                            :<strong>
+								<span id="DuplicadosIDVersiones"></span>
+								</strong><br/>
+							<div style="text-align:center;text-decoration: underline;">Errores</div>	
+							Duplicado
+                            <a title="Estos registros no se van añadir al cruce, ya que solo se añade uno. &#10;
+El estado es Duplicado de aquellos que se descartan, uno queda en blanco que se comprueba si es nuevo o existen..">(*)</a>
+                            :<strong>
+								<span id="RegDuplicadosDescartados"></span>
+								</strong><br/>
+                            <td><div style="text-align:center;text-decoration: underline;">Ya Listo</div>
+							Nuevo
+                            <a title="Son los cruces nuevos que van crear.">(*)</a>
+                            :<strong>
+								<span id="NuevoCruces"></span>
+								</strong><br/>
+							Existe
+                            <a title="Son los cruces que ya existen BDRecambios que no creamos pero si cambiamos Fecha Actualizacion.">(*)</a>
+                            :<strong>
+								<span id="ExisteCruces"></span>
+								</strong><br/>
+							 </td>
                         </tr>
                     </tbody>
                 </table>
@@ -181,7 +209,7 @@
 						</form>
 					</div>	
 					<div class="col-md-4">
-						<form class="form" role="form" id="relaciones" action="javascript:CochesNuevaExiste();">
+						<form class="form" role="form" id="relaciones" action="javascript:CochesObtenerRegistros('NuevoExiste');">
 						
 						<div class="form-group">
 							<button id="btn-Relaciones" type="submit" class="btn btn-primary btn-sm">Añadimos DBRecambios</button>

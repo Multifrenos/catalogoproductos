@@ -90,11 +90,20 @@
 		$wheres = array();
 		// obtenemos datos de referenciasCversiones las RefProveedor distintos que estado = blanco y RecambioID sea 0
 	    $tabla ="referenciascversiones";
-	    if ($Buscar == 'IDrecambio'){
-			$andWhere = "RecambioID =0 ";
-		} else {
-			$andWhere = "IdVersion =0 ";
-		}
+	    switch ($Buscar) {
+			case 'IDrecambio':
+				$andWhere = "RecambioID =0 ";
+				break;
+			
+			case 'IDversion':
+				$andWhere = "IdVersion =0 ";
+				break;
+			
+			case 'NuevoExiste':
+				$andWhere = "(`RecambioID`>0 and `IdVersion`>0)";
+				break;
+	    }
+	    
 	    
 		$whereC = " WHERE Estado = '' and ".$andWhere;
 		$campo = 'RefProveedor';
@@ -207,19 +216,21 @@
 			$whereC= ' ';
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
 			$array['TotalRegistro'] = $resultado;
-		// 2.- Contamos registros que tengan Estado Blanco y no tengas IDś cubiertos ( Recambio y Versiones)
-		// Si el resultado de esto es 0 , quiere decir que ya se busco IDś por lo debemos pasar a NuevosExiste.
-			$whereC= "  WHERE `Estado`='' and (`RecambioID`>0 and `IdVersion`>0)";
+		// 2.- Contamos registros que tengan Estado cubiertos o tenga IDś cubiertos ( Recambio y Versiones)
+		// Si el resultado de esto es 0 , quiere decir que no se busco IDś recambios y IDVersiones.
+			$whereC= "  WHERE `Estado`<>'' or (`RecambioID`>0 and `IdVersion`>0)";
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
 			$array['RegistroVistos'] = $resultado;
-		// 3.- Contamos Registros que el Estado este en Blanco.
-		// Si el resultado de esto es 0 , quiere decir que ya tenemos cubierto todos los estaso por lo que no podemos 
-		// hacer nada más... solo arreglar a MANO los que esten mal.
-			$whereC= "  WHERE `Estado`=''";
+		// 3.- Contamos registros que tengan Estado Blanco y tenga IDś cubiertos ( Recambio y Versiones)
+		// Si el resultado de esto es 0 , que ya existen tienen estado todos los registros.
+		// con lo que si tiene IDś quiere decir que su estado es:
+		// Nuevo,Existe,Duplicado.
+			$whereC= "  WHERE `Estado`=''  and (`RecambioID`>0 and `IdVersion`>0)";
 			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
-			$array['RegistroBlanco'] = $resultado;
+			$array['RegistroCIDs'] = $resultado;
+
 			
-	    // 4.- Ahora obtenemos cuantas RefProveedor distintas con Estado Blanco y IDRecambio =0  o IDversiones = 0 
+	    // 4.- Contamos registros cuantas RefProveedor distintas con Estado Blanco y IDRecambio =0  o IDversiones = 0 
 	    $andWheres = array('RecambioID','IdVersion');
 		$i = 0;
 		foreach ($andWheres as $andWhere) {
@@ -239,11 +250,42 @@
 			$array[$i]['consulta'] = $whereC;
 			$i++;
 		}
+		// 6.- Obtenemos cuantos cruces duplicados hay.
+		// Esto no se hace si el no están ya buscados todos los IDś de Recambios y Versiones, por lo que :
+		if ( $array[0]['TotalReferenciasDistintas'] === 0 and $array[1]['TotalReferenciasDistintas'] === 0  ) {
+			
+			
+			$QueryGroup = "SELECT concat( `RecambioID` , ':', `IdVersion` ) AS concatenado, `linea` , `RefProveedor` , `RecambioID` , `IdVersion` , `Estado` , count( `Estado` ) AS c
+			FROM `referenciascversiones`
+			WHERE Estado=''
+			AND IdVersion !=0
+			GROUP BY concatenado
+			HAVING c !=1
+			ORDER BY c DESC ";
+			$resultado = $BDImportRecambios->query($QueryGroup);
+			$array['EstadoFinal']['Duplicado'] = $resultado->num_rows;;
+			
+			// Ahora contamos los Duplicados que ya tenemos marcados en estado.
+			$whereC= "  WHERE `Estado`='Duplicado'";
+			$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+			$array['EstadoFinal']['RegDuplicadoDescartados'] = $resultado;
+
+		
+		
+		
+		
+		}
+		
+		
 		// Ahora obtenemos la NItems distintos tipo errores o advertencias.
 		// Estado ='[ERROR P2-23]:Referencia Principal no existe.
 		// Estado = 'Error Version';
 		// Estado = 'Error Marca o Modelo';
-			$arrayErrores = array('[ERROR P2-23]:Referencia Principal no existe.','Error Version','Error Marca o Modelo');
+			$arrayErrores = array();
+				$arrayErrores[] = '[ERROR P2-23]:Referencia Principal no existe.';
+				$arrayErrores[] = 'Error Version';
+				$arrayErrores[] = 'Error Marca o Modelo';
+				
 			$campo = 'RefProveedor';
 			$i=0;
 			foreach ($arrayErrores as $arrayError) {
@@ -496,24 +538,54 @@
 	
 	
 	function CochesNuevaExiste($BDVehiculos,$BDImportRecambios,$ConsultaImp) {
-			// Obtener Cruces distintos que no tienen Estado.
-			$resumen = array();
-			// Ahora contamos las distintas versiones que existen pero con IDVersiones.
-			$campos = array('RecambioID','IdVersion');
-			$nombretabla= "referenciascversiones";
-			$CampoDistinct = implode(",", $campos);
-			$QueryDis = 'SELECT count(distinct(concat('.$CampoDistinct."))) as concatenado,".$CampoDistinct."  FROM `referenciascversiones` WHERE Estado = '' and IdVersion<>0";
-			
-			$resultado = $BDImportRecambios->query($QueryDis);
-			$resumen['totalRegistros'] = $resultado->num_rows;
-			$resumen['consulta'] = $QueryDis;
+		$resumen = array();
+		// Obtenemos los registros que el Estado está blanco y tiene IDs( IDRecmabio y IDversiones)
+		$tabla = "referenciascversiones";
+		$whereC= "  WHERE `Estado`=''  and (`RecambioID`>0 and `IdVersion`>0)";
+		$resultado = $ConsultaImp->contarRegistro($BDImportRecambios,$tabla,$whereC);
+		$resumen['RegistroCIDs'] = $resultado;
+		if ($resumen['RegistroCIDs']>0) {
+			// Quiere decir que hay registros que el Estado está en blanco y tiene IDRecambios y IDVersiones.
+			// Ahora comprobamos si hay duplicados sin procesar.
+			$QueryGroup = "SELECT concat( `RecambioID` , ':', `IdVersion` ) AS concatenado, `linea` , `RefProveedor` , `RecambioID` , `IdVersion` , `Estado` , count( `Estado` ) AS c
+			FROM `referenciascversiones`
+			WHERE Estado=''
+			AND IdVersion !=0
+			GROUP BY concatenado
+			HAVING c !=1
+			ORDER BY c DESC ";
+			$resultado = $BDImportRecambios->query($QueryGroup);
+			$resumen['EstadoFinal']['Duplicado'] = $resultado->num_rows;;
+		}
+		// Si tenemos pendientes entonces ejecutamos UPDAte de cambiar estado de los duplicados menos en uno.
+		if ($resumen['EstadoFinal']['Duplicado']>0){
+			// Ahora cubrimos los duplicados de 100 primeros Distintos duplicados encontrados.
+			$QueryGroup = "UPDATE (
+			SELECT linea, `RecambioID` , `IdVersion` , `Estado` , concat( `RecambioID` , ':', `IdVersion` ) AS con, count( `IdVersion` ) AS c
+			FROM referenciascversiones
+			WHERE Estado = ''
+			AND IdVersion !=0
+			AND Estado != 'Duplicado'
+			GROUP BY con
+			HAVING c >1
+			LIMIT 100
+			) AS nueva, referenciascversiones AS ref
+			SET ref.Estado = if(ref.linea = nueva.linea,'','Duplicado') WHERE nueva.RecambioID = ref.RecambioID AND nueva.IdVersion = ref.IdVersion";
+			$resultado = $BDImportRecambios->query($QueryGroup);
 
+			$resumen['EstadoFinal']['RegDuplicadoCambiados']= $BDImportRecambios->affected_rows;
+			
+		
+		
+		return $resumen ; // Ya que no podemos continuar hasta terminar los duplicados.
+		}
+		
+		
+		
+		
+		
 		return $resumen ;
 		
-	
-	
-	
-	
 	}
 	
 ?>

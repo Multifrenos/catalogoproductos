@@ -85,6 +85,8 @@ function CochesObtenerRegistros(btnPulsado) {
     comprobar($('#IdFabricante').val())
     // No permito continuar si no hay fabricante seleccionado.
     if (fabricante !== "0") {
+		// En esta funcio lo unico que obtenemos es la linea final, ya que según lo que pulsemos obtenemos uno u otra dato.
+		// No vale para nada mas que para eso...
 		var parametros = {
 			'pulsado': 'CochesObtenerRegistros',
 			'Fabricante': fabricante,
@@ -102,34 +104,48 @@ function CochesObtenerRegistros(btnPulsado) {
 					finallinea =response['TotalReferenciasDistintas'];
 					lineaintermedia = 0;
 					console.log (' Pulsado es:'+btnPulsado);
-					if (btnPulsado == 'IDrecambio') {
-						$("#DistintasReferenPrincipales").html(finallinea); 
-						$("#resultado").html('Obtenemos cantidad total de ID de Referencias Principales que tenemos que buscar....' + finallinea );
-						if (finallinea >0 ) {
-							// Ejecutamos CochesIDRecambioTemporal ciclo
-							console.log('Ocultamos botton de RecambioID');
-							$("#btn-IDRecambio").css("display", "none"); // Ocultamos por existe fabricante.
-							//~ ciclo = setInterval(CochesIDRecambioTemporal,6000);
-							CochesIDRecambioTemporal();
-						}
-					} else {
-						$("#DistintasRefPrinSIDversion").html(finallinea); 
-						$("#resultado").html('Obtenemos cantidad total de ID de Versiones que tenemos buscar ....' + finallinea);
-						if (finallinea >0 ) {
-							// Ejecutamos CochesIDRecambioTemporal ciclo
-							//~ ciclo = setInterval(CochesIDRecambioTemporal,5000);
-							console.log('Entre en finalinea de IDversiones');
-							console.log( 'Antes obtener valor, finallinea es'+finallinea);
-							finallinea = parseInt($("#TotalRegistros").text());
-							lineaintermedia = parseInt($("#EstadoCubierto").text());
-							console.log('Ejecutamos CochesIDresumen');
-							CochesIDversiones();
-							
-							
-						}
+					// Ahora creamos swich
 					
+					switch (btnPulsado) {
+						case 'IDrecambio':
+							$("#DistintasReferenPrincipales").html(finallinea); 
+							$("#resultado").html('Obtenemos cantidad total de ID de Referencias Principales que tenemos que buscar....' + finallinea );
+							if (finallinea >0 ) {
+								// Ejecutamos CochesIDRecambioTemporal ciclo
+								console.log('Ocultamos botton de RecambioID');
+								$("#btn-IDRecambio").css("display", "none"); // Ocultamos por existe fabricante.
+								//~ ciclo = setInterval(CochesIDRecambioTemporal,6000);
+								CochesIDRecambioTemporal();
+							}
+							break;
+						case 'IDversion':
+							$("#DistintasRefPrinSIDversion").html(finallinea); 
+							$("#resultado").html('Obtenemos cantidad total de ID de Versiones que tenemos buscar ....' + finallinea);
+							if (finallinea >0 ) {
+								// Ejecutamos CochesIDRecambioTemporal ciclo
+								//~ ciclo = setInterval(CochesIDRecambioTemporal,5000);
+								console.log('Entre en finalinea de IDversiones');
+								console.log( 'Antes obtener valor, finallinea es'+finallinea);
+								finallinea = parseInt($("#TotalRegistros").text());
+								lineaintermedia = parseInt($("#EstadoCubierto").text());
+								console.log('Ejecutamos CochesIDresumen');
+								CochesIDversiones();
+							}
+							break;
+						case 'NuevoExiste':
+							console.log('Ahora vamos ejecutar Nuevo y existente');
+							// La linea final no vale la que obtenemos por la que ponemos la que si vale.
+							finallinea = parseInt($("#RegCIDsEstadoBlanco").text());
+							lineaintermedia = 0;
+							console.log('lineafinal'+finallinea);
+							console.log('Intermedia de Nuevo-Existe'+lineaintermedia);
+							if (finallinea >0 ) {
+								CochesNuevaExiste();
+							}
+							
+							break;
 					}
-						
+					
 				}
 
 				
@@ -283,7 +299,7 @@ function CochesResumen(paso) {
 			
 				// Error de Marca o Modelo
 				$("#NItemError2").html(resultado['Errores'][2]);
-
+				
 
 			
 			
@@ -320,12 +336,17 @@ function CochesResumen(paso) {
 				// Quiere decir que hay Registros con IDVersiones puesto.
 				$("#NItemVersionesCIDVersiones").html(resultado['NVersionesDifCIDversion']);
 
-				// Controlamos si mostramos btn-AñadirRelaciones ya que si tiene registros sin estado y 
-				// sin IDrecambio y sin IDVCersiones no se muestra.
-				if (resultado[1]['TotalReferenciasDistintas'] >0 || resultado[0]['TotalReferenciasDistintas'] >0) {
+				// Controlamos si mostramos btn-AñadirRelaciones . 
+				// ya que si tiene registros el valor:RegistroCIDs que es
+				// el numero registros que tienen estado en blanco y ademas tienes (IDRecambio y IDversion)
+				if (resultado['RegistroCIDs'] === 0) {
 					$("#btn-Relaciones").css("display", "none"); // No se muestra ya que queda registros por analizar.
 				} else {
+					$('#RegCIDsEstadoBlanco').html(resultado['RegistroCIDs']);
+					$('#DuplicadosIDVersiones').html(resultado['EstadoFinal']['Duplicado']);
+					$("#RegDuplicadosDescartados").html(resultado['EstadoFinal']['RegDuplicadoDescartados']);
 					$("#btn-Relaciones").css("display", "block"); // Ocultamos por no hay datos a analizar.
+					
 				}
 
 			console.log(resultado);
@@ -341,10 +362,9 @@ function CochesNuevaExiste(){
 	// Funcion que comprobamos si existe el cruce o si va se nuevo.
 	// En esta función simplemente cubrimos estado de registro como nuevo o si existe.
 	// Es un bucle mientras no cubra el Estado de todos los registros 
-	
-	// -- Primero comprobamos que tenga fabricante --
+	// 1.- Primero comprobamos que tengamos selecciona un fabricante.
 	if (fabricante !== "0") {
-		// Ahora ejecutamos funcion de php.
+		// ejecutamos funcion de php.
 		console.log('Ejecutamos CochesNuevosExiste');
 		var parametros = {
 		'pulsado': 'CochesNuevaExiste',
@@ -357,12 +377,35 @@ function CochesNuevaExiste(){
 				$("#resultado").html('Comprobamos que las relaciones son Nuevas o Existentes de los primeros 500 registros.......<span><img src="./img/ajax-loader.gif"/></span>');
 			},
 			success: function (response) {
-				console.log ('volvio de CocheNuevaExite');
+				console.log ('Respondio funcion php de CocheNuevaExite');
+				// Ahora compruebo si no hay duplicados.
+				if (response['EstadoFinal']['Duplicado'] > 0 ) {
+					// Quiere decir que hay duplicados que no arreglaron.
+					console.log('Entro en duplicado, por lo que no volvemos a ejecutar CochesNuevaExiste');
+					$('#DuplicadosIDVersiones').html(response['EstadoFinal']['Duplicado']);
+					$("#RegDuplicadosDescartados").html(response['EstadoFinal']['RegDuplicadoCambiados']);
+					// Para mostrar la barra de proceso hay que restar los registros que quedann con lo que teníamos.
+					lineaintermedia= finallinea-response['RegistroCIDs'];
+					console.log('finallinea:'+ finallinea);
+					console.log('lineaintermedia:'+ lineaintermedia);
+					console.log(response);
+					ProcesoBarra(lineaintermedia, finallinea);
+					CochesNuevaExiste();
+					return;
+				} else {
+					// Quiere decir que no hay duplicados.
+					$('#DuplicadosIDVersiones').html(response['EstadoFinal']['Duplicado']);
+					$("#RegDuplicadosDescartados").html(response['EstadoFinal']['RegDuplicadoCambiados']);
+				}
+				
+				console.log(response);
 			}
 		});
 	
 	}  else {
 		   alert( 'Selecciona un fabricante es necesario');	
 	}
+	ProcesoBarra(lineaintermedia, finallinea);
+
 
 }
