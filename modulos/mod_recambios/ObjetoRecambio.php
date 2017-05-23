@@ -83,7 +83,31 @@ class Recambio
 		return $fila ;
 	}
     
-   
+    function CrucesVehiculos($BDVehiculos,$idVersiones) {
+		$tabla = 'vehiculo_versiones';
+		$consulta = 'SELECT * FROM `'. $tabla.'` WHERE id='.$idVersiones;
+		$QueryUnico = $BDVehiculos->query($consulta);
+		if (mysqli_error($BDVehiculos)) {
+			$fila = $QueryUnico;
+		} else {
+			$fila = $QueryUnico->fetch_assoc();
+		}
+		// Ahora buscamos modelo y marca.
+		$consultaMarca = 'SELECT combustible.nombre as Ncombustible,marca.nombre as Nmarca,modelo.nombre as Nmodelo FROM `vehiculo_marcas` as marca, `vehiculo_modelos` as modelo, `vehiculo_combustibles` as combustible WHERE marca.id='.$fila['idMarca'].' and modelo.id='.$fila['idModelo'].' and combustible.id='.$fila['idCombustible'];
+		$QueryUnico = $BDVehiculos->query($consultaMarca);
+		if (mysqli_error($BDVehiculos)) {
+			$filaNombre = $QueryUnico;
+		} else {
+			$filaNombre = $QueryUnico->fetch_assoc();
+		}
+		//~ $fila['consulta'] = $consultaMarca;
+
+		$fila['Marca'] = $filaNombre['Nmarca'];
+		$fila['Modelo'] = $filaNombre['Nmodelo'];
+		$fila['Combustible'] = $filaNombre['Ncombustible'];
+
+		return $fila ;
+	}
     
 }
 

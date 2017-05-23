@@ -98,8 +98,10 @@
 			$i = 0;
 			while ($cruce = $ResultadoCrucesVehiculos->fetch_assoc()) {
 				$CruceVehiculo[$i]['IDcruce']= $cruce['id'];
-				$CruceVehiculo[$i]['IDVersion']= $cruce['VersionVehiculoID'];
 				$CruceVehiculo[$i]['Fecha_Actua']= $cruce['FechaActualiza'];
+				// Ahora consultamos datos de esas version
+				$CruceVehiculo[$i]['DatosVersion'] = $Crecambios->CrucesVehiculos($BDVehiculos,$cruce['VersionVehiculoID']);
+				
 			$i++;
 			}
 		?>
@@ -215,6 +217,14 @@
 			<?php echo $html;?>
 
 			</div>
+			<div class='col-md-6'>
+			
+			
+			
+			
+			</div>
+			
+			
 			
 			<?php // Debug
 				echo '<pre>';
