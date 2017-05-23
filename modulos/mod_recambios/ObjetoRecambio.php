@@ -61,13 +61,13 @@ class Recambio
     {
 		$consulta = 'SELECT * FROM `'.$tabla.'` WHERE '.$id;
 		$Resultado = $BDRecambios->query($consulta);
-		 //~ if ($ResRecambios == true){
-			//~ $recambios['conexion'] = 'Correcto,consulta todas familias';
-			//~ } else {
-			//~ $ResRecambios['conexion'] = 'Error '.mysqli_error($BDRecambios);	
-			//~ return $resultado;
-			//~ // No continuamos..
-		//~ }
+		 if ($Resultado == true){
+			$resultado['conexion'] = 'Correcto,consulta todas familias';
+			} else {
+			$resultado['conexion'] = 'Error '.mysqli_error($BDRecambios);	
+			return $resultado;
+			// No continuamos..
+		}
 		return $Resultado ;
     }
     

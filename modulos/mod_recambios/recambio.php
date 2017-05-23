@@ -89,10 +89,19 @@
 			}
 		
 		
-		
-			//~ $tabla = 'cruces_referencias';
-			//~ // el mismo $idBusqueda
-		//~ $CrucesRef = $Crecambios->UnicoRegistro($BDRecambios,$idBusqueda,$tabla);
+		// ======== AHORA REALIZAMOS ARRAY CRUCESVEHICULOS ============== //
+		$CruceVehiculo = array();
+		$tabla= 'cruces_vehiculos';
+		$idBusqueda ='RecambioID='.$Recambio['id'];
+			$ResultadoCrucesVehiculos = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
+			$CruceVehiculo['TotalCruce'] = $ResultadoCrucesVehiculos->num_rows;
+			$i = 0;
+			while ($cruce = $ResultadoCrucesVehiculos->fetch_assoc()) {
+				$CruceVehiculo[$i]['IDcruce']= $cruce['id'];
+				$CruceVehiculo[$i]['IDVersion']= $cruce['VersionVehiculoID'];
+				$CruceVehiculo[$i]['Fecha_Actua']= $cruce['FechaActualiza'];
+			$i++;
+			}
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_recambios/funciones.js"></script>
 
@@ -225,6 +234,13 @@
 
 
 				echo '</pre> ';
+				
+				echo '<pre>';
+				echo '<h1>Cruce de Vehiculos</h1>';
+				print_r($CruceVehiculo);
+				echo '</pre>';
+				
+				
 			?>
 		</div>
 	</body>

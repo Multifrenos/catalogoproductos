@@ -364,6 +364,8 @@ function CochesNuevaExiste(){
 	// Es un bucle mientras no cubra el Estado de todos los registros 
 	// 1.- Primero comprobamos que tengamos selecciona un fabricante.
 	if (fabricante !== "0") {
+		// Ocultamos botton para evitar que puse otra vez.
+		$("#btn-Relaciones").css("display", "none"); // No se muestra ya que queda registros por analizar.
 		// ejecutamos funcion de php.
 		console.log('Ejecutamos CochesNuevosExiste');
 		var parametros = {
@@ -374,7 +376,7 @@ function CochesNuevaExiste(){
 			url: 'tareas.php',
 			type: 'post',
 			beforeSend: function () {
-				$("#resultado").html('Comprobamos que las relaciones son Nuevas o Existentes de los primeros 500 registros.......<span><img src="./img/ajax-loader.gif"/></span>');
+				$("#resultado").html('Comprobamos que las relaciones que vamos crear no sean duplicadas, luego si son Nuevas o Existentes ros.......<span><img src="./img/ajax-loader.gif"/></span>');
 			},
 			success: function (response) {
 				console.log ('Respondio funcion php de CocheNuevaExite');
@@ -395,7 +397,6 @@ function CochesNuevaExiste(){
 				} else {
 					// Quiere decir que no hay duplicados.
 					$('#DuplicadosIDVersiones').html(response['EstadoFinal']['Duplicado']);
-					$("#RegDuplicadosDescartados").html(response['EstadoFinal']['RegDuplicadoCambiados']);
 				}
 				
 				console.log(response);
