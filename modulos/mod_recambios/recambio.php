@@ -90,20 +90,18 @@
 		
 		
 		// ======== AHORA REALIZAMOS ARRAY CRUCESVEHICULOS ============== //
-		$CruceVehiculo = array();
+		$CrucesVehiculos = array();
+		$idVersiones = array();
 		$tabla= 'cruces_vehiculos';
 		$idBusqueda ='RecambioID='.$Recambio['id'];
 			$ResultadoCrucesVehiculos = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
-			$CruceVehiculo['TotalCruce'] = $ResultadoCrucesVehiculos->num_rows;
+			$TotalCrucesVehiculos = $ResultadoCrucesVehiculos->num_rows;
 			$i = 0;
 			while ($cruce = $ResultadoCrucesVehiculos->fetch_assoc()) {
-				$CruceVehiculo[$i]['IDcruce']= $cruce['id'];
-				$CruceVehiculo[$i]['Fecha_Actua']= $cruce['FechaActualiza'];
-				// Ahora consultamos datos de esas version
-				$CruceVehiculo[$i]['DatosVersion'] = $Crecambios->CrucesVehiculos($BDVehiculos,$cruce['VersionVehiculoID']);
-				
+				$idVersiones[$i]= $cruce['VersionVehiculoID'];
 			$i++;
 			}
+			$CrucesVehiculos= $Crecambios->CrucesVehiculos($BDVehiculos,$idVersiones)
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_recambios/funciones.js"></script>
 
@@ -188,14 +186,14 @@
 			
 			
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-3">
 			<?php 
 				// El problema que encuentro para realizar copia de esto con botton al portapapeles
 				// Es que el contenido html general un cierre de la etiqueta antes de tiempo
 				// pienso que se puede resolver limpiando... 
-				$html = "<h3> Referencias cruzadas</h3>"
-						."<p>Total referencias cruzadas encontradas "
-						.$CruceRecambio['TotalCruce']."</p>";
+				$html = "<h2> Referencias cruzadas</h2>"
+						."<p>"
+						.$CruceRecambio['TotalCruce']." referencias otros fabricantes.</p>";
 				$htmlCopia = "Referencias cruzadas"
 						."Total referencias cruzadas encontradas "
 						;
@@ -209,21 +207,76 @@
 				}
 			?>
 			
+			
+			<?php echo $html;?>
+
+			</div>
+			<div class='col-md-9'>
+			<?php 
+			echo '<h2>Cruce de Vehiculos</h2>';
+			echo 'Numero de vehiculos que montan este recambio: '.$TotalCrucesVehiculos;
+			$Idmarca= 0 ;
+			foreach ( $CrucesVehiculos as $vehiculo) {
+				// Lo primero ver si cambia marca o no.
+				if ($Idmarca <> $vehiculo['idMarca']){
+				// Antes de nada cerrar table si estuviera abierto, 
+					if ($Idmarca<>0) {
+					// Cerramos table
+					echo '</tbody></table>';
+					}
+				$Idmarca= $vehiculo['idMarca'];
+				echo '<h3><a title="Id de Marca:'.$vehiculo['idMarca'].'">'.$vehiculo['Nmarca']."</a></h3>";
+				 
+				?>
+				
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Modelo</th>
+							<th>Version</th>
+							<th>Fecha Inicial</th>
+							<th>Fecha Final</th>
+							<th>Combustible</th>
+							<th>Potencia</th>
+							<th>Numero<br/>cilindros</th>
+							<th>Cm3</th>
+
+							
+						</tr>
+					</thead>
+					<tbody>
+      			<?php
+				}
+				?>
+				<tr>
+					<td><?php echo '<p>'.$vehiculo['Nmodelo'];?></td>
+					<td><?php echo '<a title="Id de Version:'.$vehiculo['id'].'">'.$vehiculo['Nversion'].'</a>';?></td>
+					<td><?php echo $vehiculo['fecha_inicial'];?></td>
+					<td><?php echo $vehiculo['fecha_final'];?></td>
+					<td><?php echo $vehiculo['Ncombustible'];?></td>
+					<td><?php echo $vehiculo['cv'].'cv/'.$vehiculo['kw'].'kw';?></td>
+					<td><?php echo $vehiculo['ncilindros'];?></td>
+					<td><?php echo $vehiculo['cm3'].'cm3';?></td>
+				</tr>
+			<?php
+			}
+			// Cerramos tablas que esta abierta fijo...
+			echo '</tbody></table>';
+
+			echo '<pre>';
+			print_r($CrucesVehiculos);
+			echo '</pre>';
+			?>
+			
+			
+			
+			</div>
+			<!-- Lo que vamos copiar --> 
 			<label>Copiar Relaciones Cruzadas:</label>
 			<button onclick="copiarAlPortapapeles('RefCruzadas')">Copiar</button>
 			<textarea id="RefCruzadas" name="RefCruzadas" readonly>
 			<?php echo $html;?>
 			</textarea>
-			<?php echo $html;?>
-
-			</div>
-			<div class='col-md-6'>
-			
-			
-			
-			
-			</div>
-			
 			
 			
 			<?php // Debug
@@ -245,11 +298,9 @@
 
 				echo '</pre> ';
 				
-				echo '<pre>';
-				echo '<h1>Cruce de Vehiculos</h1>';
-				print_r($CruceVehiculo);
-				echo '</pre>';
 				
+
+
 				
 			?>
 		</div>

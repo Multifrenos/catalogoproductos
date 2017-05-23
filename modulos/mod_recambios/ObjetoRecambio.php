@@ -84,31 +84,24 @@ class Recambio
 	}
     
     function CrucesVehiculos($BDVehiculos,$idVersiones) {
-		$tabla = 'vehiculo_versiones';
-		$consulta = 'SELECT * FROM `'. $tabla.'` WHERE id='.$idVersiones;
-		$QueryUnico = $BDVehiculos->query($consulta);
-		if (mysqli_error($BDVehiculos)) {
-			$fila = $QueryUnico;
-		} else {
-			$fila = $QueryUnico->fetch_assoc();
+		$resultado = array();
+		$LidVersiones = implode(',',$idVersiones);
+		$ConsultaMultitabla= "SELECT v.`id`,v.`idMarca`,Marca.nombre as Nmarca, v.`idModelo`,m.nombre as Nmodelo, v.`nombre` as Nversion, v.`idTipo`, v.`idCombustible`,c.nombre as Ncombustible, v.`fecha_inicial`, v.`fecha_final`, v.`kw`, v.`cv`, v.`cm3`, v.`ncilindros` 
+FROM (((`vehiculo_versiones` as v LEFT JOIN `vehiculo_modelos` as m ON v.idModelo = m.`id`) LEFT JOIN `vehiculo_marcas` as Marca ON v.idMarca = Marca.id) LEFT JOIN `vehiculo_combustibles` as c ON c.id = v.idCombustible) WHERE v.id in (".$LidVersiones.") order by Marca.nombre,m.nombre,v.nombre,v.fecha_inicial ASC";
+		$resultados = $BDVehiculos->query($ConsultaMultitabla);
+		//~ $resultado['consulta'] = $ConsultaMultitabla;
+		while ($vehiculo = $resultados->fetch_assoc()) {
+			$resultado[] = $vehiculo;
 		}
-		// Ahora buscamos modelo y marca.
-		$consultaMarca = 'SELECT combustible.nombre as Ncombustible,marca.nombre as Nmarca,modelo.nombre as Nmodelo FROM `vehiculo_marcas` as marca, `vehiculo_modelos` as modelo, `vehiculo_combustibles` as combustible WHERE marca.id='.$fila['idMarca'].' and modelo.id='.$fila['idModelo'].' and combustible.id='.$fila['idCombustible'];
-		$QueryUnico = $BDVehiculos->query($consultaMarca);
-		if (mysqli_error($BDVehiculos)) {
-			$filaNombre = $QueryUnico;
-		} else {
-			$filaNombre = $QueryUnico->fetch_assoc();
-		}
-		//~ $fila['consulta'] = $consultaMarca;
-
-		$fila['Marca'] = $filaNombre['Nmarca'];
-		$fila['Modelo'] = $filaNombre['Nmodelo'];
-		$fila['Combustible'] = $filaNombre['Ncombustible'];
-
-		return $fila ;
+		
+		
+		
+		
+		
+		return $resultado ;
 	}
-    
+	
+	
 }
 
 
