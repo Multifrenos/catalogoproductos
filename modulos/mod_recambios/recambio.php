@@ -110,9 +110,29 @@
 	<body>
 		<?php
         include './../../header.php';
+        
+        
+				// El problema que encuentro para realizar copia de esto con botton al portapapeles
+				// Es que el contenido html general un cierre de la etiqueta antes de tiempo
+				// pienso que se puede resolver limpiando... 
+				$html = "<h2> Referencias cruzadas</h2>"
+						."<p>"
+						.$CruceRecambio['TotalCruce']." referencias otros fabricantes.</p>";
+				$htmlCopia = "Referencias cruzadas"
+						."Total referencias cruzadas encontradas "
+						;
+			 for ($i = 0; $i < $CruceRecambio['TotalCruce']; $i++) {
+				$html .= '<a title="Id Referencia Cruzada:'.$CruceRecambio[$i]['idReferenciaCruz']
+						.'"><span class=" glyphicon glyphicon-info-sign"></span></a>'
+						.$CruceRecambio[$i]['FabricanteCruRef'].' '
+						.'<a title="Id Fabricante Recambio:'
+						.$CruceRecambio[$i]['idFabriCruz'].'"><span class=" glyphicon glyphicon-wrench"></span></a>'
+						.$CruceRecambio[$i]['FabricanteCru'].'<br/>';
+				}
+			?>
        
        
-        ?>
+     
 		<div class="container">
 			<h1 class="text-center"> Datos Recambio</h1>
 			<a class="text-ritght" href="javascript:history.back(1)">Volver Atrás</a>
@@ -144,12 +164,16 @@
 							<input type="text" id="RefProdFabricante" name="ReferenciaProdFabricante" value="<?php echo $Recambio['FabricanteRef'];?>"   readonly>
 							<button onclick="copiarAlPortapapeles('RefProdFabricante')">Copiar</button>
 						</div>
-						<div class="form-group">
+						<div class="col-md-6 form-group">
 							<label>PVP (Precio Final):</label>
-=======
 							<input type="text" id="PVP" name="PrecioPVP" value="<?php echo $Recambio['pvp'];?>"   readonly>
 							<button onclick="copiarAlPortapapeles('PVP')">Copiar</button>
 						</div>
+						<div class="col-md-6 form-group">
+							<label>ID Web:</label>
+							<input type="text" id="IDWeb" name="WebID" value="<?php echo $Recambio['IDWeb'];?>"   readonly>
+						</div>
+						
 					</div>
 					<div class="Otros datos">
 						<div class="col-md-6 form-group">
@@ -177,6 +201,18 @@
 							<input type="text" id="Beneficio" name="Beneficio" value="<?php echo $Recambio['margen'];?>"   readonly>
 						</div>
 						
+						<div class="col-md-6 form-group">
+							<!-- Lo que vamos copiar en descripcion.--> 
+							<label>Copiar Relaciones Cruzadas y Cruces con versiones coches:</label>
+							<button onclick="copiasIDVirtuemart()">Copiar a Virtuemart la descripcion</button>
+							
+						</div>
+						
+						<div id="resultado" class="col-md-6 form-group">
+							<!-- Aquí mostramos respuestas de AJAX -->
+						</div>
+						
+						
 					</div>		
 				
 
@@ -186,36 +222,15 @@
 			
 			
 			</div>
-			<div class="col-md-3">
-			<?php 
-				// El problema que encuentro para realizar copia de esto con botton al portapapeles
-				// Es que el contenido html general un cierre de la etiqueta antes de tiempo
-				// pienso que se puede resolver limpiando... 
-				$html = "<h2> Referencias cruzadas</h2>"
-						."<p>"
-						.$CruceRecambio['TotalCruce']." referencias otros fabricantes.</p>";
-				$htmlCopia = "Referencias cruzadas"
-						."Total referencias cruzadas encontradas "
-						;
-			 for ($i = 0; $i < $CruceRecambio['TotalCruce']; $i++) {
-				$html .= '<a title="Id Referencia Cruzada:'.$CruceRecambio[$i]['idReferenciaCruz']
-						.'"><span class=" glyphicon glyphicon-info-sign"></span></a>'
-						.$CruceRecambio[$i]['FabricanteCruRef'].' '
-						.'<a title="Id Fabricante Recambio:'
-						.$CruceRecambio[$i]['idFabriCruz'].'"><span class=" glyphicon glyphicon-wrench"></span></a>'
-						.$CruceRecambio[$i]['FabricanteCru'].'<br/>';
-				}
-			?>
-			
-			
-			<?php echo $html;?>
-
+			<div id="RefCruzadas" class="col-md-3">
+				<?php echo $html;?>
 			</div>
-			<div class='col-md-9'>
+			<div id="RefCruVersiones" class='col-md-9'>
 			<?php 
 			echo '<h2>Cruce de Vehiculos</h2>';
 			echo 'Numero de vehiculos que montan este recambio: '.$TotalCrucesVehiculos;
 			$Idmarca= 0 ;
+			$Idmodelo = 0;
 			foreach ( $CrucesVehiculos as $vehiculo) {
 				// Lo primero ver si cambia marca o no.
 				if ($Idmarca <> $vehiculo['idMarca']){
@@ -232,8 +247,9 @@
 				<table class="table table-striped">
 					<thead>
 						<tr>
-							<th>Modelo</th>
-							<th>Version</th>
+							
+							
+							<th>Modelo <br/>    Version</th>
 							<th>Fecha Inicial</th>
 							<th>Fecha Final</th>
 							<th>Combustible</th>
@@ -249,7 +265,17 @@
 				}
 				?>
 				<tr>
-					<td><?php echo '<p>'.$vehiculo['Nmodelo'];?></td>
+					<?php 
+							if ( $Idmodelo <> $vehiculo['idModelo']){
+							?>
+							<th>Modelo:<?php echo $vehiculo['Nmodelo'];?> </th>
+							</tr>
+							<?php
+							$Idmodelo = $vehiculo['idModelo'];
+							}
+							?>
+					
+					
 					<td><?php echo '<a title="Id de Version:'.$vehiculo['id'].'">'.$vehiculo['Nversion'].'</a>';?></td>
 					<td><?php echo $vehiculo['fecha_inicial'];?></td>
 					<td><?php echo $vehiculo['fecha_final'];?></td>
@@ -262,21 +288,14 @@
 			}
 			// Cerramos tablas que esta abierta fijo...
 			echo '</tbody></table>';
-
-			echo '<pre>';
-			print_r($CrucesVehiculos);
-			echo '</pre>';
+			//~ echo '<pre>';
+			//~ print_r($CrucesVehiculos);
+			//~ echo '</pre>';
 			?>
 			
 			
 			
 			</div>
-			<!-- Lo que vamos copiar --> 
-			<label>Copiar Relaciones Cruzadas:</label>
-			<button onclick="copiarAlPortapapeles('RefCruzadas')">Copiar</button>
-			<textarea id="RefCruzadas" name="RefCruzadas" readonly>
-			<?php echo $html;?>
-			</textarea>
 			
 			
 			<?php // Debug
