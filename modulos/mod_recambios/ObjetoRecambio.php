@@ -64,7 +64,7 @@ class Recambio
 		 if ($Resultado == true){
 			$resultado['conexion'] = 'Correcto,consulta todas familias';
 			} else {
-			$resultado['conexion'] = 'Error '.mysqli_error($BDRecambios);	
+			$resultado['conexion'] = 'Error '.mysqli_error($BDRecambios);	 
 			return $resultado;
 			// No continuamos..
 		}
@@ -89,11 +89,14 @@ class Recambio
 		$ConsultaMultitabla= "SELECT v.`id`,v.`idMarca`,Marca.nombre as Nmarca, v.`idModelo`,m.nombre as Nmodelo, v.`nombre` as Nversion, v.`idTipo`, v.`idCombustible`,c.nombre as Ncombustible, v.`fecha_inicial`, v.`fecha_final`, v.`kw`, v.`cv`, v.`cm3`, v.`ncilindros` 
 FROM (((`vehiculo_versiones` as v LEFT JOIN `vehiculo_modelos` as m ON v.idModelo = m.`id`) LEFT JOIN `vehiculo_marcas` as Marca ON v.idMarca = Marca.id) LEFT JOIN `vehiculo_combustibles` as c ON c.id = v.idCombustible) WHERE v.id in (".$LidVersiones.") order by Marca.nombre,m.nombre,v.nombre,v.fecha_inicial ASC";
 		$resultados = $BDVehiculos->query($ConsultaMultitabla);
-		//~ $resultado['consulta'] = $ConsultaMultitabla;
-		while ($vehiculo = $resultados->fetch_assoc()) {
-			$resultado[] = $vehiculo;
+		if ($resultados){
+			while ($vehiculo = $resultados->fetch_assoc()) {
+				$resultado[] = $vehiculo;
+			}
+		} else {
+			$resultado['consulta'] = $ConsultaMultitabla;
+			$resultado['Error'] = 'Error en consulta o no existe cruce';
 		}
-		
 		
 		
 		

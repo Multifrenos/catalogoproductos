@@ -96,12 +96,15 @@
 		$idBusqueda ='RecambioID='.$Recambio['id'];
 			$ResultadoCrucesVehiculos = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
 			$TotalCrucesVehiculos = $ResultadoCrucesVehiculos->num_rows;
-			$i = 0;
-			while ($cruce = $ResultadoCrucesVehiculos->fetch_assoc()) {
-				$idVersiones[$i]= $cruce['VersionVehiculoID'];
-			$i++;
+			if ($TotalCrucesVehiculos > 0) {
+				// Si existe cruce entonces realizamos busquedas de cruces
+				$i = 0;
+				while ($cruce = $ResultadoCrucesVehiculos->fetch_assoc()) {
+					$idVersiones[$i]= $cruce['VersionVehiculoID'];
+				$i++;
+				}
+				$CrucesVehiculos= $Crecambios->CrucesVehiculos($BDVehiculos,$idVersiones);
 			}
-			$CrucesVehiculos= $Crecambios->CrucesVehiculos($BDVehiculos,$idVersiones)
 		?>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_recambios/funciones.js"></script>
 
@@ -231,73 +234,76 @@
 			echo 'Numero de vehiculos que montan este recambio: '.$TotalCrucesVehiculos;
 			$Idmarca= 0 ;
 			$Idmodelo = 0;
-			foreach ( $CrucesVehiculos as $vehiculo) {
-				// Lo primero ver si cambia marca o no.
-				if ($Idmarca <> $vehiculo['idMarca']){
-				// Antes de nada cerrar table si estuviera abierto, 
-					if ($Idmarca<>0) {
-					// Cerramos table
-					echo '</tbody></table>';
+			if ($CrucesVehiculos){
+				foreach ( $CrucesVehiculos as $vehiculo) {
+					// Lo primero ver si cambia marca o no.
+					if ($Idmarca <> $vehiculo['idMarca']){
+					// Antes de nada cerrar table si estuviera abierto, 
+						if ($Idmarca<>0) {
+						// Cerramos table
+						echo '</tbody></table>';
+						}
+					$Idmarca= $vehiculo['idMarca'];
+					echo '<h3><a title="Id de Marca:'.$vehiculo['idMarca'].'">'.$vehiculo['Nmarca']."</a></h3>";
+					 
+					?>
+					
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								
+								
+								<th>Modelo <br/>    Version</th>
+								<th>Fecha Inicial</th>
+								<th>Fecha Final</th>
+								<th>Combustible</th>
+								<th>Potencia</th>
+								<th>Numero<br/>cilindros</th>
+								<th>Cm3</th>
+
+								
+							</tr>
+						</thead>
+						<tbody>
+					<?php
 					}
-				$Idmarca= $vehiculo['idMarca'];
-				echo '<h3><a title="Id de Marca:'.$vehiculo['idMarca'].'">'.$vehiculo['Nmarca']."</a></h3>";
-				 
+					?>
+					<tr>
+						<?php 
+								if ( $Idmodelo <> $vehiculo['idModelo']){
+								?>
+								<th>Modelo:<?php echo $vehiculo['Nmodelo'];?> </th>
+								</tr>
+								<?php
+								$Idmodelo = $vehiculo['idModelo'];
+								}
+								?>
+						
+						
+						<td><?php echo '<a title="Id de Version:'.$vehiculo['id'].'">'.$vehiculo['Nversion'].'</a>';?></td>
+						<td><?php echo $vehiculo['fecha_inicial'];?></td>
+						<td><?php echo $vehiculo['fecha_final'];?></td>
+						<td><?php echo $vehiculo['Ncombustible'];?></td>
+						<td><?php echo $vehiculo['cv'].'cv/'.$vehiculo['kw'].'kw';?></td>
+						<td><?php echo $vehiculo['ncilindros'];?></td>
+						<td><?php echo $vehiculo['cm3'].'cm3';?></td>
+					</tr>
+				<?php
+				}
+				// Cerramos tablas que esta abierta fijo...
+				echo '</tbody></table>';
+				echo '<pre>';
+				//~ print_r($CrucesVehiculos);
+				echo '</pre>';
 				?>
 				
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							
-							
-							<th>Modelo <br/>    Version</th>
-							<th>Fecha Inicial</th>
-							<th>Fecha Final</th>
-							<th>Combustible</th>
-							<th>Potencia</th>
-							<th>Numero<br/>cilindros</th>
-							<th>Cm3</th>
-
-							
-						</tr>
-					</thead>
-					<tbody>
-      			<?php
-				}
-				?>
-				<tr>
-					<?php 
-							if ( $Idmodelo <> $vehiculo['idModelo']){
-							?>
-							<th>Modelo:<?php echo $vehiculo['Nmodelo'];?> </th>
-							</tr>
-							<?php
-							$Idmodelo = $vehiculo['idModelo'];
-							}
-							?>
-					
-					
-					<td><?php echo '<a title="Id de Version:'.$vehiculo['id'].'">'.$vehiculo['Nversion'].'</a>';?></td>
-					<td><?php echo $vehiculo['fecha_inicial'];?></td>
-					<td><?php echo $vehiculo['fecha_final'];?></td>
-					<td><?php echo $vehiculo['Ncombustible'];?></td>
-					<td><?php echo $vehiculo['cv'].'cv/'.$vehiculo['kw'].'kw';?></td>
-					<td><?php echo $vehiculo['ncilindros'];?></td>
-					<td><?php echo $vehiculo['cm3'].'cm3';?></td>
-				</tr>
+				
+				
+				</div>
+				
 			<?php
 			}
-			// Cerramos tablas que esta abierta fijo...
-			echo '</tbody></table>';
-			//~ echo '<pre>';
-			//~ print_r($CrucesVehiculos);
-			//~ echo '</pre>';
 			?>
-			
-			
-			
-			</div>
-			
-			
 			<?php // Debug
 				echo '<pre>';
 				echo ' Recambio ';
