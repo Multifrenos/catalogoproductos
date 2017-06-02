@@ -128,10 +128,18 @@
 		<div id="capa-botones" style="<?php echo $mostrabtn;?>">
 			<p> Presentacion de botones acciones.</p>
 			<div class="col-md-4" >
-				<form class="form" role="form" id="recambios" action="javascript:CochesObtenerRegistros('IDrecambio');">
+				<form class="form" role="form" id="f-referencias" action="javascript:ComprobarRefVirtuemart();">
 				
 				<div class="form-group">
-					<button id="btn-IDRecambio" type="submit" class="btn btn-primary btn-sm">ID Recambio</button>
+					<button id="btn-Referencias" type="submit" class="btn btn-primary btn-sm">Comprobar Referencias</button>
+				</div>
+				
+				</form>
+			</div>
+			<div class="col-md-4" >
+				<form class="form" role="form" id="f-reescribir" action="javascript:RescribirDescripcion();">
+				<div class="form-group">
+					<button id="btn-Reescribir" type="submit" class="btn btn-primary btn-sm">Reescribir Descripcion</button>
 				</div>
 				
 				</form>
