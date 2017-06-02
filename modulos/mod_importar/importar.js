@@ -1,8 +1,8 @@
 /*
  * @version     0.1
- * @copyright   Copyright (C) 2017 Catalogoproductos de Soluciones Vigo.
+ * @copyright   Copyright (C) 2017 Catalogoproductos - Funciones modulo importar.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
- * @author      Ricardo Carpintero
+ * @author      Ricardo Carpintero - SolucionesVigo
  * @Descripcion	Javascript necesarios para modulo importar.
  * */
 

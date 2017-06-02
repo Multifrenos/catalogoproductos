@@ -1,4 +1,11 @@
 // JavaSCRIPT para modulo de importar de Catalogo de productos.
+/*  Este fichero no está bien , ya que el objetivo era que fuera para cargar siempre, ya 
+ *  son funciones que se utilizan en la mayoria de los procesos y modulos,
+ *  pero su contenido al final esta muy personalizado y se perdio la vision... 
+ *  HAY QUE VOLVER A RE-ESTRUCTURALO.
+ *  
+ * */
+
 function BarraProceso(lineaA,lineaF) {
 	// Script para generar la barra de proceso.
 	// Esta barra proceso se crea con el total de lineas y empieza mostrando la lineas
