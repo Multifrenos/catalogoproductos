@@ -49,7 +49,7 @@
 ?>
 <div class="container">
 	<h2>Sincronizacion y comprobacion de bases de datos ( Recambios con la WEB ).</h2>
-	<div class="col-md-4">
+	<div class="col-md-5">
 		<h4>Sincronizacion</h4>
 			<p> La sincronizacion de bases de datos ( Recambios con la WEB ) consiste en:</p>
 		<ul>
@@ -62,7 +62,7 @@
 			<li> Tener conexion con la Web</li>
 		</ul>
 	</div>
-	<div class="col-md-8">
+	<div class="col-md-7">
 		<div>
 			
 			<h4>Barra de Proceso</h4>
@@ -103,7 +103,7 @@
 			  </tr>
 			  <tr>
 				<th>Referencias
-				<a title=" Comprobamos que todos los productos de virtuemart tenga referencias recambio y sea correcta">
+				<a title=" Comprobamos que todos los productos de virtuemart tenga las referencias fabricante cruzado y el id del recambio sea correcta">
 					<?php echo $iconos[3];?>
 				</a>
 				</th>
@@ -112,7 +112,7 @@
 				<td id="ObservacionesReferencias"></td>
 			  </tr>
 			  <tr>
-				<th>Reescribir Descripcion Larga
+				<th>Reescribir <br/> Descripcion Larga
 				<a title=" Re-escribimos la descripcion larga de todos los productos.">
 					<?php echo $iconos[3];?>
 				</a>
@@ -155,14 +155,23 @@
 
 
 
-	<script>
+	<script type="text/javascript">
+		
 		<?php if ($comprobaciones['virtuemart']['Estado'] == "Incorrecto"){
 		// Voy sincronizar ya virtuemart no es correcto..Entonces ejecutamos funcion sincronicar.
 		?>
 		Sincronizar();
 		<?php
-		}
+		// La funcion de contar no la podemos ejecutar antes de sincronizar.
+		// por eso en caso ejecutar sincronizar, la funcion de contar la ejecutamos
+		// al recibir respuesta sincronizar.
+		} else {
+		// Quiere decir que si esta sincronizado, por lo que ejecutamos
 		
+		?>
+		ContarProductoVirtuemart()
+		<?php
+		}
 		?>
 	</script>
 

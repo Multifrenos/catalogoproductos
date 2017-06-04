@@ -93,7 +93,26 @@ class ControladorComun
 		return $NRegiEliminados;
 	}
 
-	
+	function contarRegistro($BD,$nombretabla,$whereC) {
+		/* Esta funcio esta repetida en Consultas de modulo de importar
+		 * por lo que deberíamos eliminarla de consultas
+		 * y implementar está funcion, textear que funciona el modulo importar..... 
+		 * 
+		 * */
+		// Funcion para contar registros de una tabla.
+		$array = array();
+		$consulta = "SELECT * FROM ". $nombretabla.$whereC;
+		$consultaContador = $BD->query($consulta);
+		if ($BD->query($consulta)) {
+			$array['NItems'] = $consultaContador->num_rows;
+		} else {
+			// Quiere decir que hubo error en la consulta.
+			$array['consulta'] = $consulta;
+			$array['error'] = $BD->error;
+		}
+		return $array['NItems'];
+
+	}
 	
 	
 }

@@ -31,13 +31,27 @@ include_once ("./funciones.php");
         echo json_encode($respuesta) ;
         break;
    
-  
+	case 'ContarProductoVirtuemart':
+		$nombretabla = "virtuemart_products";
+		$whereC ="";
+        $respuesta = $Controlador->contarRegistro($BDRecambios,$nombretabla,$whereC);
+        header("Content-Type: application/json;charset=utf-8");
+        echo json_encode($respuesta) ;
+        break;
    
+   case 'CrearVistas':
+		$vistas = $_POST['vistas'];
+		$limite = $_POST['limite'];
+        $respuesta = crearVistas($BDRecambios,$vistas,$limite);
+        header("Content-Type: application/json;charset=utf-8");
+        echo json_encode($respuesta) ;
+        break;
    
-    
-    
-    
-   
+   case 'BuscarErrorRefVirtuemart':
+		$respuesta = BuscarErrorRefVirtuemart();
+        header("Content-Type: application/json;charset=utf-8");
+        echo json_encode($respuesta) ;
+        break;
    
 }
  
