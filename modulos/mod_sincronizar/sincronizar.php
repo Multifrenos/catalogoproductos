@@ -128,7 +128,7 @@
 		<div id="capa-botones" style="<?php echo $mostrabtn;?>">
 			<p> Presentacion de botones acciones.</p>
 			<div class="col-md-4" >
-				<form class="form" role="form" id="f-referencias" action="javascript:ComprobarRefVirtuemart();">
+				<form class="form" role="form" id="f-referencias" action="javascript:ComprobarRefVirtuemart(1);">
 				
 				<div class="form-group">
 					<button id="btn-Referencias" type="submit" class="btn btn-primary btn-sm">Comprobar Referencias</button>
@@ -136,10 +136,11 @@
 				
 				</form>
 			</div>
-			<div class="col-md-4" >
-				<form class="form" role="form" id="f-reescribir" action="javascript:RescribirDescripcion();">
+			<div class="col-md-4" id="f-erroresCsv" style="display:none;" >
+				<form name="EnvioErrores" class="form" method="post"  action="./MostrarErrores.php">
 				<div class="form-group">
-					<button id="btn-Reescribir" type="submit" class="btn btn-primary btn-sm">Reescribir Descripcion</button>
+					<button id="btn-Reescribir" type="submit" class="btn btn-warning btn-sm">Ver errores</button>
+					<input type="hidden" id="DatosErrores" name="errores">
 				</div>
 				
 				</form>

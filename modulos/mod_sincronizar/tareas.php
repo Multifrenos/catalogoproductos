@@ -48,10 +48,12 @@ include_once ("./funciones.php");
         break;
    
    case 'BuscarErrorRefVirtuemart':
-		$respuesta = BuscarErrorRefVirtuemart();
+		$respuesta = BuscarErrorRefVirtuemart($BDRecambios);
         header("Content-Type: application/json;charset=utf-8");
         echo json_encode($respuesta) ;
         break;
+        
+    
    
 }
  

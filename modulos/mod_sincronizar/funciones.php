@@ -33,26 +33,29 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 
 	
 	// CREAR VISTA NECESARIAS.
-	if ($vistas[0] = 'virtuemart'){
+	if ($vistas[0] == 'virtuemart'){
 		$CrearViewVirtuemart = "CREATE or REPLACE VIEW ".$vistas[0]." AS SELECT * FROM `virtuemart_products` LIMIT ".$limite[0].",".$limite[1]; 
 	}
-	if ($vistas[1] = 'vista_recambio'){
+	if ($vistas[1] == 'vista_recambio'){
 		$CrearViewVistaRecambio = "CREATE or REPLACE VIEW ".$vistas[1]." AS SELECT r.id, r.IDFabricante, rc.RefFabricanteCru FROM `recambios` AS r, referenciascruzadas AS rc WHERE r.id = rc.RecambioID AND r.IDFabricante = rc.IdFabricanteCru";
 	}
-	if ($vistas[0] = 'virtuemart') {
+	if ($vistas[0] == 'virtuemart') {
 		// Views virtuemart
 		//~ $respuesta['ViewVirtuemart']['TextoConsulta'] =$CrearViewVirtuemart;// para debug
 		$respuesta['ViewVirtuemart']['consulta'] = $BDRecambios->query($CrearViewVirtuemart);
 		// No indica cantidad de item  $BDRecambios->affected_rows;
 		// Si embargo indica true o false 'consulta'
-
+	} else {
+		$respuesta['ViewVirtuemart']['consulta'] = false;
 	}
-	if ($vistas[1] = 'vista_recambio') {
+	if ($vistas[1] == 'vista_recambio') {
 		// Views recambio con referencia cruzada.
 		//~ $respuesta['ViewRecambio']['TextoConsulta'] = $CrearViewVistaRecambio;// para debug
 		$respuesta['ViewRecambio']['consulta'] = $BDRecambios->query($CrearViewVistaRecambio);
 		// No indica cantidad de item  $BDRecambios->affected_rows;
 		// Si embargo indica true o false 'consulta'
+	} else {
+		$respuesta['ViewRecambio']['consulta'] =false;
 	}
 	//~ $respuesta['limite'] = $limite; // para debug
 	//~ $respuesta['vistas'] = $vistas; // para debug
@@ -61,12 +64,27 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 	
 }
 	
-function BuscarErrorRefVirtuemart() {
+function BuscarErrorRefVirtuemart($BDRecambios) {
 	// Realizamos una consulta donde nos muestra aquellos productos que NO existe idRecambio y ReferenciaCruzada.
-	$consulta2= "SELECT concat( v.product_gtin, ':', v.`product_sku` ) AS referencias, v.`virtuemart_product_id` , r.id FROM `virtuemart_products` AS v LEFT JOIN vista_recambio AS r ON CONCAT( r.RefFabricanteCru, ':', r.id ) = concat( v.product_gtin, ':', v.`product_sku` ) WHERE r.id IS NULL";
-	$respuesta['consulta'] = $consulta2; // para debug
+	$resultado = array();
+	$consulta2= "SELECT concat( v.product_gtin, ':', v.`product_sku` ) AS referencias,v.product_gtin as ReferenciaCruzada, v.`product_sku` as IDRecambio, v.`virtuemart_product_id` , r.id FROM `virtuemart` AS v LEFT JOIN vista_recambio AS r ON CONCAT( r.RefFabricanteCru, ':', r.id ) = concat( v.product_gtin, ':', v.`product_sku` ) WHERE r.id IS NULL";
+	$busqueda = $BDRecambios->query($consulta2);
+	if ($busqueda){
+			$i =0;
+			while ($error =$busqueda->fetch_assoc()) {
+				
+				$resultado[$i]['idRecambio'] = $error['IDRecambio'];
+				$resultado[$i]['GTIN-Virtuemart'] = $error['ReferenciaCruzada'];
+				$resultado[$i]['idVirtuemart'] = $error['virtuemart_product_id'];
+
+				$i++ ;
+			}
+		} else {
+			$resultado['consulta'] = $consulta2;;
+			$resultado['Error'] = 'Error en consulta o no existe cruce';
+		}
 	
-	return $respuesta;
+	return $resultado;
 	}
 	
 	
