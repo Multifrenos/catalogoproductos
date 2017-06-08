@@ -99,6 +99,8 @@ function ContarProductoVirtuemart() {
                 $("#resultado").html('Terminamos de contar productos de virtuemart......');
 				// Ponemos valor a la variable publica de NumeroProductos...
 				TotalProductosVirtuemart = response;
+				//~ TotalProductosVirtuemart = 250;
+
 				$('#ObservacionesReferencias').html ('Encontramos '+ TotalProductosVirtuemart + ' productos en virtuemart');
 				console.log(TotalProductosVirtuemart);
 				// Ahora creamos o replazamos vistas ....si hay datos claro.
@@ -217,7 +219,7 @@ function ComprobarRefVirtuemart(paso){
 					
 			}
 			// Enviamos Ciclo para que espere unos segundo antes de continuar.
-			setTimeout(CicloComprobarRef,3000);
+			setTimeout(CicloComprobarRef,5000);
 			return;
 		} else {
 			// Quiere decir que ya termino.
@@ -241,7 +243,7 @@ function ComprobarRefVirtuemart(paso){
 function ComprobarRefVirtPaso1(){
 	console.log('Ejecutando COMPROBARREFVIRTPASO1- CREAR VISTA');
 	
-	LimiteFinal = LimiteActual + 50;
+	LimiteFinal = LimiteActual + 100;
 	if (LimiteFinal > TotalProductosVirtuemart) {
 		LimiteFinal = TotalProductosVirtuemart
 	}
@@ -291,7 +293,7 @@ function CicloComprobarRef() {
 	contador = contador +1;
 	$("#resultado").html('Esperando respuesta intento:'+ contador);
 	// Solo hacemos 10 intentos ... 
-	if (contador<11){
+	if (contador<20){
 		ComprobarRefVirtuemart(paso_actual);
 	}
 }

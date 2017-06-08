@@ -43,6 +43,8 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 		// Views virtuemart
 		//~ $respuesta['ViewVirtuemart']['TextoConsulta'] =$CrearViewVirtuemart;// para debug
 		$respuesta['ViewVirtuemart']['consulta'] = $BDRecambios->query($CrearViewVirtuemart);
+		$respuesta['ViewVirtuemart']['Queryconsulta'] = $CrearViewVirtuemart;
+
 		// No indica cantidad de item  $BDRecambios->affected_rows;
 		// Si embargo indica true o false 'consulta'
 	} else {
@@ -64,28 +66,64 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 	
 }
 	
-function BuscarErrorRefVirtuemart($BDRecambios) {
-	// Realizamos una consulta donde nos muestra aquellos productos que NO existe idRecambio y ReferenciaCruzada.
+//~ function BuscarErrorRefVirtuemart($BDRecambios) {
+	//~ // Realizamos una consulta donde nos muestra aquellos productos que NO existe idRecambio y ReferenciaCruzada.
+	//~ $resultado = array();
+	//~ $consulta2= "SELECT concat( trim(v.product_gtin), ':', trim(v.`product_sku`) ) AS referencias,v.product_gtin as ReferenciaCruzada, v.`product_sku` as IDRecambio, v.`virtuemart_product_id` , r.id FROM `virtuemart` AS v LEFT JOIN vista_recambio AS r ON CONCAT( r.RefFabricanteCru, ':', r.id ) = concat(trim(v.product_gtin), ':', v.`product_sku` ) WHERE r.id IS NULL";
+	//~ $busqueda = $BDRecambios->query($consulta2);
+	//~ if ($busqueda){
+			//~ $i =0;
+			//~ while ($error =$busqueda->fetch_assoc()) {
+				//~ 
+				//~ $resultado[$i]['idRecambio'] = $error['IDRecambio'];
+				//~ $resultado[$i]['GTIN-Virtuemart'] = $error['ReferenciaCruzada'];
+				//~ $resultado[$i]['idVirtuemart'] = $error['virtuemart_product_id'];
+//~ 
+				//~ $i++ ;
+			//~ }
+		//~ } else {
+			//~ $resultado['consulta'] = $consulta2;;
+			//~ $resultado['Error'] = 'Error en consulta o no existe cruce';
+		//~ }
+	//~ mysqli_free_result($busqueda); // Liberamos memoria 
+	//~ return $resultado;
+	//~ }
+	
+	
+function BuscarErrorRefNuevo($BDRecambios) {
 	$resultado = array();
-	$consulta2= "SELECT concat( v.product_gtin, ':', v.`product_sku` ) AS referencias,v.product_gtin as ReferenciaCruzada, v.`product_sku` as IDRecambio, v.`virtuemart_product_id` , r.id FROM `virtuemart` AS v LEFT JOIN vista_recambio AS r ON CONCAT( r.RefFabricanteCru, ':', r.id ) = concat( v.product_gtin, ':', v.`product_sku` ) WHERE r.id IS NULL";
-	$busqueda = $BDRecambios->query($consulta2);
-	if ($busqueda){
-			$i =0;
-			while ($error =$busqueda->fetch_assoc()) {
-				
-				$resultado[$i]['idRecambio'] = $error['IDRecambio'];
-				$resultado[$i]['GTIN-Virtuemart'] = $error['ReferenciaCruzada'];
-				$resultado[$i]['idVirtuemart'] = $error['virtuemart_product_id'];
-
-				$i++ ;
+	$consulta1 = "Select product_gtin,product_sku,virtuemart_product_id from virtuemart";
+	$busqueda = $BDRecambios->query($consulta1);
+	if ($busqueda) {
+		$i =0;
+		while ($producto =$busqueda->fetch_assoc()) {
+			// ahora tenemos que buscar ese resultado en vista Recambios y ver si es igual
+			$Error = 'NO'; // Variable de control guardar datos o no 
+			$Nresultados = 0;
+			if (strlen($producto['product_gtin']) >0) {
+				$consulta2 = 'Select * from vista_recambio where RefFabricanteCru ="'.trim($producto['product_gtin']).'" and id='.trim($producto['product_sku']);
+				$busqueda2 = $BDRecambios->query($consulta2);
+				$Nresultados = $busqueda2->num_rows;
+				if ($Nresultados == 0 or $Nresultados>1  ){
+					// Quiere decir que no es encontro o que hay mas de un resultado.
+					$Error = 'SI';
+				}
 			}
-		} else {
-			$resultado['consulta'] = $consulta2;;
-			$resultado['Error'] = 'Error en consulta o no existe cruce';
+			if ($busqueda2){
+			// Liberamos memoria de 
+			mysqli_free_result($busqueda2); // Liberamos memoria 
+			}
+			
+			if ($Error ==='SI'){
+				$resultado[$i]['idRecambio'] = $producto['product_gtin'];
+				$resultado[$i]['GTIN-Virtuemart'] = $producto['product_sku'];
+				$resultado[$i]['idVirtuemart'] = $producto['virtuemart_product_id'];
+				//~ $resultado[$i]['consulta'] = $consulta2;
+			$i++;
+			}
 		}
-	
-	return $resultado;
 	}
-	
-	
+	mysqli_free_result($busqueda); // Liberamos memoria 
+	return $resultado;
+}
 ?>
