@@ -5,8 +5,7 @@
  * @author      Ricardo Carpintero - SolucionesVigo
  * @Descripcion	Javascript necesarios para modulo sincronizar.
  * */
-var lineaA = 0 ;
-var lineaF = 0 ;
+
 var contador = 0;
 var paso_actual = 0;
 var TotalProductosVirtuemart;
@@ -220,6 +219,13 @@ function ComprobarRefVirtuemart(paso){
 			}
 			// Enviamos Ciclo para que espere unos segundo antes de continuar.
 			setTimeout(CicloComprobarRef,5000);
+			console.log('Antes barra proceso LIMITE ACTUAL:'+LimiteActual)
+			console.log('Antes barra proceso LIMITE FINAL:'+LimiteActual)
+			BarraProceso(LimiteActual,TotalProductosVirtuemart);
+			if (errorReferencias.length> 0) {
+				// Quiere decir que hay ya errores..
+				$("#EstadoReferencias").html('Error:'+ errorReferencias.length);
+			}
 			return;
 		} else {
 			// Quiere decir que ya termino.
