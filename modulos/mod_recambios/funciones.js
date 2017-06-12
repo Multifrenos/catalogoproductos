@@ -23,13 +23,14 @@ function copiasIDVirtuemart() {
 	DatosRefCruzVersiones = DatosRefCruzVersiones +  '<div class="col-md-9">'+ LimpioRefCruVersiones.trim()+ '</div>';
 	//~ alert( 'ReferenciasCruzadas:'+ReferenciasCruzadas);
 	var parametros = {
+		'pulsado': 'CopiarDescripcion',
 		'id': id,
 		'DatosRefCruzadas': DatosRefCruzVersiones,
 		'TotalLetras': TLetras
 	};
 	$.ajax({
 		data: parametros,
-		url: 'funciones.php',
+		url: 'tareas.php',
 		type: 'post',
 		beforeSend: function () {
 			$("#resultado").html('Copiando datos referencias cruzadas en id');

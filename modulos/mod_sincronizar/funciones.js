@@ -247,7 +247,7 @@ function ComprobarRefVirtuemart(paso){
 				}
 				// Enviamos Ciclo para que espere unos segundo antes de continuar.
 				// Reinicio contador ya que empezamos a contar.
-				console.log('Entro PASO 1 pero NO en respuesta[VistaVirtuemart]=TRUE');
+				console.log('Entro PASO 1 pero NO en respuesta[VistaVirtuemart]=false');
 				f='Esperar';
 				window.setTimeout(function(){ Ciclo(f);},1000);
 				// no permitimos continuar...

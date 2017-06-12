@@ -106,9 +106,17 @@
 				$CrucesVehiculos= $Crecambios->CrucesVehiculos($BDVehiculos,$idVersiones);
 			}
 		?>
+		<!-- Cargamos libreria control de teclado -->
+		<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
 		<script src="<?php echo $HostNombre; ?>/modulos/mod_recambios/funciones.js"></script>
-
-
+		<!-- Añadimos atajo de teclado --> 
+		<script>
+			// Funciones para atajo de teclado.
+		shortcut.add("Shift+A",function() {
+			// Atajo de teclado para ver
+			history.back(1);
+		});    
+		</script>
 	</head>
 	<body>
 		<?php
@@ -167,14 +175,19 @@
 							<input type="text" id="RefProdFabricante" name="ReferenciaProdFabricante" value="<?php echo $Recambio['FabricanteRef'];?>"   readonly>
 							<button onclick="copiarAlPortapapeles('RefProdFabricante')">Copiar</button>
 						</div>
-						<div class="col-md-6 form-group">
+						<div class="col-md-4 form-group">
 							<label>PVP (Precio Final):</label>
 							<input type="text" id="PVP" name="PrecioPVP" value="<?php echo $Recambio['pvp'];?>"   readonly>
 							<button onclick="copiarAlPortapapeles('PVP')">Copiar</button>
 						</div>
-						<div class="col-md-6 form-group">
-							<label>ID Web:</label>
-							<input type="text" id="IDWeb" name="WebID" value="<?php echo $Recambio['IDWeb'];?>"   readonly>
+						<div class="col-md-8 form-group">
+							<div class="col-md-6 form-group">
+								<label>ID Web:</label>
+								<input type="text" id="IDWeb" name="WebID" value="<?php echo $Recambio['IDWeb'];?>"   readonly>
+							</div>
+							<div class="col-md-6">
+							   <a href="http://localhost/multipiezas/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=<?php echo $Recambio['IDWeb'];?>" target="_blank">Link producto</a>
+							</div>
 						</div>
 						
 					</div>
@@ -206,9 +219,10 @@
 						
 						<div class="col-md-6 form-group">
 							<!-- Lo que vamos copiar en descripcion.--> 
+							<?php  if ($Recambio['IDWeb']!=0){ ?>
 							<label>Copiar Relaciones Cruzadas y Cruces con versiones coches:</label>
 							<button onclick="copiasIDVirtuemart()">Copiar a Virtuemart la descripcion</button>
-							
+							<?php } ?>
 						</div>
 						
 						<div id="resultado" class="col-md-6 form-group">
@@ -228,7 +242,7 @@
 			<div id="RefCruzadas" class="col-md-3">
 				<?php echo $html;?>
 			</div>
-			<div id="RefCruVersiones" class='col-md-9'>
+			<div id="RefCruVersiones" class="col-md-9">
 			<?php 
 			echo '<h2>Cruce de Vehiculos</h2>';
 			echo 'Numero de vehiculos que montan este recambio: '.$TotalCrucesVehiculos;
@@ -271,8 +285,17 @@
 					<tr>
 						<?php 
 								if ( $Idmodelo <> $vehiculo['idModelo']){
+								// Validacion de string
+								$validato = strpos($vehiculo['Nmodelo'],"'");
+								if ($validato === false){
+									$textModelo = $vehiculo['Nmodelo'];
+								} else {
+									// ahora validato, indica posicion donde encontro error.
+									$textModelo= str_replace("'"," ",$vehiculo['Nmodelo']);
+									//~ $textModelo = 'Error '.$vehiculo['Nmodelo'];
+								}
 								?>
-								<th>Modelo:<?php echo $vehiculo['Nmodelo'];?> </th>
+								<th>Modelo:<?php echo $textModelo;?> </th>
 								</tr>
 								<?php
 								$Idmodelo = $vehiculo['idModelo'];
@@ -292,9 +315,9 @@
 				}
 				// Cerramos tablas que esta abierta fijo...
 				echo '</tbody></table>';
-				echo '<pre>';
+				//~ echo '<pre>';
 				//~ print_r($CrucesVehiculos);
-				echo '</pre>';
+				//~ echo '</pre>';
 				?>
 				
 				

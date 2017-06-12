@@ -4,6 +4,7 @@
         <?php
 // Reinicio variables
 	include './../../head.php';
+	
 	include ("./../mod_familias/ObjetoFamilias.php");
 	include ("./ObjetoRecambio.php");
 	// Creamos objeto familia y leemos familias para mostrar..
@@ -176,7 +177,9 @@
 
 
 	?>
-      
+    <!-- Cargamos libreria control de teclado -->
+	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
+  
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
@@ -238,8 +241,8 @@
 				console.log('Entro en VerRecambio');
 				// Cargamos variable global ar checkID = [];
 				VerRecambiosSeleccionado ();
-				if (checkID.length >1) {
-				alert ('Solo puedes selecciona \n un recambio para editar');
+				if (checkID.length >1 || checkID.length=== 0) {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
 				return	
 				}
 				// Ahora redireccionamos 
@@ -268,7 +271,11 @@
 				alert('Error no pulsado incorrecto');
 			}
 	} 
-	    
+	// Funciones para atajo de teclado.
+	shortcut.add("Shift+V",function() {
+		// Atajo de teclado para ver
+		metodoClick('VerRecambio');
+	});    
 	    
 	    
 
@@ -287,7 +294,8 @@
 					/*  Al pulsar en cualquiera de estas opciones vamos ejecutar funcion AJAX.
 					 * */
 				?>
-				<h4> Opciones Recambios</h4>
+				<h4> Recambios</h4>
+				<h5> Opciones para una selección</h5>
 				<ul>
 					<li> Añadir</li>
 					<li> Modificar</li>
