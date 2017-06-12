@@ -17,7 +17,7 @@ function sincronizar($Controlador,$ObjSincronizar,$BDRecambios,$BDWebJoomla,$Con
 
 function crearVistas($BDRecambios,$vistas,$limite) {
 	// En esta funcion lo que hacermos es crear Vistas para realizar consultas mas rápidas.
-	// Como vamos utilizar esta funcion en proceso, donde vamos hacer una vista de tabla por trozos, por eso 
+	// Como vamos utilizar esta funcion varias funciones, en proceso, donde vamos hacer una vista de tabla por trozos, por eso 
 	// creamos los parametros vistas y limite.
 	// Los parametros de fucion:
 	// 		$BDRecambios ( BD que creamos vista)
@@ -46,7 +46,7 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 		$respuesta['ViewVirtuemart']['Queryconsulta'] = $CrearViewVirtuemart;
 
 		// No indica cantidad de item  $BDRecambios->affected_rows;
-		// Si embargo indica true o false 'consulta'
+		// Sin embargo indica true o false 'consulta'
 	} else {
 		$respuesta['ViewVirtuemart']['consulta'] = false;
 	}

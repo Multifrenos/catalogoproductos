@@ -127,7 +127,7 @@
 		<!-- Recuerda que entrada, si no es correcta varaible virtuemart-estado no se muestra -->
 		<div id="capa-botones" style="<?php echo $mostrabtn;?>">
 			<p> Presentacion de botones acciones.</p>
-			<div class="col-md-4" >
+			<div class="col-md-4" id="f-revisarRef"  >
 				<form class="form" role="form" id="f-referencias" action="javascript:ComprobarRefVirtuemart(1);">
 				
 				<div class="form-group">
@@ -157,22 +157,12 @@
 
 
 	<script type="text/javascript">
-		
-		<?php if ($comprobaciones['virtuemart']['Estado'] == "Incorrecto"){
-		// Voy sincronizar ya virtuemart no es correcto..Entonces ejecutamos funcion sincronicar.
-		?>
-		Sincronizar();
-		<?php
-		// La funcion de contar no la podemos ejecutar antes de sincronizar.
-		// por eso en caso ejecutar sincronizar, la funcion de contar la ejecutamos
-		// al recibir respuesta sincronizar.
-		} else {
-		// Quiere decir que si esta sincronizado, por lo que ejecutamos
-		
-		?>
-		ContarProductoVirtuemart()
-		<?php
-		}
+		<?php 
+		// Aunque sea correcto siempre se va sincronizar, ya que
+		// puede que las comprobaciones iniciales sean correctas, pero se  vaya
+		// pulsar para hacer mas comprobaciones, por lo que se debe estar seguro que 
+		// esos son los datos que tenemos en virtuemart.
+		echo 'Sincronizar();';
 		?>
 	</script>
 

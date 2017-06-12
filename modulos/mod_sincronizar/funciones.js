@@ -12,6 +12,7 @@ var TotalProductosVirtuemart;
 var respuesta = [];
 respuesta['VistaVirtuemart'] = false; // Variable que utilizamos para saber si termino de hacer vista.
 respuesta['BuscarError'] = false; // Variable que utilizamos para saber si termino de busqueda errores..
+respuesta["Sincronizar"] = 'Sinhacer' ; // Variable que utilizao para controlar si se copio tabla virtuemart a BDRecambios.
 var errorReferencias = []; // Guardamos en array las referencias que están mal.
 var ContError = 0;
 var LimiteActual = 0;
@@ -46,7 +47,8 @@ function BarraProceso(lineaA,lineaF) {
 
 function Sincronizar (){
 	//Funcion para obtener los IDWeb de BDVirtuemart en BDRecambios.
-	//No es un proceso que tarde mucho  por lo que no mostramos barra proceso. 
+	//No es un proceso que tarde mucho  por lo que no mostramos barra proceso
+	// y lo ejecutamos al principio.
     var parametros = {
         'pulsado': 'sincronizar'
     };
@@ -62,19 +64,13 @@ function Sincronizar (){
 				// La posible respuestas de funcion son:
 				// $response['Eliminados'] -> Numero de registros eliminados.
 				$("#ObservaSincro").html('Limpiamos '+ response["Eliminados"] + ' registros');
-				
 				$("#ObservaSincro").append('<br/>'+response["Copiado"]['resultado'] + ' :' + response["Copiado"]['descripcion']);
-				if ( response["Copiado"]['resultado'] === 'Correcto'){
-					// Quiere decir que podemos ejecutar el contar registros,
-					// esta funcion no podemos hacerla antes....
-					ContarProductoVirtuemart()
-					// Tb cambiamos icono .. como correcto.
-					$("#EstadoSincro").html(iconoCorrecto);
-					console.log(' Ahora debería cambiar el icono menu ... y mostras botones');
-				}
+				console.log('Valor de Copiado es' + response["Copiado"]['resultado']);
+				respuesta["Sincronizar"] = response["Copiado"]['resultado'];
 				console.log('Ver repuesta'+response['Eliminados']);
 				console.log('Fin tarea');
-				console.log(response);
+				// Ahora ejecutamos contar.
+				Contar()
             }
 
         });
@@ -82,40 +78,60 @@ function Sincronizar (){
 }
 
 
-function ContarProductoVirtuemart() {
+function Contar() {
 	// Contamos registros de virtuemart y asignamos valor a varible global TotalProductosVirtuemart
-	var parametros = {
-        'pulsado': 'ContarProductoVirtuemart'
-    };
-        $.ajax({
-            data: parametros,
-            url: 'tareas.php',
-            type: 'post',
-            beforeSend: function () {
-                $("#resultado").html('Contando productos que hay virtuemart, espere por favor......'+ icono);
-            },
-            success: function (response) {
-                $("#resultado").html('Terminamos de contar productos de virtuemart......');
-				// Ponemos valor a la variable publica de NumeroProductos...
-				TotalProductosVirtuemart = response;
-				//~ TotalProductosVirtuemart = 250;
-
-				$('#ObservacionesReferencias').html ('Encontramos '+ TotalProductosVirtuemart + ' productos en virtuemart');
-				console.log(TotalProductosVirtuemart);
-				// Ahora creamos o replazamos vistas ....si hay datos claro.
-				if (TotalProductosVirtuemart >0 ){
-					// Quiere decir que si se puede mostrar bottom... o no ... :-)
-					$('#capa-botones').css("display", "block");
-					// Creamos array de las dos vistas y creamos vistas......
-					var vistas = ["virtuemart","vista_recambio"];
-					CrearVistaInicio(vistas );
+	// pero solo podemos contar si el resultado de sincronizar es correcto.
+	// Mientras respuesta["Sincronizar"] = 'Sinhacer' esto quiere decir que no termino , por lo que 
+	// se repite esta funcion durante 20 veces.
+	// NOTA:
+	// Al terminar ejectuamos la funcion CrearVistas , aunque creamos las dos vistas y completas,
+	// digo aunque, porque una no haría falta crearla ahora.
+	if (respuesta["Sincronizar"] === 'Correcto') {
+		// Ejecutamos la funcion Contar, por lo que el contador lo ponemos en 0
+		contador = 0;
+		var parametros = {
+			'pulsado': 'ContarProductoVirtuemart'
+		};
+			$.ajax({
+				data: parametros,
+				url: 'tareas.php',
+				type: 'post',
+				beforeSend: function () {
+					$("#resultado").html('Contando productos que hay virtuemart, espere por favor......'+ icono);
+				},
+				success: function (response) {
+					$("#resultado").html('Terminamos de contar productos de virtuemart......');
+					// Ponemos valor a la variable publica de NumeroProductos...
+					TotalProductosVirtuemart = response;
+					//~ TotalProductosVirtuemart = 250; // Solo para debug , asi no tenemos que hacer todo el proceso..
+					$('#ObservacionesReferencias').html ('Encontramos '+ TotalProductosVirtuemart + ' productos en virtuemart');
+					console.log('TotalProductosVirtuemart:'+ TotalProductosVirtuemart);
+					console.log('No se porque la respuesta no se ve firebug pero si la obtiene....');
+					// Ahora creamos o replazamos vistas ....si hay datos claro.
+					if (TotalProductosVirtuemart >0 ){
+						// Quiere decir que si se puede mostrar bottom... o no ... :-)
+						$('#capa-botones').css("display", "block");
+						// Creamos array de las dos vistas y creamos vistas......
+						var vistas = ["virtuemart","vista_recambio"];
+						CrearVistaInicio(vistas );
+					}
+					
+					console.log('Fin tarea ContarVirtuemart');
+					//~ console.log(response);
 				}
-				
-				console.log('Fin tarea ContarVirtuemart');
-				//~ console.log(response);
-            }
 
-        });
+			});
+	} else {
+		if (respuesta["Sincronizar"] === 'Error') {
+			// Quiere decir que respondio sincronizar pero hubo un Error
+			// por lo que no continuamos.
+			return;
+		}
+		// Esto quiere decir que la respuesta["Sincronizar"] = 'Sinhacer'
+		// entonces aun no contesto el servidor la funcion sincronizar por lo que
+		// se va Ciclo('Contar')
+		Ciclo('Contar');
+	}
 	
 }
 function CrearVistaInicio (vistas,limite) {
@@ -171,57 +187,97 @@ function CrearVistaInicio (vistas,limite) {
 	
 }
 function ComprobarRefVirtuemart(paso){
-		// Esta funcion es un bucle hasta que la variables LimiteActual > TotalProductos .
+		// Esta funcion es un bucle mientras se cumpla que variables LimiteActual > TotalProductos.
+	
 		// Recuerda que al cargar la pagina se indica en variable TotalProductosVirtuemart cuantos registros tiene virtuemart.
-		// Para controlar el paso que tenemos hacer y si podemos hacerlo :
-		//      Variable Global: 
-		//			respuesta['VistaVirtuemart'] -> false , es que no respondio correcto la vista.
-		//	 		paso_actual-> que toma el valor del parametro paso. 
+		// Utilizamos varias variables globales para :
+		//  var contador -> que para controlar cuantas veces pasamos sin ejecutar 
+		// 				Tiene valor 0 al inicio, sin haber pasado nunca.
+		// 				Esta variable se incrementa cada vez que pasas por CicloComprobar
+		// 				Vuelve a tener valor 1 cuando realizar una tarea.
+		
+		//  var respuesta['VistaVirtuemart'] -> Para controlas si se hizo o no la vista.
+		//	var paso_actual-> que toma el valor del parametro paso, con ella controlamos si tenemos que hacer vista. 
 		//				Es 1 para hacer vista
 		// 				Es 2 cuando ya podemos hacer consulta.
+		
 		paso_actual = paso;
 		console.log('--------------EJECTUAMOS PROCESOS PARA COMPROBAR -------------');
+		console.log('Valor respuesta[VistaVirtuemart]'+ respuesta['VistaVirtuemart']);
 		console.log('Contador de pasada:' + contador);
 		console.log('Total productos:'+TotalProductosVirtuemart);
 		console.log('LimiteActual:'+LimiteActual);
 		console.log('Paso:' +paso );
+		BarraProceso(LimiteActual,TotalProductosVirtuemart);
 		if (LimiteActual < TotalProductosVirtuemart){
 			// Ahora ejecutamos la funcion de crear vistas , pero solo creamos la vista "virtuemart"
 			// con limite 100 mas ...
-			if (respuesta['VistaVirtuemart'] == false && paso === 1) {
-				ComprobarRefVirtPaso1();
-				paso_actual = 2;
+			if (paso === 1){
+				// Quiere decir que vamos realizar la vista primero.
+				if (respuesta['VistaVirtuemart'] === false ) {
+					// Al pulsar el botton esta la variable respuesta['VistaVirtuemart'] == false , fijo.. 
+					// Ya que en la funcion vistas , la ponemos false si el limite final es 0.
+					LimiteFinal = LimiteActual + 100;
+					if (LimiteFinal > TotalProductosVirtuemart) {
+						// Esto es para evitar enviar un limite mayor al numero registros.
+						LimiteFinal = TotalProductosVirtuemart
+					}
+					console.log('Nuevo valor de limiteFinal:'+LimiteFinal);
+					var limite = [LimiteActual,LimiteFinal ];
+					var vistas = ["virtuemart"];
+					console.log(' Ahora creamos la vista Virtuemart pero con limite' + LimiteActual +','+ LimiteFinal);
+					CrearVistaInicio(vistas,limite );
+					// Ahora el LimiteActual ya es igual limiteFinal + 1
+					LimiteActual = LimiteFinal +1 // Si limitefinal fuera igual TotalProductos saldría del bucle.
+					// Ahora cambiamos el valor paso_actual para esperar resultado.			
+					paso_actual = 2;
+					contador= 0; 
+
+				} else {
+					// Quiere decir el paso_actual es 1 pero no termino la funcion anterior.
+					if (respuesta['BuscarError'] === true){
+						// Ponemos para entre....
+						respuesta['VistaVirtuemart'] = false;
+						f='BuscarError';
+						console.log('Ultimo ciclo, ya que va entrar en Vista');
+						window.setTimeout(function(){ Ciclo(f);},500);
+						// Le ponemos mas tiempo, ya que la busqueda tarda mas..
+						return;
+					}
+				}
 				// Enviamos Ciclo para que espere unos segundo antes de continuar.
-				setTimeout(CicloComprobarRef,1000);
+				// Reinicio contador ya que empezamos a contar.
+				console.log('Entro PASO 1 pero NO en respuesta[VistaVirtuemart]=TRUE');
+				f='Esperar';
+				window.setTimeout(function(){ Ciclo(f);},1000);
 				// no permitimos continuar...
 				return;
-			}
+			}  
 			// Si llega hasta aquí es que dio tiene paso=2 y respuesta['VistaVirtuemart'] -> debería ser "true"
 			if ( paso === 2) {
-				if (respuesta['VistaVirtuemart'] == true ){
-				// Quiere decir , que tenemos la vista con limite.
-				// cambiamos el valor de respuesta['VistaVirtuemart'] para que no vuelva ejecutarlo.
-				respuesta['VistaVirtuemart'] = false;
-				contador= 0; 
+				if (respuesta['VistaVirtuemart'] === true){
+				// Termino de crear la Vista con limite.
 				// Ahora hacemos la consulta para identificar si están bien las referencias
 				// tanto la referencia ID recambio como la Referencia del fabricante cruzada.
-			    ComprobarRefVirtPaso2();
-   				}
-				if (respuesta['BuscarError'] === true){
-					// Ahora ya tenemos resultado Busqueda Error
-					// Ponemos valores para vuelva repetir el ciclo.
-					paso_actual = 1;
-					respuesta['BuscarError'] = false;
-					contador = 0;
-				}	
+			    respuesta['BuscarError'] = false;// Reinicio respuesta.. para espere respuesta..
+			    BuscarError();
+			    paso_actual = 1 ; // ya debería ser uno... ya que es el punto siguiente hacer...
+			    // Enviamos Ciclo para que espere unos segundo antes de continuar.
+				// Reinicio contador ya que empezamos a contar.
+				contador= 0; 
+				f='BuscarError';
+				window.setTimeout(function(){ Ciclo(f);},2000);
+			    // no permitimos continuar...
+				return;
+			    } 	
 				
 					
 			}
 			// Enviamos Ciclo para que espere unos segundo antes de continuar.
-			setTimeout(CicloComprobarRef,5000);
-			console.log('Antes barra proceso LIMITE ACTUAL:'+LimiteActual)
-			console.log('Antes barra proceso LIMITE FINAL:'+LimiteActual)
-			BarraProceso(LimiteActual,TotalProductosVirtuemart);
+			f='BuscarError';
+			console.log('No entro en paso 2');
+			window.setTimeout(function(){ Ciclo(f);},1000);
+			
 			if (errorReferencias.length> 0) {
 				// Quiere decir que hay ya errores..
 				$("#EstadoReferencias").html('Error:'+ errorReferencias.length);
@@ -241,32 +297,15 @@ function ComprobarRefVirtuemart(paso){
 			
 			} else {
 				$("#resultado").html('COMPROBACION DE REFERENCIAS CORRECTA.');
-				$("#f-erroresCsv").css("display", "none");
+				$("#EstadoReferencias").html('Error:'+ errorReferencias.length);
+				$("#f-revisarRef").css("display", "none");
 			}
 		}
 		
 }
-function ComprobarRefVirtPaso1(){
-	console.log('Ejecutando COMPROBARREFVIRTPASO1- CREAR VISTA');
-	
-	LimiteFinal = LimiteActual + 100;
-	if (LimiteFinal > TotalProductosVirtuemart) {
-		LimiteFinal = TotalProductosVirtuemart
-	}
-	console.log('Nuevo valor de limiteFinal:'+LimiteFinal);
-	console.log('Producto Actual (LimiteActual):'+ LimiteActual);
-	console.log('Hasta el Producto (LimiteFinal):'+LimiteFinal);
-	var limite = [LimiteActual,LimiteFinal ];
-	var vistas = ["virtuemart"];
-	console.log(' Desde ComprobarRefVirtPaso1 ejecutamos CrearVistaInicio');
-	CrearVistaInicio(vistas,limite );
-	// Ahora el LimiteActual ya es igual limiteFinal + 1
-	LimiteActual = LimiteFinal +1 // Si limitefinal fuera igual TotalProductos saldría del bucle.
-	
-}
 
-function ComprobarRefVirtPaso2(){
-	console.log('Ejecutando COMPROBARREFVIRTPASO2- BUSCAR ERROR');
+function BuscarError(){
+	console.log('------ FUNCION DE BUSCAR ERROR --------------');
 	var parametros = {
 		'pulsado': 'BuscarErrorRefVirtuemart'
 	};
@@ -294,13 +333,30 @@ function ComprobarRefVirtPaso2(){
 		}
 	});	
 }
-function CicloComprobarRef() {
-	// El objetivo de esta funcion esperar 10 segundo a respuesta.
+
+function Ciclo(f) {
+	// El objetivo de esta funcion volver a ejectuar la funcion
+	// y intentarlo 20 veces, si fuera necesario.
+	// Si fallara , mostraría un error diciendo que funcion no respondió.
 	contador = contador +1;
-	$("#resultado").html('Esperando respuesta intento:'+ contador);
-	// Solo hacemos 10 intentos ... 
+	$("#resultado").html('Esperando respuesta intento:'+ contador +' funcion:'+f);
+	// Solo hacemos 20 intentos ... 
 	if (contador<20){
-		ComprobarRefVirtuemart(paso_actual);
+		// Ahora comprobamos la funcion que llamo al esta.
+		switch(f) {
+			case 'Contar':
+				ContarProductoVirtuemart();
+				break;
+			case 'BuscarError':
+				ComprobarRefVirtuemart(paso_actual);
+				break;
+			case 'Esperar':
+				ComprobarRefVirtuemart(paso_actual);
+				break;
+		} 
+	} else {
+		console.log(' Hubo un error porque lo intento 20 veces....')
+		$("#resultado").html('Error lo intento 20 veces, funcion' +f);
+
 	}
 }
-

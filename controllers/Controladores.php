@@ -110,8 +110,9 @@ class ControladorComun
 			$array['consulta'] = $consulta;
 			$array['error'] = $BD->error;
 		}
+		
 		return $array['NItems'];
-
+		//~ return $array;
 	}
 	
 	
