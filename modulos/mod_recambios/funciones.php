@@ -1,5 +1,5 @@
 <?php 
-
+// Script para añadir contenido a descripcion de tabla virtuemart_products_es_es.
 include_once ("./../../configuracion.php");
 
 // Crealizamos conexion a la BD Datos

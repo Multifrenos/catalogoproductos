@@ -279,20 +279,9 @@
         <?php
         include './../../header.php';
         ?>
-        <div class="container">
-			
-            <div class="col-md-12 text-center">
-                <h2> Recambios: Editar, Añadir y Borrar Recambios </h2>
-                <?php 
-				//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
-				//~ echo '<pre class="text-left">';
-				//~ print_r($Familias);
-				//~ 
-				//~ echo '</pre>';
-				?>
-            </div>
-			
-			<!--=================  Sidebar -- Menu y filtro =============== -->
+        
+        <!--=================  Sidebar -- Menu y filtro =============== -->
+			<div style="position:fixed;">
 			<div class=" col-md-2">
 				<?php 
 					/*  Al pulsar en cualquiera de estas opciones vamos ejecutar funcion AJAX.
@@ -334,6 +323,29 @@
 				?>
 				</form> 
 			</div>
+			</div>
+        
+        
+        
+        
+        
+        <div class="container">
+			
+			
+			
+			
+            <div class="col-md-12 text-center">
+                <h2> Recambios: Editar, Añadir y Borrar Recambios </h2>
+                <?php 
+				//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
+				//~ echo '<pre class="text-left">';
+				//~ print_r($Familias);
+				//~ 
+				//~ echo '</pre>';
+				?>
+            </div>
+			
+			
 			<!--==========  Contenido: Buscador, paginador y lista recambios ========== -->
 
 	<div class="col-md-10">
