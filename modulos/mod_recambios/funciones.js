@@ -78,7 +78,9 @@ function metodoClick(pulsado){
 			if (BRecambios !== ''){
 				window.location.href = './ListaRecambios.php?buscar='+BRecambios;
 			} else {
-				window.location.href = './ListaRecambios.php';	
+				// volvemos sin mas..
+				return;
+				//~ window.location.href = './ListaRecambios.php';	
 			}
 			console.log('Resultado Buscar:'+BRecambios);
 			break;
