@@ -177,139 +177,70 @@
 
 
 	?>
-    <!-- Cargamos libreria control de teclado -->
-	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
-  
 	<script>
 	// Declaramos variables globales
 	var checkID = [];
 	var BRecambios ='';
-	function VerRecambiosSeleccionado (){
-		$(document).ready(function()
-		{
-			// Array para meter lo id de los checks
-			
-			// Contamos check están activos.... 
-			checkID = [] ; // Reiniciamos varible global.
-			var i= 0;
-			// Con la funcion each hace bucle todos los que encuentra..
-			$(".rowRecambio").each(function(){ 
-				i++;
-				//todos los que sean de la clase row1
-				if($('input[name=checkRec'+i+']').is(':checked')){
-					// cant cuenta los que está seleccionado.
-					valor = '0';
-					valor = $('input[name=checkRec'+i+']').val();
-					checkID.push( valor );
-					// Ahora tengo hacer array con id...
-				}
-				
-			});
-			console.log('ID de Recmabios seleccionado:'+checkID);
-			return;
-		});
+	</script> 
+    <!-- Cargamos fuciones de modulo. -->
+   	<script src="<?php echo $HostNombre; ?>/modulos/mod_recambios/funciones.js"></script>
+
+    
+    <!-- Cargamos libreria control de teclado -->
+	<script src="<?php echo $HostNombre; ?>/lib/shortcut.js"></script>
+  
 	
-	
-	}
-	
-	function BuscarRecambio (){
-		$(document).ready(function()
-		{
-			// Lo ideal sería identificar palabras..
-			// de momento solo una palabra..
-			NuevoValorBuscar = $('input[name=Buscar').val();
-			NuevoValorBuscar = $.trim(NuevoValorBuscar);
-			if (NuevoValorBuscar !== ''){
-				BRecambios= NuevoValorBuscar;
-				console.log('Filtro:'+BRecambios);
-			} else {
-				alert (' Debes poner algun texto ');
-				BRecambios = '';
-			}
-			return;
-		});
-	
-	
-	}
-	
-	
-	
-	function metodoClick(pulsado){
-	    console.log("Inicimos switch de control pulsar");
-	    switch(pulsado) {
-			case 'VerRecambio':
-				console.log('Entro en VerRecambio');
-				// Cargamos variable global ar checkID = [];
-				VerRecambiosSeleccionado ();
-				if (checkID.length >1 || checkID.length=== 0) {
-				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
-				return	
-				}
-				// Ahora redireccionamos 
-				// recambi.php?id=id
-				window.location.href = './recambio.php?id='+checkID[0];
-				
-				
-				
-				
-				
-				
-				break;
-			case 'NuevaBusqueda':
-				// Obtenemos puesto en input de Buscar
-				BuscarRecambio ();
-				// Ahora redireccionamos 
-				// recambi.php?buscar = buquedaid=id
-				if (BRecambios !== ''){
-					window.location.href = './ListaRecambios.php?buscar='+BRecambios;
-				} else {
-					window.location.href = './ListaRecambios.php';	
-				}
-				console.log('Resultado Buscar:'+BRecambios);
-				break;
-			default:
-				alert('Error no pulsado incorrecto');
-			}
-	} 
+	<script>
 	// Funciones para atajo de teclado.
 	shortcut.add("Shift+V",function() {
 		// Atajo de teclado para ver
 		metodoClick('VerRecambio');
 	});    
 	    
-	    
-
 	</script> 
     </head>
 
-    <body>
+<body>
         <?php
         include './../../header.php';
         ?>
-        
-        <!--=================  Sidebar -- Menu y filtro =============== -->
-			<div style="position:fixed;">
-			<div class=" col-md-2">
-				<?php 
-					/*  Al pulsar en cualquiera de estas opciones vamos ejecutar funcion AJAX.
-					 * */
-				?>
+       
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12 text-center">
+					<h2> Recambios: Editar, Añadir y Borrar Recambios </h2>
+					<?php 
+					//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
+					//~ echo '<pre class="text-left">';
+					//~ print_r($Familias);
+					//~ 
+					//~ echo '</pre>';
+					?>
+				</div>
+	        <!--=================  Sidebar -- Menu y filtro =============== 
+				Efecto de que permanezca fixo con Scroll , el problema es en
+				movil
+	        -->
+			<nav class="col-sm-2" id="myScrollspy">
+				<div data-spy="affix" data-offset-top="505">
 				<h4> Recambios</h4>
 				<h5> Opciones para una selección</h5>
-				<ul>
-					<li> Añadir</li>
-					<li> Modificar</li>
-					<li> Borrar</li>
-					<li><input type="submit" value="Ver" onclick="metodoClick('VerRecambio');"> </li>
+				<ul class="nav nav-pills nav-stacked">
+					<li><a href="#section1">Añadir</a></li>
+					<li><a href="#section2">Modificar</a></li>
+					<li><a href="#section3">Borrar</a></li>
+					<li><a href="#section3" onclick="metodoClick('VerRecambio');";>Ver</a></li>
+
 				</ul>
+				</div>
+			
 				<h4> Mostrar Familias</h4>
 				<form name="FormFamilia">
 					<input type="checkbox" name="cktodos" value="all"  onclick="metodoClick()">Todos
-
 					<?php
 					foreach ($Familias['items'] as $familia){ 
-					    echo '<h5>'. $familia['Nombre'].'</h5>';
-					    if ($familia['NumeroHijos'] > 0){
+						echo '<h5>'. $familia['Nombre'].'</h5>';
+						if ($familia['NumeroHijos'] > 0){
 						?>
 						<fieldset name="grupoCked" style="display:none;">
 						<?php
@@ -325,46 +256,22 @@
 						?>
 						</fieldset>
 						<?php
-					    }
-					    
+						}
+					
 					}
-				?>
+					?>
 				</form> 
-			</div>
-			</div>
-        
-        
-        
-        
-        
-        <div class="container">
+			</nav>
 			
-			
-			
-			
-            <div class="col-md-12 text-center">
-                <h2> Recambios: Editar, Añadir y Borrar Recambios </h2>
-                <?php 
-				//~ echo 'Numero filas'.$Familias->num_rows.'<br/>';
-				//~ echo '<pre class="text-left">';
-				//~ print_r($Familias);
-				//~ 
-				//~ echo '</pre>';
-				?>
-            </div>
-			
-			
-			<!--==========  Contenido: Buscador, paginador y lista recambios ========== -->
-
-	<div class="col-md-10">
-		<p>
-		 -Recambios encontrados BD local filtrados:
-		 <?php echo $TotalRecambios;?>
-		 </p>
-		 
-                <?php 	// Mostramos paginacion 
-                  echo $htmlPG;
-				?>
+				<!--==========  Contenido: Buscador, paginador y lista recambios ========== -->
+			<div class="col-md-10">
+					<p>
+					 -Recambios encontrados BD local filtrados:
+					 <?php echo $TotalRecambios;?>
+					 </p>
+					<?php 	// Mostramos paginacion 
+					  echo $htmlPG;
+					?>
 				
 			<div class="form-group ClaseBuscar">
 				<label>Buscar en descripcion / Referencia Fabricante</label>
@@ -373,7 +280,7 @@
 			</div>
 			
                  <!-- TABLA DE PRODUCTOS -->
-		<div>
+			<div>
 			<table class="table table-striped">
 				<thead>
 					<tr>
@@ -434,8 +341,10 @@
 				?>
 				
 			</table>
+			</div>
 		</div>
 	</div>
-        </div>
-    </body>
+    </div>
+		
+</body>
 </html>

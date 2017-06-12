@@ -186,7 +186,7 @@
 								<input type="text" id="IDWeb" name="WebID" value="<?php echo $Recambio['IDWeb'];?>"   readonly>
 							</div>
 							<div class="col-md-6">
-							   <a href="http://localhost/multipiezas/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=<?php echo $Recambio['IDWeb'];?>" target="_blank">Link producto</a>
+							   <a href="<?php echo $hostTienda;?>/index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id=<?php echo $Recambio['IDWeb'];?>" target="_blank">Link producto</a>
 							</div>
 						</div>
 						
@@ -315,9 +315,7 @@
 				}
 				// Cerramos tablas que esta abierta fijo...
 				echo '</tbody></table>';
-				//~ echo '<pre>';
-				//~ print_r($CrucesVehiculos);
-				//~ echo '</pre>';
+				
 				?>
 				
 				
@@ -328,10 +326,10 @@
 			}
 			?>
 			<?php // Debug
-				echo '<pre>';
-				echo ' Recambio ';
-				print_r($Recambio);
-				
+				//~ echo '<pre>';
+				//~ echo ' Recambio ';
+				//~ print_r($Recambio);
+				//~ 
 				//~ echo ' Familia '.'<br/>';
 				//~ print_r($FamRecam);
 				//~ echo 'Cruces Recambios <br/>';
@@ -344,7 +342,7 @@
 				//~ print_r($FabRecam);
 
 
-				echo '</pre> ';
+				//~ echo '</pre> ';
 				
 				
 

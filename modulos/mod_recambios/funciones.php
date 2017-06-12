@@ -1,7 +1,7 @@
 <?php 
-// Funciones generales para modulo de recambios.
 
 
+// Funciones para vista Recambio unico.
 function CopiarDescripcion($id,$DatosRefCruzadas,$prefijoJoomla,$BDWebJoomla) {
 	// Function para añadir contenido a descripcion de tabla virtuemart_products_es_es.
 

@@ -1,4 +1,96 @@
-// JavaSCRIPT para modulo de recambios.
+// Funciones modulo de recambios vista lista recambios.
+function VerRecambiosSeleccionado (){
+	$(document).ready(function()
+	{
+		// Array para meter lo id de los checks
+		
+		// Contamos check están activos.... 
+		checkID = [] ; // Reiniciamos varible global.
+		var i= 0;
+		// Con la funcion each hace bucle todos los que encuentra..
+		$(".rowRecambio").each(function(){ 
+			i++;
+			//todos los que sean de la clase row1
+			if($('input[name=checkRec'+i+']').is(':checked')){
+				// cant cuenta los que está seleccionado.
+				valor = '0';
+				valor = $('input[name=checkRec'+i+']').val();
+				checkID.push( valor );
+				// Ahora tengo hacer array con id...
+			}
+			
+		});
+		console.log('ID de Recmabios seleccionado:'+checkID);
+		return;
+	});
+
+
+}
+	
+function BuscarRecambio (){
+	$(document).ready(function()
+	{
+		// Lo ideal sería identificar palabras..
+		// de momento solo una palabra..
+		NuevoValorBuscar = $('input[name=Buscar').val();
+		NuevoValorBuscar = $.trim(NuevoValorBuscar);
+		if (NuevoValorBuscar !== ''){
+			BRecambios= NuevoValorBuscar;
+			console.log('Filtro:'+BRecambios);
+		} else {
+			alert (' Debes poner algun texto ');
+			BRecambios = '';
+		}
+		return;
+	});
+
+
+}
+
+
+
+function metodoClick(pulsado){
+	console.log("Inicimos switch de control pulsar");
+	switch(pulsado) {
+		case 'VerRecambio':
+			console.log('Entro en VerRecambio');
+			// Cargamos variable global ar checkID = [];
+			VerRecambiosSeleccionado ();
+			if (checkID.length >1 || checkID.length=== 0) {
+			alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+			return	
+			}
+			// Ahora redireccionamos 
+			// recambi.php?id=id
+			window.location.href = './recambio.php?id='+checkID[0];
+			
+			
+			
+			
+			
+			
+			break;
+		case 'NuevaBusqueda':
+			// Obtenemos puesto en input de Buscar
+			BuscarRecambio ();
+			// Ahora redireccionamos 
+			// recambi.php?buscar = buquedaid=id
+			if (BRecambios !== ''){
+				window.location.href = './ListaRecambios.php?buscar='+BRecambios;
+			} else {
+				window.location.href = './ListaRecambios.php';	
+			}
+			console.log('Resultado Buscar:'+BRecambios);
+			break;
+		default:
+			alert('Error no pulsado incorrecto');
+		}
+} 
+
+
+
+
+// JavaSCRIPT para modulo de recambios vista Recambio unico.
 
 
 function copiarAlPortapapeles(id_elemento) {
