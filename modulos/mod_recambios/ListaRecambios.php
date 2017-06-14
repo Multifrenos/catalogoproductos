@@ -2,180 +2,72 @@
 <html>
     <head>
         <?php
-// Reinicio variables
 	include './../../head.php';
-	
+	include ("./../../plugins/paginacion/paginacion.php");
+
 	include ("./../mod_familias/ObjetoFamilias.php");
 	include ("./ObjetoRecambio.php");
 	// Creamos objeto familia y leemos familias para mostrar..
 	$Dfamilias = new Familias;
 	$Familias= $Dfamilias->LeerFamilias($BDRecambios);
-	// Ahora creamos array paginas.
-	$paginas = array();
-	// Estructura:
-	// paginas{
-	//		actual:
-	//		inicio:
-	//		ultima:
-	//		
-	//		next->
-	//			[id]
-	//		previo->
-	//			[id]
-	// 			
-	$paginas['Actual'] = 1; // por defecto
+	
+	// Reinicio variables
 	$palabraBuscar = ''; // por defecto
-	// Obtenemos datos url si los hay...
+	$filtro = ''; // por defecto
+	$PgActual = 1; // por defecto.
+	$LimitePagina = 40; // por defecto.
+	// Obtenemos datos si hay GET y cambiamos valores por defecto.
 	if ($_GET) {
 		if ($_GET['pagina']) {
-			$paginas['Actual'] = $_GET['pagina'];
+			$PgActual = $_GET['pagina'];
 		}
-	
 		if ($_GET['buscar']) {
 			$palabraBuscar = $_GET['buscar'];
-		} else {
-			$palabraBuscar = '';
-		}
+			$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
+		} 
 	}
-	
 	
 	// ===================  CONSULTAMOS CUANTOS RECAMBIOS HAY CON LA BUSQUEDA QUE PUSIMOS  =============   //	
 	// Creamos objeto Recambio para realizar las consultas especificas..
 	$Crecambios = new Recambio;
-
+	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0",$filtro);
+	$CantidadRegistros = $ContarRecambios->num_rows;	
+	$LinkBase = './ListaRecambios.php?';
+	$OtrosParametros = $palabraBusca;
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosPametros);
+	// Debug
+	//~ echo '<pre>';
+	//~ print_r($htmlPG);
+	//~ echo '</pre>';
+	// fin Debug
+	
+	
+	// Ahora creamos array de resultado (Consulta).
+	$paginasMulti = $PgActual-1;
+	if ($paginasMulti > 0) {
+	$desde = ($paginasMulti * $LimitePagina); 
+	} else {
+	$desde = 0;
+	}
+	// Realizamos consulta 
 	if ($palabraBuscar !== '') {
 		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
-		//~ echo ' Ver Entro: '.$filtro;
 	} else {
-	$filtro = '';
+		$filtro = '';
 	}
-	$limite = 40 ; // Esto puede ser variable ...
-	// Realizamos consulta para saber cuantos registros tiene y hacer paginación.
-	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0",$filtro);
-	// Obtenemos datos
-	$TotalRecambios = $ContarRecambios->num_rows;
 	
-	// =========       Creamos paginado      ===================  //
 
-	$TotalPaginas = $TotalRecambios / $limite ;
-	//~ $paginas['Ultima'] = round($TotalPaginas,0,PHP_ROUND_HALF_UP);   // Redondeo al alza...
-	$paginas['Ultima'] = (int) $TotalPaginas;
-	if ($paginas['Ultima'] < $TotalPaginas) {
-		$paginas['Ultima'] = $paginas['Ultima'] +1;
-	}
-	$paginas['inicio'] = 1;
-
-	// La variables controlError la utilizao como un debug, no se muestra... Solo si hubiera un error..
-	//~ $controlError = 'Obtenemos o creamos Pagina Actual :'.$paginas['Actual']; 
-
-	switch ($paginas['Actual']) {
-	    case 1:
-		$paginaInicio = $paginas['Actual'];
-		break;
-	    case $TotalPaginas:
-		$paginas['Ultima'] = $paginas['Actual'];
-		break;
-	}
-	//~ $controlError .= ' Redifino pagina actual...:'.$paginas['Actual'];
+	$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$LimitePagina ,$desde,$filtro);
+	//~ $consulta1 = $recambio['consulta'];
+	$recambios  = $Crecambios->ObtenerRecambios($recambios);
+	//~ echo '<br/> consulta nueva:'.$consulta1;
+	/* Para depurar */
 	
-	if ($paginas['Actual'] < $paginas['Ultima']) {
-		$difPg= $paginas['Ultima']- $paginas['Actual'];
-		if ($difPg > 6 ){
-			$difPg = 5; // Su hay mas 5, solo muestra 6
-			 
-		}
-		// Array siguientes
-		for ($i = 1; $i <= $difPg; $i++) {
-			if ($paginas['Actual']+$i != $paginas['Ultima']) {
-				$paginas['next'][$i] = $paginas['Actual']+ $i  ;
-			} 
-		}
-	}
-	//~ $controlError .= ' actual...:'.$paginas['Actual'];
-
-	if ($paginas['Actual'] > $paginas['inicio']) {
-		$difPg= $paginas['Actual'] - $paginas['inicio'];
-		if ($difPg >6 ){
-			$difPg = 6; // Recuerda que restamos una entrada, por eso es 5 paginas solo las muestra..
-		
-		}
-		// Array anteriores
-		for ($i = 1; $i < $difPg; $i++) {
-			if ($difPg == 1) {
-				$difp = 2;
-			} else {
-				$difp = $difPg;
-
-			}
-			$paginas['previo'][$i] = $paginas['Actual']-($difp-$i);
-		}
-	}
-	//~ $controlError .= 'Pagina Actual(1):'.$paginas['Actual'];
-
-	// Montamos HTML para mostrar...
-	$htmlPG =  '<ul class="pagination">';
-	$Linkpg = '<li><a href="./ListaRecambios.php?pagina=';
-	// Pagina inicio 
-	if (count($paginas['previo'])== 0){
-		if ($paginas['Actual'] == $paginas['inicio']){
-			$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['inicio'].'</a></li>';
-		} else {
-		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'&buscar='.$palabraBuscar.'">'.$paginas['inicio'].'</a></li>';
-		}
-	} else {
-		if ($paginas['inicio']+6 <= $paginas['Actual']) {
-		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'&buscar='.$palabraBuscar.'">'."Inicio".'</a></li>';
-		$htmlPG = $htmlPG.'<li class="disabled"><a>'.'<<...>>'.'</...></a></li>';
-
-		} else {
-		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'.$paginas['inicio'].'</a></li>';
-		}
-		
-	}
-	//~ $controlError .= 'Pagina Actual(2.1):'.$paginas['Actual'];
-
-	//~ $controlError .= 'Pagina Inicio(2):'.$paginas['inicio'];
-
-	// Paginas anteriores
-	foreach ($paginas['previo'] as $pagina) {
-		// Si hay valor de busqueda tenemos que meterlo en link.
-		
-		$htmlPG = $htmlPG.$Linkpg.$pagina.'&buscar='.$palabraBuscar.'">'.$pagina.'</a></li>';
-		
 	
-	}
-	// El valor $pagina cuando la pagina actual es 2, es 0 ya que 
-	// no tiene previo, la uno es la pagina inicio que ya la mostramos.
-	// Por este motivo, el siguiente if para mostrar pagina actual.
-	//~ $controlError .= 'Pagina(3):'.$pagina;
-	//~ $controlError .= 'Pagina Actual (3):'.$paginas['Actual'];
-
-	if ($pagina > 1 or $paginas['Actual'] == 2){
-	// Pagina actual distinta a inicio....
-	$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['Actual'].'</a></li>';
-	}
-	// Pagina siguientes.
-	foreach ($paginas['next'] as $paginaF	) {
-		$htmlPG = $htmlPG.$Linkpg.$paginaF.'&buscar='.$palabraBuscar.'">'.$paginaF.'</a></li>';
-	}
-	//~ $controlError .= '-PaginaF:'.$paginaF;
-	// Mostramos ultima pagina, si no se mostro en previo.
-	if ($paginaF){
-		if ($paginaF + 1 < $paginas['Ultima']){
-			$htmlPG = $htmlPG.'<li class="disabled"><a>'.'<<...>>'.'</...></a></li>';
-			$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'&buscar='.$palabraBuscar.'">'.'Ultima</a></li>';
-
-		} else{
-		$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'&buscar='.$palabraBuscar.'">'.$paginas['Ultima'].'</a></li>';
-		}
-	}
-	$htmlPG = $htmlPG. '</ul>';
-	// Mostramos errores
-	//~ echo $controlError;
 	
-	// =========       Fin paginado      ===================  //
-
-
+	
+	
+	
 	?>
 	<script>
 	// Declaramos variables globales
@@ -296,22 +188,7 @@
 					</tr>
 				</thead>
 	
-				<?php 
-				// Ahora meto los datos de la consulta.
-				$paginasMulti = $paginas['Actual']-1;
-				if ($paginasMulti > 0) {
-				$desde = ($paginasMulti * $limite); 
-				} else {
-				$desde = 0;
-				}
-				// Realizamos consulta 
-				if ($palabraBuscar !== '') {
-					$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
-				} else {
-					$filtro = '';
-				}
-				$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$limite,$desde,$filtro);
-				$recambios  = $Crecambios->ObtenerRecambios($recambios);
+				<?php
 				$checkRecam = 0;
 				foreach ($recambios['items'] as $recambio){ 
 					$checkRecam = $checkRecam + 1; 

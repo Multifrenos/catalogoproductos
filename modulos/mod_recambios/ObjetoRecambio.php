@@ -53,7 +53,6 @@ class Recambio
 			return $ResRecambios;
 			// No continuamos..
 		}
-		//~ echo $consulta;
 		return $ResRecambios ;
     }
     
