@@ -17,10 +17,13 @@
 		// Creamos objeto Recambio para realizar las consultas..
 		$Crecambios = new Recambio;
 		// ===========  Busqueda datos Recambio ============= //
-			$tabla= 'recambios';
+			$tabla= 'RecambiosTemporal';
 			$idBusqueda ='id='.$id;
-			$RecamID = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
-			$RecamID = $Crecambios->ObtenerRecambios($RecamID);
+			//~ $RecamID = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
+			$LimitePagina = 0;
+			$desde = 0;
+			$filtro = "WHERE ".$idBusqueda;
+			$RecamID = $Crecambios->ObtenerRecambios($BDRecambios,$LimitePagina ,$desde,$filtro);
 			// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
 		$Recambio = $RecamID['items'][0];
 		
@@ -175,12 +178,12 @@
 							<input type="text" id="RefProdFabricante" name="ReferenciaProdFabricante" value="<?php echo $Recambio['FabricanteRef'];?>"   readonly>
 							<button onclick="copiarAlPortapapeles('RefProdFabricante')">Copiar</button>
 						</div>
-						<div class="col-md-4 form-group">
+						<div class="col-md-6 form-group">
 							<label>PVP (Precio Final):</label>
 							<input type="text" id="PVP" name="PrecioPVP" value="<?php echo $Recambio['pvp'];?>"   readonly>
 							<button onclick="copiarAlPortapapeles('PVP')">Copiar</button>
 						</div>
-						<div class="col-md-8 form-group">
+						<div class="col-md-4 form-group">
 							<div class="col-md-6 form-group">
 								<label>ID Web:</label>
 								<input type="text" id="IDWeb" name="WebID" value="<?php echo $Recambio['IDWeb'];?>"   readonly>

@@ -6,11 +6,18 @@
 
 class Recambio
 {
-	function ObtenerRecambios($ResRecambios)
+	function ObtenerRecambios($BDRecambios,$LimitePagina ,$desde,$filtro)
     {
+		$recambios = array();
+		$rango= '';
+		if ($LimitePagina > 0 ){
+			$rango .= " LIMIT ".$LimitePagina." OFFSET ".$desde;
+		} 
+		$consulta = "Select * from RecambiosTemporal ".$filtro.$rango;
+		$ResRecambios = $BDRecambios->query($consulta);
 		$recambios['NItems'] = $ResRecambios->num_rows;
 		$i = 0;
-		$recambio = array();
+		
 		while ($recambio = $ResRecambios->fetch_assoc()) {
 			$recambios['items'][$i]['id']= $recambio['id'];
 			$recambios['items'][$i]['Descripcion']= $recambio['Descripcion'];
@@ -22,38 +29,57 @@ class Recambio
 			if ( isset($recambio['RefFabricanteCru']) ) {
 			$recambios['items'][$i]['RefFabricanteCru']= $recambio['RefFabricanteCru'];
 			}
-			if ( isset($recambio['virtuemart_product_id']) ) {
-			$recambios['items'][$i]['IDWeb']= $recambio['virtuemart_product_id'];
+			$consulta1 = 'SELECT virtuemart_product_id FROM `virtuemart_products` WHERE ltrim(`product_sku`)="'.$recambio['id'].'" and ltrim(`product_gtin`)="'.$recambio['RefFabricanteCru'].'"';
+			
+			$IDVirtuemart = $BDRecambios->query($consulta1);
+			$NumItems = $IDVirtuemart->num_rows;
+			if ($IDVirtuemart->num_rows ==1) {
+				while ($row = $IDVirtuemart->fetch_assoc()) {
+					$recambios['items'][$i]['IDWeb']=  $row['virtuemart_product_id'] ;
+					
+				}
+			} else {
+				if ($IDVirtuemart->num_rows >1){
+					$recambios['items'][$i]['IDWeb']='Error';
+				}
 			}
 			
+			$recambios['items'][$i]['Consulta'] = $consulta1;
+			$recambios['items'][$i]['NumItems'] = $NumItems;
+
 			$i = $i+1;
 		}
+		$recambios ['consulta'] = $consulta;
 		return $recambios;
     }
     
     
     
-    function ConsultaRecambios($BDRecambios,$limite,$desde,$filtro)
+    function CrearVistaRecambios($BDRecambios,$nombreVista)
     {
-		$rango = $filtro ;
-		if ($limite > 0 ){
-			$rango .= " LIMIT ".$limite." OFFSET ".$desde;
-		} 
+		$recambios = array();
+		$consulta = "CREATE or REPLACE VIEW ".$nombreVista." AS SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru FROM recambios R JOIN referenciascruzadas RC ON RC.RecambioID = R.id";
 		
-		$consulta = "SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru, VP.virtuemart_product_id FROM recambios R JOIN referenciascruzadas RC ON RC.RecambioID = R.id LEFT JOIN virtuemart_products VP ON VP.product_sku = R.id ".$rango;
-        //~ $consulta = "SELECT * FROM `recambios`".$rango;
+		
+		//~ 
+		//~ $consulta = "CREATE or REPLACE VIEW ".$nombreVista." AS SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru, VP.virtuemart_product_id FROM recambios R JOIN referenciascruzadas RC ON RC.RecambioID = R.id LEFT JOIN virtuemart_products VP ON VP.product_sku = R.id ";
+        
+        //~ $consulta = "CREATE or REPLACE VIEW ".$nombreVista." AS SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru, VP.virtuemart_product_id FROM recambios R JOIN virtuemart_products VP ON VP.product_sku = R.id LEFT JOIN referenciascruzadas RC ON RC.RecambioID = R.id";
+        
         
 		$ResRecambios = $BDRecambios->query($consulta);
 		 if ($ResRecambios == true){
-			$recambios['conexion'] = 'Correcto,consulta todas familias';
+			$recambios['conexion'] = 'Correcto';
 			} else {
-			$ResRecambios['conexion'] = 'Error '.mysqli_error($BDRecambios);
-			$ResRecambios['consulta'] = $consulta;
+			$recambios['conexion'] = 'Error ';
+			$recambios['error'] = mysqli_error($BDRecambios);
 				
-			return $ResRecambios;
+			return $recambios;
 			// No continuamos..
 		}
-		return $ResRecambios ;
+		$recambios['consulta'] = $consulta;
+
+		return $recambios ;
     }
     
     function BusquedaIDUnico($BDRecambios,$id,$tabla)

@@ -7,9 +7,12 @@
 
 	include ("./../mod_familias/ObjetoFamilias.php");
 	include ("./ObjetoRecambio.php");
-	// Creamos objeto familia y leemos familias para mostrar..
+	// ===== Creamos objetos ================
+	// familia y leemos familias para mostrar..
 	$Dfamilias = new Familias;
 	$Familias= $Dfamilias->LeerFamilias($BDRecambios);
+	// Creamos objeto controlado comun.
+	$Controler = new ControladorComun; // De momento no lo utilizamos.
 	
 	// Reinicio variables
 	$palabraBuscar = ''; // por defecto
@@ -23,18 +26,21 @@
 		}
 		if ($_GET['buscar']) {
 			$palabraBuscar = $_GET['buscar'];
-			$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
+			$filtro =  " WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RefFabricanteCru LIKE '%".$palabraBuscar."%'";
 		} 
 	}
 	
 	// ===================  CONSULTAMOS CUANTOS RECAMBIOS HAY CON LA BUSQUEDA QUE PUSIMOS  =============   //	
 	// Creamos objeto Recambio para realizar las consultas especificas..
 	$Crecambios = new Recambio;
-	$ContarRecambios = $Crecambios->ConsultaRecambios($BDRecambios,"0","0",$filtro);
-	$CantidadRegistros = $ContarRecambios->num_rows;	
+	// Creamos la vista a ver .. debería controlar esto para que lo cree constantemente..
+	$vista = 'RecambiosTemporal'; // Vista temporal.
+	$CrearVista = $Crecambios->CrearVistaRecambios($BDRecambios,$vista);
+	$CantidadRegistros = $Controler->contarRegistro($BDRecambios,$vista,$filtro);	
+	//~ echo '<pre>'.print_r($CantidadRegistros).'</pre>';
 	$LinkBase = './ListaRecambios.php?';
-	$OtrosParametros = $palabraBusca;
-	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosPametros);
+	$OtrosParametros = $palabraBuscar;
+	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
 	// Debug
 	//~ echo '<pre>';
 	//~ print_r($htmlPG);
@@ -43,6 +49,7 @@
 	
 	
 	// Ahora creamos array de resultado (Consulta).
+
 	$paginasMulti = $PgActual-1;
 	if ($paginasMulti > 0) {
 	$desde = ($paginasMulti * $LimitePagina); 
@@ -51,19 +58,26 @@
 	}
 	// Realizamos consulta 
 	if ($palabraBuscar !== '') {
-		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RC.RefFabricanteCru LIKE '%".$palabraBuscar."%'";
+		$filtro =  "WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RefFabricanteCru LIKE '%".$palabraBuscar."%'";
 	} else {
 		$filtro = '';
 	}
 	
 
-	$recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$LimitePagina ,$desde,$filtro);
-	//~ $consulta1 = $recambio['consulta'];
-	$recambios  = $Crecambios->ObtenerRecambios($recambios);
-	//~ echo '<br/> consulta nueva:'.$consulta1;
+	//~ $recambios  = $Crecambios->ConsultaRecambios($BDRecambios,$LimitePagina ,$desde,$filtro);
+	$recambios  = $Crecambios->ObtenerRecambios($BDRecambios,$LimitePagina ,$desde,$filtro);
+	
 	/* Para depurar */
+	//~ echo '<pre>';
 	
+	// Hay que activarlo en la ConsultaRecambios o ObtenerRecambios
+	//~ $consulta1 = $recambios['consulta'];
+	//~ echo $consulta1;
 	
+	//~ echo 'Total $CantidadRegistros='.$CantidadRegistros;
+	//~ print_r($recambios) ;
+	
+	//~ echo '</pre>';
 	
 	
 	
@@ -159,7 +173,7 @@
 			<div class="col-md-10">
 					<p>
 					 -Recambios encontrados BD local filtrados:
-					 <?php echo $TotalRecambios;?>
+					 <?php echo $CantidadRegistros;?>
 					 </p>
 					<?php 	// Mostramos paginacion 
 					  echo $htmlPG;

@@ -24,23 +24,26 @@
 	//		previo->
 	//			[id]
 	// 			
-function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosPametros) {
+function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros) {
 	// Asignar variables
 	$paginas = array();
 	$ArrayTPg = array();
-	if (isset($OtrosParametros)=== false){
-		$OtrosParametros = '';
-	}
+	
 	// Array para texto de paginas.
 	$ArrayTPg = array('inicio'=>'Inicio','actual'=>'Actual','ultima'=>'Ultima');
+	$resto= 0;
 	if ($CantidadRegistros > $LimitePagina ) {
 	// Si hay mas 50 , realizamos paginación.
-			$TotalPaginas = $CantidadRegistros / $LimitePagina;
+		$TotalPaginas = $CantidadRegistros / $LimitePagina;
+		$paginas['Division'] = $TotalPaginas;
 	}
-	
 	// Ahora creamos array paginas.
 	$paginas['Actual'] = $PagActual; 
-	$paginas['Ultima'] = round($TotalPaginas, 0, PHP_ROUND_HALF_UP);   // Redondeo al alza...
+	$paginas['Ultima'] = round($TotalPaginas,0);   // Redondeo al alza...
+	if ($paginas['Ultima'] < $TotalPaginas){
+		// Añadimos incrementamos pagina Ultima en una.
+		$paginas['Ultima'] =$paginas['Ultima'] + 1;
+	}
 	$paginas['inicio'] = 1;
 	
 	switch ($paginas['Actual']) {
@@ -52,7 +55,7 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 		break;
 		
 	}
-	// Ahora vemos las paginas previas.
+	// Ahora monstamos las paginas previas.
 	if ($paginas['Actual'] > $paginas['inicio']) {
 		$difPg= $paginas['Actual'] - $paginas['inicio'];
 		if ($difPg >6 ){
@@ -69,15 +72,21 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 			}
 		}
 		// Ahora añadimos previos intermedios si la diferencias entre el ultimo previo y pagina inicio es mayor 10
-		$PrevBloques= round((($paginas['previo'][$x]- $paginas['inicio']) /4), 0, PHP_ROUND_HALF_UP);
-		if (($PrevBloques)>4){
-			$UltimoPrevio = $paginas['previo'][$x];
-			for ($i = 1; $i < 4; $i++) {
-			$x++;
-			$paginas['previo'][$x]= $UltimoPrevio - ($i*$PrevBloques);
+		$PrevBloques = 0;
+		if (isset($paginas['previo'])){
+			if ($paginas['previo'][$x]){
+				$PrevBloques= round((($paginas['previo'][$x]- $paginas['inicio']) /4), 0, PHP_ROUND_HALF_UP);
+				$paginas['PrevBloquesPrevio'] = $PrevBloques;
+
 			}
-		}  
-		
+			if (($PrevBloques)>=3){
+				$UltimoPrevio = $paginas['previo'][$x];
+				for ($i = 1; $i < 4; $i++) {
+				$x++;
+				$paginas['previo'][$x]= $UltimoPrevio - ($i*$PrevBloques);
+				}
+			}  
+		}	
 	}
 	
 	if ($paginas['Actual'] < $paginas['Ultima']) {
@@ -97,16 +106,17 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 		}
 		
 		// Ahora añadimos next intermedios si la diferencias entre el ultimo next y pagina ultima es mayor 10
-		$PrevBloques= round((($paginas['Ultima']- $paginas['next'][$x]) /4),0, PHP_ROUND_HALF_UP);
-		//~ $PrevBloques = $paginas['next'][$x];
+		$PrevBloques = 0;
+		if ($paginas['next'][$x]){
+			$PrevBloques= round((($paginas['Ultima']- $paginas['next'][$x]) /4),0, PHP_ROUND_HALF_UP);
+			$paginas['PrevBloquesNext'] = $PrevBloques;
+		}
 		$i= 1;
-		if (($PrevBloques) > 4 ){
+		if (($PrevBloques) > 3 ){
 				$UltimoNext = $paginas['next'][$x];
 				for ($i = 1; $i < 4; $i++) {
 					$x++;
 					$paginas['next'][$x]= $UltimoNext + ($i*$PrevBloques);
-					//~ $paginas['next'][$x]= $PrevBloques;
-				
 				}
 			}  
 		
@@ -117,50 +127,49 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 
 	// Montamos HTML para mostrar...
 	$htmlPG =  '<ul class="pagination">';
-	$Linkpg = '<li><a href="'.$LinkBase.'pagina=';
+	$Linkpg = '<li><a href="'.$LinkBase.'buscar='.$OtrosParametros.'&pagina=';
 	// Pagina inicio 
 	if ($paginas['Actual'] == $paginas['inicio']){
 		$htmlPG = $htmlPG.'<li class="active"><a>'.$ArrayTPg['inicio'].'</a></li>';
 	} else {
-		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].$OtrosParametros.'">'.$ArrayTPg['inicio'].'</a></li>';
+		$htmlPG = $htmlPG.$Linkpg.$paginas['inicio'].'">'.$ArrayTPg['inicio'].'</a></li>';
 	}
 	
 	// Paginas anteriores (previos)
-	if (count($paginas['previo'])> 0){
+	if (isset($paginas['previo'])){
 		// El orden es al reves, de la creacion 
 		$previo = $paginas['previo'];
 		sort($previo); // Ordenamo ... 
 		$ordenInverso = $previo;
 		foreach ($ordenInverso as $pagina) {
-			$htmlPG = $htmlPG.$Linkpg.$pagina.$OtrosParametros.'">'.$pagina.'</a></li>';
+			$htmlPG = $htmlPG.$Linkpg.$pagina.'">'.$pagina.'</a></li>';
 		}
 		
 	}
-	// Pafina actual ()
-	if ($pagina > 1 or $paginas['Actual'] == 2){
+	// Pagina actual ()
+	if ($paginas['Actual'] != 1 and $paginas['Actual'] != $paginas['Ultima'] ){
 	// Pagina actual distinta a inicio....
 	$htmlPG = $htmlPG.'<li class="active"><a>'.$paginas['Actual'].'</a></li>';
 	}
 	// Pagina siguientes.
 	$x= 0;
-	foreach ($paginas['next'] as $paginaF	) {
-		$x++ ;
-		$pref= '';
-		if ($x>5){
-		// Marque el salto..
-		$pref = "&gt;"; //'>';	
+	if (isset($paginas['next'])){
+		foreach ($paginas['next'] as $paginaF	) {
+			$x++ ;
+			$pref= '';
+			if ($x>5){
+			// Marque el salto..
+			$pref = "&gt;"; //'>';	
+			}
+			$htmlPG = $htmlPG.$Linkpg.$paginaF.'">'.$pref.$paginaF.'</a></li>';
 		}
-		$htmlPG = $htmlPG.$Linkpg.$paginaF.$OtrosParametros.'">'.$pref.$paginaF.'</a></li>';
 	}
 	//~ $controlError .= '-PaginaF:'.$paginaF;
 	// Mostramos ultima pagina, si no se mostro en previo.
-	if ($paginaF){
-		if ($paginaF + 1 < $paginas['Ultima']){
-			$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].$OtrosParametros.'">'.'Ultima</a></li>';
-
-		} else{
-		$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].$OtrosParametros.'">'.$paginas['Ultima'].'</a></li>';
-		}
+	if ( $paginas['Actual'] == $paginas['Ultima']){
+		$htmlPG = $htmlPG.'<li class="active"><a>'.$ArrayTPg['ultima'].'</a></li>';
+	} else{
+		$htmlPG = $htmlPG.$Linkpg.$paginas['Ultima'].'">'.$ArrayTPg['ultima'].'</a></li>';
 	}
 	$htmlPG = $htmlPG. '</ul>';
 	// Mostramos errores
