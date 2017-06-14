@@ -29,14 +29,15 @@ class Recambio
 			if ( isset($recambio['RefFabricanteCru']) ) {
 			$recambios['items'][$i]['RefFabricanteCru']= $recambio['RefFabricanteCru'];
 			}
-			$consulta1 = 'SELECT virtuemart_product_id FROM `virtuemart_products` WHERE ltrim(`product_sku`)="'.$recambio['id'].'" and ltrim(`product_gtin`)="'.$recambio['RefFabricanteCru'].'"';
+			$consulta1 = 'SELECT virtuemart_product_id,published FROM `virtuemart_products` WHERE ltrim(`product_sku`)="'.$recambio['id'].'" and ltrim(`product_gtin`)="'.$recambio['RefFabricanteCru'].'"';
 			
 			$IDVirtuemart = $BDRecambios->query($consulta1);
 			$NumItems = $IDVirtuemart->num_rows;
 			if ($IDVirtuemart->num_rows ==1) {
 				while ($row = $IDVirtuemart->fetch_assoc()) {
 					$recambios['items'][$i]['IDWeb']=  $row['virtuemart_product_id'] ;
-					
+					$recambios['items'][$i]['publicada']=  $row['published'] ;
+
 				}
 			} else {
 				if ($IDVirtuemart->num_rows >1){

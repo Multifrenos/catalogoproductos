@@ -221,6 +221,12 @@
 						<?php
 						if (isset ( $recambio['IDWeb']) ) {
 						 echo $recambio['IDWeb'];
+							if ($recambio['publicada'] == 0) {
+								// Quiere decir que no esta publicado.
+								?>
+								<a title="No esta publicado"><span class="glyphicon glyphicon-remove-circle"></span></a>
+								<?php
+							}
 						}
 						 ?>
 					</td>
