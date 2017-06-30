@@ -308,7 +308,13 @@
 						
 						<td><?php echo '<a title="Id de Version:'.$vehiculo['id'].'">'.$vehiculo['Nversion'].'</a>';?></td>
 						<td><?php echo $vehiculo['fecha_inicial'];?></td>
-						<td><?php echo $vehiculo['fecha_final'];?></td>
+						<td>
+							<?php 
+							if ($vehiculo['fecha_final'] != '0000-00-00'){ 
+							echo $vehiculo['fecha_final'];
+							}
+							?>
+						</td>
 						<td><?php echo $vehiculo['Ncombustible'];?></td>
 						<td><?php echo $vehiculo['cv'].'cv/'.$vehiculo['kw'].'kw';?></td>
 						<td><?php echo $vehiculo['ncilindros'];?></td>
