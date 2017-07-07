@@ -1,3 +1,2 @@
 La idea plugin, es que se pueda utilizar en todos los modulos.
-
-El Plugin paginacion , aun no esta activo, tengo que probarlo.
+- Recuerda que estos plugin puede contener vistas, es decir que se monta html en ello y luego acepta a todos los sitios donde se utiliza, es conveniente anotar en plugin donde se utiliza. ( mientra no busque otra solucion)... :-)

@@ -58,16 +58,10 @@ class Recambio
     
     function CrearVistaRecambios($BDRecambios,$nombreVista)
     {
+		// Creamos una vista ( myql ) de recambios para que se mucho más agil el listado de recambios.
 		$recambios = array();
 		$consulta = "CREATE or REPLACE VIEW ".$nombreVista." AS SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru FROM recambios R JOIN referenciascruzadas RC ON RC.RecambioID = R.id";
 		
-		
-		//~ 
-		//~ $consulta = "CREATE or REPLACE VIEW ".$nombreVista." AS SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru, VP.virtuemart_product_id FROM recambios R JOIN referenciascruzadas RC ON RC.RecambioID = R.id LEFT JOIN virtuemart_products VP ON VP.product_sku = R.id ";
-        
-        //~ $consulta = "CREATE or REPLACE VIEW ".$nombreVista." AS SELECT R.id, Descripcion, coste, margen, pvp, IDFabricante, RC.RefFabricanteCru, VP.virtuemart_product_id FROM recambios R JOIN virtuemart_products VP ON VP.product_sku = R.id LEFT JOIN referenciascruzadas RC ON RC.RecambioID = R.id";
-        
-        
 		$ResRecambios = $BDRecambios->query($consulta);
 		 if ($ResRecambios == true){
 			$recambios['conexion'] = 'Correcto';
@@ -110,6 +104,11 @@ class Recambio
 	}
     
     function CrucesVehiculos($BDVehiculos,$idVersiones) {
+		// Obtenemos Datos de la version de coches que recibimos.
+		// Parametros:
+		// 	$BDVehiculos -> Conexion al BD de vehiculos.
+		//  $idVersiones -> Id versiones de coches  ( por lógica, estos id seon de versiones de coches de los cruces de un recambio)
+		
 		$resultado = array();
 		$LidVersiones = implode(',',$idVersiones);
 		$ConsultaMultitabla= "SELECT v.`id`,v.`idMarca`,Marca.nombre as Nmarca, v.`idModelo`,m.nombre as Nmodelo, v.`nombre` as Nversion, v.`idTipo`, v.`idCombustible`,c.nombre as Ncombustible, v.`fecha_inicial`, v.`fecha_final`, v.`kw`, v.`cv`, v.`cm3`, v.`ncilindros` 
