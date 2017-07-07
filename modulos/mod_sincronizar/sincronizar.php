@@ -35,7 +35,7 @@
 	
 	
 	// COMPROBAMOS SI NO SE MODIFICO LA TABLA VIRTUEMART_PRODUCT.
-	if ($DifVirtuemart['Rows']){
+	if (isset($DifVirtuemart['Rows'])){
 		$comprobaciones['virtuemart']['Estado'] ="Incorrecto"; // Id = EstadoSincro, ObservaSincro
 		$comprobaciones['virtuemart']['Icono'] = $iconos[2];
 		$mostrabtn = "display:none";
@@ -140,6 +140,15 @@
 				<form name="EnvioErrores" class="form" method="post"  action="./MostrarErrores.php">
 				<div class="form-group">
 					<button id="btn-Reescribir" type="submit" class="btn btn-warning btn-sm">Ver errores</button>
+					<input type="hidden" id="DatosErrores" name="errores">
+				</div>
+				
+				</form>
+			</div>
+			<div class="col-md-4" id="f-copiarDescrip" style="display:none;" >
+				<form name="CopiarDescripcion" class="form" method="post"  action="javascript:InicioCopiarDescripcion();">
+				<div class="form-group">
+					<button id="btn-CopiarDescripcion" type="submit" class="btn btn-danger">Copiar Descripciones</button>
 					<input type="hidden" id="DatosErrores" name="errores">
 				</div>
 				

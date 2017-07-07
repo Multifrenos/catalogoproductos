@@ -6,7 +6,7 @@
  * @Descripcion	Javascript necesarios para modulo sincronizar.
  * */
 
-var contador = 0;
+var contador = 0; // La funcion de este contador es controlar las veces que pasa por el ciclo sin ejecutarse.
 var paso_actual = 0;
 var TotalProductosVirtuemart;
 var respuesta = [];
@@ -74,7 +74,7 @@ function Sincronizar (){
             }
 
         });
-
+	return;
 }
 
 
@@ -135,7 +135,10 @@ function Contar() {
 	
 }
 function CrearVistaInicio (vistas,limite) {
-// Esta funcion la cargamos despues de contarRegistros, ya que si hay resultado de productos en virtuemart, creamos la vista.
+	// Esta funcion la cargamos despues de contarRegistros, ya que si hay resultado de productos en virtuemart, creamos la vista.
+	// En esta funcion recibimos 2 parametros.
+	//  limite : Que es el que indicamos el limite (numero registro máximo).
+	//  vistas : Un array que indica que vistas vamos generar.
 	// Montamos arrays para enviar
 	if (limite == undefined) {
 		// ya en la primera llamada a la funcion no mandamos limite..
@@ -299,6 +302,10 @@ function ComprobarRefVirtuemart(paso){
 				$("#resultado").html('COMPROBACION DE REFERENCIAS CORRECTA.');
 				$("#EstadoReferencias").html('Error:'+ errorReferencias.length);
 				$("#f-revisarRef").css("display", "none");
+				// Ahora mostramos btn de Copiar descripcion.
+				$("#f-copiarDescrip").css("display", "block");
+
+				
 			}
 		}
 		
@@ -359,4 +366,15 @@ function Ciclo(f) {
 		$("#resultado").html('Error lo intento 20 veces, funcion' +f);
 
 	}
+};
+function  InicioCopiarDescripcion() {
+	// Aquí solo podemos llegar si no hay errores.
+	var r = confirm("Ten en cuenta para hacer esto, debes tener una copia de seguridad, de la web. Press a button!");
+	if (r == true) {
+		$("#resultado").html('Iniciamos proceso de Copiar descripción.');
+	} else {
+		$("#resultado").html('Cancelo el proceso de Copiar descripción.');
+		return;
+	} 
+	
 }

@@ -33,29 +33,29 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 
 	
 	// CREAR VISTA NECESARIAS.
-	if ($vistas[0] == 'virtuemart'){
-		$CrearViewVirtuemart = "CREATE or REPLACE VIEW ".$vistas[0]." AS SELECT * FROM `virtuemart_products` LIMIT ".$limite[0].",".$limite[1]; 
-	}
-	if ($vistas[1] == 'vista_recambio'){
-		$CrearViewVistaRecambio = "CREATE or REPLACE VIEW ".$vistas[1]." AS SELECT r.id, r.IDFabricante, rc.RefFabricanteCru FROM `recambios` AS r, referenciascruzadas AS rc WHERE r.id = rc.RecambioID AND r.IDFabricante = rc.IdFabricanteCru";
-	}
-	if ($vistas[0] == 'virtuemart') {
-		// Views virtuemart
-		//~ $respuesta['ViewVirtuemart']['TextoConsulta'] =$CrearViewVirtuemart;// para debug
-		$respuesta['ViewVirtuemart']['consulta'] = $BDRecambios->query($CrearViewVirtuemart);
-		$respuesta['ViewVirtuemart']['Queryconsulta'] = $CrearViewVirtuemart;
-
-		// No indica cantidad de item  $BDRecambios->affected_rows;
-		// Sin embargo indica true o false 'consulta'
+	if (isset($vistas[0])){
+		if ($vistas[0] == 'virtuemart'){
+			$CrearViewVirtuemart = "CREATE or REPLACE VIEW ".$vistas[0]." AS SELECT * FROM `virtuemart_products` LIMIT ".$limite[0].",".$limite[1]; 
+			// Views virtuemart
+			//~ $respuesta['ViewVirtuemart']['TextoConsulta'] =$CrearViewVirtuemart;// para debug
+			$respuesta['ViewVirtuemart']['consulta'] = $BDRecambios->query($CrearViewVirtuemart);
+			$respuesta['ViewVirtuemart']['Queryconsulta'] = $CrearViewVirtuemart;
+			// No indica cantidad de item  $BDRecambios->affected_rows;
+			// Sin embargo indica true o false 'consulta'
+		}
 	} else {
 		$respuesta['ViewVirtuemart']['consulta'] = false;
 	}
-	if ($vistas[1] == 'vista_recambio') {
-		// Views recambio con referencia cruzada.
-		//~ $respuesta['ViewRecambio']['TextoConsulta'] = $CrearViewVistaRecambio;// para debug
-		$respuesta['ViewRecambio']['consulta'] = $BDRecambios->query($CrearViewVistaRecambio);
-		// No indica cantidad de item  $BDRecambios->affected_rows;
-		// Si embargo indica true o false 'consulta'
+	
+	if (isset($vistas[1])){
+		if ($vistas[1] == 'vista_recambio') {
+			$CrearViewVistaRecambio = "CREATE or REPLACE VIEW ".$vistas[1]." AS SELECT r.id, r.IDFabricante, rc.RefFabricanteCru FROM `recambios` AS r, referenciascruzadas AS rc WHERE r.id = rc.RecambioID AND r.IDFabricante = rc.IdFabricanteCru";
+			// Views recambio con referencia cruzada.
+			//~ $respuesta['ViewRecambio']['TextoConsulta'] = $CrearViewVistaRecambio;// para debug
+			$respuesta['ViewRecambio']['consulta'] = $BDRecambios->query($CrearViewVistaRecambio);
+			// No indica cantidad de item  $BDRecambios->affected_rows;
+			// Si embargo indica true o false 'consulta'
+		}
 	} else {
 		$respuesta['ViewRecambio']['consulta'] =false;
 	}
@@ -68,10 +68,12 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 	
 	
 function BuscarErrorRefNuevo($BDRecambios) {
+	// Con esta funcion comprobamos que los datos que tenemos en tabla virtuemart ( referencias recambio y referencia de fabricante) son correctos.
 	$resultado = array();
 	$consulta1 = "Select product_gtin,product_sku,virtuemart_product_id from virtuemart";
 	$busqueda = $BDRecambios->query($consulta1);
 	if ($busqueda) {
+		//~ $x= 0; // Solo debug
 		$i =0;
 		while ($producto =$busqueda->fetch_assoc()) {
 			// ahora tenemos que buscar ese resultado en vista Recambios y ver si es igual
@@ -85,11 +87,12 @@ function BuscarErrorRefNuevo($BDRecambios) {
 					// Quiere decir que no es encontro o que hay mas de un resultado.
 					$Error = 'SI';
 				}
+				if (isset($busqueda2)){
+				// Liberamos memoria de 
+				mysqli_free_result($busqueda2); // Liberamos memoria 
+				}
 			}
-			if ($busqueda2){
-			// Liberamos memoria de 
-			mysqli_free_result($busqueda2); // Liberamos memoria 
-			}
+			
 			
 			if ($Error ==='SI'){
 				$resultado[$i]['idRecambio'] = $producto['product_gtin'];
@@ -98,9 +101,12 @@ function BuscarErrorRefNuevo($BDRecambios) {
 				//~ $resultado[$i]['consulta'] = $consulta2;
 			$i++;
 			}
+			// debug
+			//~ $resultado[$i]['consulta2'] = $consulta2;
+			//~ $x++;
 		}
-	}
 	mysqli_free_result($busqueda); // Liberamos memoria 
+	}
 	return $resultado;
 }
 ?>

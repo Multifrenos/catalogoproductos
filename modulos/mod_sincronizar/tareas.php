@@ -19,6 +19,10 @@ $Controlador = new ControladorComun;
 include_once ("./ObjetoSincronizar.php");
 $ObjSincronizar = new ObjSincronizar;
 
+// Incluimos clase objeto de consultas.
+include_once ($RutaServidor.$HostNombre.'/modulos/mod_recambios/ObjetoRecambio.php');
+$ObjRecambio = new Recambio;
+
 // Incluimos funciones
 include_once ("./funciones.php");
 
