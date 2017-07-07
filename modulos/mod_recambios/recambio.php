@@ -9,29 +9,28 @@
 		include ("./ObjetoRecambio.php");
 		// Obtenemos id
 		if ($_GET['id']) {
-		$id = $_GET['id'];
+			$id = $_GET['id'];
 		} else {
-		// NO hay parametro .
-		$error = "No podemos continuar";
+			// NO hay parametro .
+			$error = "No podemos continuar";
 		}
 		// Creamos objeto Recambio para realizar las consultas..
 		$Crecambios = new Recambio;
 		// ===========  Busqueda datos Recambio ============= //
-			$tabla= 'RecambiosTemporal';
-			$idBusqueda ='id='.$id;
-			//~ $RecamID = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
-			$LimitePagina = 0;
-			$desde = 0;
-			$filtro = "WHERE ".$idBusqueda;
-			$RecamID = $Crecambios->ObtenerRecambios($BDRecambios,$LimitePagina ,$desde,$filtro);
-			// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
+		$tabla= 'RecambiosTemporal';
+		$idBusqueda ='id='.$id;
+		//~ $RecamID = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
+		$LimitePagina = 0;
+		$desde = 0;
+		$filtro = "WHERE ".$idBusqueda;
+		$RecamID = $Crecambios->ObtenerRecambios($BDRecambios,$LimitePagina ,$desde,$filtro);
+		// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
 		$Recambio = $RecamID['items'][0];
 		
 		// ======== Buscamos id de la Web.
-			$tabla = 'virtuemart_products';
-			$idBusqueda = 'product_sku ='.$Recambio['id'];
+		$tabla = 'virtuemart_products';
+		$idBusqueda = 'product_sku ='.$Recambio['id'];
 		$WebRecam = $Crecambios->UnicoRegistro($BDRecambios,$idBusqueda,$tabla);
-		// Ahora añado a array Recambio Descricion de Fabricante
 		if (isset($WebRecam['virtuemart_product_id']) ){
 			$Recambio ['IDWeb'] = $WebRecam['virtuemart_product_id'];
 		} else {
@@ -39,8 +38,8 @@
 		}
 		
 		// ======== Busqueda Referencia de fabricante de Cruces ============== //
-			$tabla = 'referenciascruzadas';
-			$idBusqueda = 'RecambioID ='.$Recambio['id'];
+		$tabla = 'referenciascruzadas';
+		$idBusqueda = 'RecambioID ='.$Recambio['id'];
 		$RefFabricante = $Crecambios->UnicoRegistro($BDRecambios,$idBusqueda,$tabla);
 		// Ahora añado a recambio Referencia Fabricante
 		$Recambio ['FabricanteRef'] = $RefFabricante['RefFabricanteCru'];
@@ -149,7 +148,7 @@
      
 		<div class="container">
 			<h1 class="text-center"> Datos Recambio</h1>
-			<a class="text-ritght" href="javascript:history.back(1)">Volver Atrás</a>
+			<a class="text-ritght" href="javascript:history.back(1)" title="Mayus + A">Volver Atrás</a>
 			<div class="col-md-12">
 				
 				<h3><?php echo $Recambio['Descripcion'];?></h3>

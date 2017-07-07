@@ -84,9 +84,10 @@
 	
 	?>
 	<script>
-	// Declaramos variables globales
+	// Declaramos variables globales antes cargar javascript para evitar errores.
 	var checkID = [];
 	var BRecambios ='';
+	var TotalListaRecambios = <?php echo count($recambios['items']);?>;
 	</script> 
     <!-- Cargamos fuciones de modulo. -->
    	<script src="<?php echo $HostNombre; ?>/modulos/mod_recambios/funciones.js"></script>
@@ -135,7 +136,7 @@
 					<li><a href="#section1">Añadir</a></li>
 					<li><a href="#section2">Modificar</a></li>
 					<li><a href="#section3">Borrar</a></li>
-					<li><a href="#section3" onclick="metodoClick('VerRecambio');";>Ver</a></li>
+					<li><a href="#section3" onclick="metodoClick('VerRecambio');" title="Shift+V";>Ver</a></li>
 
 				</ul>
 				</div>

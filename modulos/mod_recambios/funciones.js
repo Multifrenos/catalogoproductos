@@ -20,7 +20,7 @@ function VerRecambiosSeleccionado (){
 			}
 			
 		});
-		console.log('ID de Recmabios seleccionado:'+checkID);
+		console.log('ID de Recambios seleccionado:'+checkID);
 		return;
 	});
 
@@ -56,20 +56,21 @@ function metodoClick(pulsado){
 			console.log('Entro en VerRecambio');
 			// Cargamos variable global ar checkID = [];
 			VerRecambiosSeleccionado ();
-			if (checkID.length >1 || checkID.length=== 0) {
-			alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
-			return	
+			if (TotalListaRecambios === 1 && checkID.length === 0){
+				// Quiere decir que la lista recambios es uno y no tiene nada seleccionada.
+				// pero pulso ver, por lo que se entiende que si quiere entrar en el.
+				valor = $('input[name=checkRec'+1+']').val();
+				checkID.push( valor )
 			}
-			// Ahora redireccionamos 
-			// recambi.php?id=id
-			window.location.href = './recambio.php?id='+checkID[0];
+			if (checkID.length ===1 ) {
+				window.location.href = './recambio.php?id='+checkID[0];
+				break;
+			} else {
+				alert ('Que items tienes seleccionados? \n Solo puedes tener uno seleccionado');
+				return;
+			}
 			
 			
-			
-			
-			
-			
-			break;
 		case 'NuevaBusqueda':
 			// Obtenemos puesto en input de Buscar
 			BuscarRecambio ();
@@ -105,10 +106,13 @@ function copiarAlPortapapeles(id_elemento) {
   console.log(aux.value);
   document.execCommand("copy");
 };
+
 function copiasIDVirtuemart() {
 	// Funcion que utilizamos para copiar en descripcion del producto en virtuemart.
 	var id = parseInt($("#IDWeb").val());
 	// Ahora montamos el html queremos copiar.
+	console.log('Obtenemos ID'+id);
+
 	var ReferenciasCruzadas =document.getElementById("RefCruzadas");
 	var DatosRefCruzVersiones = '<div class="col-md-3">' +  ReferenciasCruzadas.innerHTML + '</div>';
 	var ReferenciasVersiones = document.getElementById("RefCruVersiones") ;
@@ -119,8 +123,7 @@ function copiasIDVirtuemart() {
 	var parametros = {
 		'pulsado': 'CopiarDescripcion',
 		'id': id,
-		'DatosRefCruzadas': DatosRefCruzVersiones,
-		'TotalLetras': TLetras
+		'DatosRefCruzadas': DatosRefCruzVersiones
 	};
 	$.ajax({
 		data: parametros,
@@ -131,6 +134,7 @@ function copiasIDVirtuemart() {
 
 		},
 	success: function (response) {
+			console.log(response);
 			var html= "";
 			if (response['RowsAfectados'] === 1 ){
 				html = "Ok, copiado correctamente descripcion larga de id:";

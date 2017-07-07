@@ -66,29 +66,6 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 	
 }
 	
-//~ function BuscarErrorRefVirtuemart($BDRecambios) {
-	//~ // Realizamos una consulta donde nos muestra aquellos productos que NO existe idRecambio y ReferenciaCruzada.
-	//~ $resultado = array();
-	//~ $consulta2= "SELECT concat( trim(v.product_gtin), ':', trim(v.`product_sku`) ) AS referencias,v.product_gtin as ReferenciaCruzada, v.`product_sku` as IDRecambio, v.`virtuemart_product_id` , r.id FROM `virtuemart` AS v LEFT JOIN vista_recambio AS r ON CONCAT( r.RefFabricanteCru, ':', r.id ) = concat(trim(v.product_gtin), ':', v.`product_sku` ) WHERE r.id IS NULL";
-	//~ $busqueda = $BDRecambios->query($consulta2);
-	//~ if ($busqueda){
-			//~ $i =0;
-			//~ while ($error =$busqueda->fetch_assoc()) {
-				//~ 
-				//~ $resultado[$i]['idRecambio'] = $error['IDRecambio'];
-				//~ $resultado[$i]['GTIN-Virtuemart'] = $error['ReferenciaCruzada'];
-				//~ $resultado[$i]['idVirtuemart'] = $error['virtuemart_product_id'];
-//~ 
-				//~ $i++ ;
-			//~ }
-		//~ } else {
-			//~ $resultado['consulta'] = $consulta2;;
-			//~ $resultado['Error'] = 'Error en consulta o no existe cruce';
-		//~ }
-	//~ mysqli_free_result($busqueda); // Liberamos memoria 
-	//~ return $resultado;
-	//~ }
-	
 	
 function BuscarErrorRefNuevo($BDRecambios) {
 	$resultado = array();
