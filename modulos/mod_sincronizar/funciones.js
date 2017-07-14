@@ -403,8 +403,8 @@ function ObtenerDatosVirtuemart(){
 	console.log('limiteActual:'+LimiteActual);
 	console.log(' TotalRegistros :' + TotalProductosVirtuemart);
 	BarraProceso(LimiteActual,TotalProductosVirtuemart);
-	intervalo = 5;
-	if (LimiteActual < 500){
+	intervalo = 50;
+	if (LimiteActual < TotalProductosVirtuemart){
 		LimiteFinal = LimiteActual + intervalo;
 		if (LimiteFinal > TotalProductosVirtuemart) {
 			// Esto es para evitar enviar un limite mayor al numero registros.
