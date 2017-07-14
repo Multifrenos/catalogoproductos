@@ -70,7 +70,7 @@ function Sincronizar (){
 				console.log('Ver repuesta'+response['Eliminados']);
 				console.log('Fin tarea');
 				// Ahora ejecutamos contar.
-				Contar()
+				Contar();
             }
 
         });
@@ -106,14 +106,15 @@ function Contar() {
 					//~ TotalProductosVirtuemart = 250; // Solo para debug , asi no tenemos que hacer todo el proceso..
 					$('#ObservacionesReferencias').html ('Encontramos '+ TotalProductosVirtuemart + ' productos en virtuemart');
 					console.log('TotalProductosVirtuemart:'+ TotalProductosVirtuemart);
-					console.log('No se porque la respuesta no se ve firebug pero si la obtiene....');
 					// Ahora creamos o replazamos vistas ....si hay datos claro.
 					if (TotalProductosVirtuemart >0 ){
 						// Quiere decir que si se puede mostrar bottom... o no ... :-)
 						$('#capa-botones').css("display", "block");
 						// Creamos array de las dos vistas y creamos vistas......
 						var vistas = ["virtuemart","vista_recambio"];
+						console.log('Vamos a crear Vistas');
 						CrearVistaInicio(vistas );
+						return;
 					}
 					
 					console.log('Fin tarea ContarVirtuemart');
@@ -192,7 +193,7 @@ function CrearVistaInicio (vistas,limite) {
 function ComprobarRefVirtuemart(paso){
 		// Esta funcion es un bucle mientras se cumpla que variables LimiteActual > TotalProductos.
 	
-		// Recuerda que al cargar la pagina se indica en variable TotalProductosVirtuemart cuantos registros tiene virtuemart.
+		// Recuerda que al cargar la pagina (html) ejecuta contar para obtener TotalProductosVirtuemart cuantos registros tiene virtuemart.
 		// Utilizamos varias variables globales para :
 		//  var contador -> que para controlar cuantas veces pasamos sin ejecutar 
 		// 				Tiene valor 0 al inicio, sin haber pasado nunca.
@@ -360,12 +361,16 @@ function Ciclo(f) {
 			case 'Esperar':
 				ComprobarRefVirtuemart(paso_actual);
 				break;
+			case 'ObtenerDatos':
+				ObtenerDatosVirtuemart();
+				break;
 		} 
 	} else {
 		console.log(' Hubo un error porque lo intento 20 veces....')
-		$("#resultado").html('Error lo intento 20 veces, funcion' +f);
-
+		$("#resultado").html('<div class="alert alert-danger">Algo salió mal, se intento 20 veces, la funcion:' +f+'</div>');
+	
 	}
+	return;
 };
 function  InicioCopiarDescripcion() {
 	// Aquí solo podemos llegar si no hay errores.
@@ -376,5 +381,60 @@ function  InicioCopiarDescripcion() {
 		$("#resultado").html('Cancelo el proceso de Copiar descripción.');
 		return;
 	} 
-	
+	console.log('Total de articulos en virtuemart:'+TotalProductosVirtuemart);
+	// Con totalProductosVirtuemart como máximo numero a obtener.
+	// Iniciamos ciclo para obtener de tabla virtuemart:
+	// 		virtuemart_product_id -> Id producto de wev
+	// 		product_sku: -> id producto de recambio
+	// 		product_gtin:-> Referencia de fabricante
+	// para luego general el html de la vista plugin de cruces.
+	// para guardar en tabla virtuemart_product_es en campo descripcion larga.
+	// Reiniciamos valores:
+	LimiteActual = 0;
+	ContError = 0;
+	LimiteFinal = TotalProductosVirtuemart;
+	// Ahora ocultamos botton para evitar que vuelva a pulsar.
+	$('#f-copiarDescrip').css("display", "none");
+	Ciclo('ObtenerDatos');
+	return;
+}
+function ObtenerDatosVirtuemart(){
+	console.log( 'Entre en Obtener Datos Virtuemart');
+	console.log('limiteActual:'+LimiteActual);
+	console.log(' TotalRegistros :' + TotalProductosVirtuemart);
+	BarraProceso(LimiteActual,TotalProductosVirtuemart);
+	intervalo = 5;
+	if (LimiteActual < 500){
+		LimiteFinal = LimiteActual + intervalo;
+		if (LimiteFinal > TotalProductosVirtuemart) {
+			// Esto es para evitar enviar un limite mayor al numero registros.
+			LimiteFinal = TotalProductosVirtuemart
+		}
+		
+		var parametros = {
+		'pulsado': 'CopiarDescripcion',
+		'Reg_inicio': LimiteActual,
+		'TotalRegistro' : TotalProductosVirtuemart,
+		'intervalo' : intervalo 
+		};
+		$.ajax({
+			data: parametros,
+			url: 'tareas.php',
+			type: 'post',
+			beforeSend: function () {
+				$("#resultado").html('Ejecutando -Copiar descripcion - Datos virtuemart_products, creo cruce , guardao en virtuemart_products_es ');
+			},
+			success: function (response) {
+				// Si todos fue bien, se ejecuta el ciclo.
+				console.log(response);
+				LimiteActual = LimiteFinal;
+				contador = 0;
+				Ciclo('ObtenerDatos');
+				return;
+			}
+		});		
+	} else {
+		alert('termino proceso');
+		return;
+	}
 }

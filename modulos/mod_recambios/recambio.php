@@ -7,6 +7,7 @@
         include ("./../mod_conexion/conexionBaseDatos.php");
 		include ("./../mod_familias/ObjetoFamilias.php");
 		include ("./ObjetoRecambio.php");
+		
 		// Obtenemos id
 		if ($_GET['id']) {
 			$id = $_GET['id'];
@@ -17,14 +18,15 @@
 		// Creamos objeto Recambio para realizar las consultas..
 		$Crecambios = new Recambio;
 		// ===========  Busqueda datos Recambio ============= //
+		// Debería comprobar que existe la tablatemporal antes de usuarla...
+		// Uso vista tabla.
 		$tabla= 'RecambiosTemporal';
 		$idBusqueda ='id='.$id;
-		//~ $RecamID = $Crecambios->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
 		$LimitePagina = 0;
 		$desde = 0;
 		$filtro = "WHERE ".$idBusqueda;
 		$RecamID = $Crecambios->ObtenerRecambios($BDRecambios,$LimitePagina ,$desde,$filtro);
-		// Solo debería haber un resultado, creamos de ese resultado unico, pero debería comprobarlo.
+		// Solo debería haber un resultado, creamos recambio con ese resultado unico, aunque que creo que debería comprobarlo.
 		$Recambio = $RecamID['items'][0];
 		
 		// ======== Buscamos id de la Web.
@@ -76,6 +78,8 @@
 			while ($cruce = $ResultadoCrucesRecamID->fetch_assoc()) {
 				$CruceRecambio[$i]['idFabriCruz']= $cruce['idFabricanteCruz'];
 				$CruceRecambio[$i]['idReferenciaCruz']= $cruce['idReferenciaCruz'];
+					//Nombre fabricante cruzado y su referencia.
+					//SELECT c.`id` , c.`idReferenciaCruz` , c.`idRecambio` , c.`idFabricanteCruz` , f.`Nombre` AS Nfabricante, r.`RefFabricanteCru` AS NRefFabricante, c.`FechaActualiza` FROM `cruces_referencias` AS c, `fabricantes_recambios` AS f, `referenciascruzadas` AS r WHERE f.`id` = c.`idFabricanteCruz`AND r.`id` = c.`idReferenciaCruz` and c.`idRecambio` = $Recambio['id'] 
 					// Ahota tengo que buscar en fabricantes_recambios nombre fabricantes.
 					$idBusqueda = 'id='.$CruceRecambio[$i]['idFabriCruz'];
 					$tabla = 'fabricantes_recambios';
@@ -123,29 +127,10 @@
 	<body>
 		<?php
         include './../../header.php';
+        include_once ($RutaServidor.$HostNombre.'/plugins/recambio_cruces/recambio_cruces.php');
+		$Recambio_Cruces = new plRecambioCruces;
+		?>
         
-        
-				// El problema que encuentro para realizar copia de esto con botton al portapapeles
-				// Es que el contenido html general un cierre de la etiqueta antes de tiempo
-				// pienso que se puede resolver limpiando... 
-				$html = "<h2> Referencias cruzadas</h2>"
-						."<p>"
-						.$CruceRecambio['TotalCruce']." referencias otros fabricantes.</p>";
-				$htmlCopia = "Referencias cruzadas"
-						."Total referencias cruzadas encontradas "
-						;
-			 for ($i = 0; $i < $CruceRecambio['TotalCruce']; $i++) {
-				$html .= '<a title="Id Referencia Cruzada:'.$CruceRecambio[$i]['idReferenciaCruz']
-						.'"><span class=" glyphicon glyphicon-info-sign"></span></a>'
-						.$CruceRecambio[$i]['FabricanteCruRef'].' '
-						.'<a title="Id Fabricante Recambio:'
-						.$CruceRecambio[$i]['idFabriCruz'].'"><span class=" glyphicon glyphicon-wrench"></span></a>'
-						.$CruceRecambio[$i]['FabricanteCru'].'<br/>';
-				}
-			?>
-       
-       
-     
 		<div class="container">
 			<h1 class="text-center"> Datos Recambio</h1>
 			<a class="text-ritght" href="javascript:history.back(1)" title="Mayus + A">Volver Atrás</a>
@@ -242,104 +227,20 @@
 			
 			</div>
 			<div id="RefCruzadas" class="col-md-3">
+				<?php
+				// funcion de .'/plugins/recambio_cruces/recambio_cruces.php');
+				$html = $Recambio_Cruces->html_cruce_ref($CruceRecambio);
+				?>
 				<?php echo $html;?>
 			</div>
 			<div id="RefCruVersiones" class="col-md-9">
+			
 			<?php 
-			echo '<h2>Cruce de Vehiculos</h2>';
-			echo 'Numero de vehiculos que montan este recambio: '.$TotalCrucesVehiculos;
-			$Idmarca= 0 ;
-			$Idmodelo = 0;
-			if ($CrucesVehiculos){
-				foreach ( $CrucesVehiculos as $vehiculo) {
-					// Lo primero ver si cambia marca o no.
-					if ($Idmarca <> $vehiculo['idMarca']){
-					// Antes de nada cerrar table si estuviera abierto, 
-						if ($Idmarca<>0) {
-						// Cerramos table
-						echo '</tbody></table>';
-						}
-					$Idmarca= $vehiculo['idMarca'];
-					echo '<h3><a title="Id de Marca:'.$vehiculo['idMarca'].'">'.$vehiculo['Nmarca']."</a></h3>";
-					 
-					?>
-					
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								
-								
-								<th>Modelo <br/>    Version</th>
-								<th>Fecha Inicial</th>
-								<th>Fecha Final</th>
-								<th>Combustible</th>
-								<th>Potencia</th>
-								<th>Numero<br/>cilindros</th>
-								<th>Cm3</th>
-
-								
-							</tr>
-						</thead>
-						<tbody>
-					<?php
-					}
-					?>
-					<tr>
-						<?php 
-								if ( $Idmodelo <> $vehiculo['idModelo']){
-								// Validacion de string
-								$validato = strpos($vehiculo['Nmodelo'],"'");
-								if ($validato === false){
-									$textModelo = $vehiculo['Nmodelo'];
-								} else {
-									// ahora validato, indica posicion donde encontro error.
-									$textModelo= str_replace("'"," ",$vehiculo['Nmodelo']);
-									//~ $textModelo = 'Error '.$vehiculo['Nmodelo'];
-								}
-								?>
-								<th>Modelo:<?php echo $textModelo;?> </th>
-								</tr>
-								<?php
-								$Idmodelo = $vehiculo['idModelo'];
-								}
-								?>
-						
-						
-						<td><?php echo '<a title="Id de Version:'.$vehiculo['id'].'">'.$vehiculo['Nversion'].'</a>';?></td>
-						<td>
-							<?php 
-							if ($vehiculo['fecha_inicial'] != '0000-00-00'){ 
-							echo $vehiculo['fecha_inicial'];
-							}
-							?>
-						</td>
-						<td>
-							<?php 
-							if ($vehiculo['fecha_final'] != '0000-00-00'){ 
-							echo $vehiculo['fecha_final'];
-							}
-							?>
-						</td>
-						<td><?php echo $vehiculo['Ncombustible'];?></td>
-						<td><?php echo $vehiculo['cv'].'cv/'.$vehiculo['kw'].'kw';?></td>
-						<td><?php echo $vehiculo['ncilindros'];?></td>
-						<td><?php echo $vehiculo['cm3'].'cm3';?></td>
-					</tr>
-				<?php
-				}
-				// Cerramos tablas que esta abierta fijo...
-				echo '</tbody></table>';
-				
-				?>
-				
-				
-				
-				</div>
-				
-			<?php
-			}
+				$html = $Recambio_Cruces->html_cruce_vehiculo($CrucesVehiculos,$TotalCrucesVehiculos);
+				echo $html;
 			?>
-			<?php // Debug
+			<?php
+				// Debug
 				//~ echo '<pre>';
 				//~ echo ' Recambio ';
 				//~ print_r($Recambio);
@@ -355,13 +256,7 @@
 				//~ echo ' Fabricante <br/>';
 				//~ print_r($FabRecam);
 
-
 				//~ echo '</pre> ';
-				
-				
-
-
-				
 			?>
 		</div>
 	</body>

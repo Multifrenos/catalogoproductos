@@ -33,28 +33,34 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 	$ArrayTPg = array('inicio'=>'Inicio','actual'=>'Actual','ultima'=>'Ultima');
 	$resto= 0;
 	if ($CantidadRegistros > $LimitePagina ) {
-	// Si hay mas 50 , realizamos paginación.
+		// Solo hacemos paginación si hay mas registros que limitePagina.
 		$TotalPaginas = $CantidadRegistros / $LimitePagina;
 		$paginas['Division'] = $TotalPaginas;
+			// Ahora creamos array paginas.
+		$paginas['Actual'] = $PagActual; 
+		$paginas['Ultima'] = round($TotalPaginas,0);   // Redondeo al alza...
+		if ($paginas['Ultima'] < $TotalPaginas){
+			// Añadimos incrementamos pagina Ultima en una.
+			$paginas['Ultima'] =$paginas['Ultima'] + 1;
+		}
+		$paginas['inicio'] = 1;
+		$textoPG= "Pagina ".$paginas['Actual'].'/'.$paginas['Ultima'];
+	} else {
+		$textoPG= "Pagina 1/1 ";
+		// Lo contrario deberíamo devolver la función
+		return $textoPG;
 	}
-	// Ahora creamos array paginas.
-	$paginas['Actual'] = $PagActual; 
-	$paginas['Ultima'] = round($TotalPaginas,0);   // Redondeo al alza...
-	if ($paginas['Ultima'] < $TotalPaginas){
-		// Añadimos incrementamos pagina Ultima en una.
-		$paginas['Ultima'] =$paginas['Ultima'] + 1;
-	}
-	$paginas['inicio'] = 1;
 	
-	switch ($paginas['Actual']) {
-		case 1:
-		$paginaInicio = $paginas['Actual'];
-		break;
-		case $TotalPaginas:
-		$paginas['Ultima'] = $paginas['Actual'];
-		break;
-		
-	}
+	
+	//~ switch ($paginas['Actual']) {
+		//~ case 1:
+		//~ $paginaInicio = $paginas['Actual'];
+		//~ break;
+		//~ case $TotalPaginas:
+		//~ $paginas['Ultima'] = $paginas['Actual'];
+		//~ break;
+		//~ 
+	//~ }
 	// Ahora monstamos las paginas previas.
 	if ($paginas['Actual'] > $paginas['inicio']) {
 		$difPg= $paginas['Actual'] - $paginas['inicio'];
@@ -121,11 +127,12 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 			}  
 		
 	}
-	// Ya tenemos Array de paginas , faltaría las paginas intermedias previas y next.
-	// Estas la añadimos al montar html.
-	
-
-	// Montamos HTML para mostrar...
+	// Ya tenemos Array de paginas , faltaría hacer vista:
+	// añadir faltaría las paginas intermedias previas y next.
+	// Donde tenemos que tener:
+	// array Paginado.
+	// link de Base
+	// Otros parametros.
 	$htmlPG =  '<ul class="pagination">';
 	$Linkpg = '<li><a href="'.$LinkBase.'buscar='.$OtrosParametros.'&pagina=';
 	// Pagina inicio 
@@ -174,9 +181,9 @@ function paginado ($PagActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosP
 	$htmlPG = $htmlPG. '</ul>';
 	// Mostramos errores
 	//~ echo $controlError;
-	
-	// =========       Fin paginado      ===================  //
 	//~ return $paginas;
+	// Ahora añadimos texto pagina.
+	$htmlPG = $textoPG.'</br>'.$htmlPG;
 	return $htmlPG;
 
 }

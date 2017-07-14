@@ -145,7 +145,7 @@
 				
 				</form>
 			</div>
-			<div class="col-md-4" id="f-copiarDescrip" style="display:none;" >
+			<div class="col-md-4" id="f-copiarDescrip" style="display:block;" >
 				<form name="CopiarDescripcion" class="form" method="post"  action="javascript:InicioCopiarDescripcion();">
 				<div class="form-group">
 					<button id="btn-CopiarDescripcion" type="submit" class="btn btn-danger">Copiar Descripciones</button>

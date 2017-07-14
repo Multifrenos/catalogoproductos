@@ -21,10 +21,10 @@
 	$LimitePagina = 40; // por defecto.
 	// Obtenemos datos si hay GET y cambiamos valores por defecto.
 	if ($_GET) {
-		if ($_GET['pagina']) {
+		if (isset($_GET['pagina'])) {
 			$PgActual = $_GET['pagina'];
 		}
-		if ($_GET['buscar']) {
+		if (isset($_GET['buscar'])) {
 			$palabraBuscar = $_GET['buscar'];
 			$filtro =  " WHERE `Descripcion` LIKE '%".$palabraBuscar."%' or RefFabricanteCru LIKE '%".$palabraBuscar."%'";
 		} 

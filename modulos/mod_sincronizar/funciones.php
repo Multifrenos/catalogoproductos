@@ -16,14 +16,15 @@ function sincronizar($Controlador,$ObjSincronizar,$BDRecambios,$BDWebJoomla,$Con
  
 
 function crearVistas($BDRecambios,$vistas,$limite) {
-	// En esta funcion lo que hacermos es crear Vistas para realizar consultas mas rápidas.
-	// Como vamos utilizar esta funcion varias funciones, en proceso, donde vamos hacer una vista de tabla por trozos, por eso 
+	// En esta funcion lo que hacermos es crear Vistas de BDRecambios para realizar consultas mas rápidas.
+	// Esta funcion la utilizamos en varios procesos (funciones),incluso vamos hacer vistas por trozos, por eso 
 	// creamos los parametros vistas y limite.
 	// Los parametros de fucion:
 	// 		$BDRecambios ( BD que creamos vista)
 	// 		$vistas -> Esté puede ser
 	//				$vista[0] = virtuemart -> Crea vista tabla virtuemart_productos pero con una cantida registros ( limite)
 	// 				$vista[1] = vista_recambio -> Que tiene id Recambio, IdFabricante y RefFabricanteCru de las 
+	// 				$vista[2] = vista_recambio -> Que tiene id Recambio, IdFabricante y RefFabricanteCru de las 
 	//				dos tablas ( recambios y referenciascruzadas).
 	// 		$limite-> Array que indicar el limite de la vista[1]
 	//				limite[0] -> inicial
@@ -59,10 +60,8 @@ function crearVistas($BDRecambios,$vistas,$limite) {
 	} else {
 		$respuesta['ViewRecambio']['consulta'] =false;
 	}
-	//~ $respuesta['limite'] = $limite; // para debug
-	//~ $respuesta['vistas'] = $vistas; // para debug
-	return $respuesta;
 	
+	return $respuesta;
 	
 }
 	
@@ -109,4 +108,106 @@ function BuscarErrorRefNuevo($BDRecambios) {
 	}
 	return $resultado;
 }
+
+function CopiarDescripcion($ObjRecambio,$BDRecambios,$Reg_Inicial,$TotalRegistro,$intervalo,$ObjRecambio_Cruces,$prefijoJoomla,$BDWebJoomla,$BDVehiculos){
+	// En esta funcion estamos en ciclo javascript ObtenerDatosVirtuemart()
+	// Parametros:
+	//		$ObjRecambio-> Es objeto que utilizamos en Recambios
+	// 		$BDRecambios -> Conexion a BD
+	//		$BDWebJoomla-> Conexion a BD de Joomla
+	//		$BDVehiculos-> Conexion a BD de Vehiculos
+	// 		$Reg_Inicial -> Registro desde donde iniciamos la consulta.
+	// 		$TotalRegistro-> Total de registros que hay en tabla virtuemart_product.
+	// 		$intervalo-> La cantidad de registros que vamos obtener.
+	// LO QUE VAMOS HACER ES:
+	// Vamos obtener de tabla virtuemart_products :
+	// 		virtuemart_product_id -> Id producto de wev
+	// 		product_sku: -> id producto de recambio
+	// 		product_gtin:-> Referencia de fabricante
+	// para luego general el html de la vista plugin de cruces.
+	// para guardar en tabla virtuemart_product_es en campo descripcion larga.
+	$respuesta = array();
+	$Recambio = array();
+	$CruceRecambio = array();
+	$consulta = 'SELECT `virtuemart_product_id` , `product_sku` , `product_gtin` FROM `virtuemart_products` LIMIT '. $Reg_Inicial.','.$intervalo;
+	$resultados = $BDRecambios->query($consulta);
+	//~ $Nresultados = $resultado->num_rows;
+	if ($resultados) {
+		$x=0;
+		while ($fila = $resultados->fetch_assoc()) {
+			$Recambio[$x]['id'] = $fila['virtuemart_product_id'];
+			$Recambio[$x]['idRecambio'] = $fila['product_sku'];
+			$Recambio[$x]['RefFabriCru'] = $fila['product_gtin'];
+
+			// ======== AHORA REALIZAMOS ARRAY CRUCESRECAMBIO ============== //
+			$htmlRecamCru = '';
+			$idBusqueda = $fila['product_sku'];
+			$consulta = "SELECT c.`id` , c.`idReferenciaCruz` , c.`idRecambio` , c.`idFabricanteCruz` , f.`Nombre` AS Nfabricante, r.`RefFabricanteCru` AS NRefFabricante FROM `cruces_referencias` AS c, `fabricantes_recambios` AS f, `referenciascruzadas` AS r WHERE f.`id` = c.`idFabricanteCruz`AND r.`id` = c.`idReferenciaCruz` and c.`idRecambio` =". $idBusqueda;
+			$ResultadoCrucesRecam = $BDRecambios->query($consulta);
+			if ($ResultadoCrucesRecam){
+				// Ahora tenemos que montar el html cruces de referencias.
+				$CruceRecambio['TotalCruce'] = $ResultadoCrucesRecam->num_rows;
+				$i = 0;
+				while ($cruce = $ResultadoCrucesRecam->fetch_assoc()) {
+					$CruceRecambio[$i]['idFabriCruz']= $cruce['idFabricanteCruz'];
+					$CruceRecambio[$i]['idReferenciaCruz']= $cruce['idReferenciaCruz'];
+					$CruceRecambio[$i]['FabricanteCru'] = $cruce['Nfabricante'];
+					$CruceRecambio[$i]['FabricanteCruRef'] = $cruce['NRefFabricante'];
+					$i = $i+1;
+				}
+			}
+			// Ya tengo html de recambios cruzados.
+			$htmlRecamCru = $ObjRecambio_Cruces->html_cruce_ref($CruceRecambio);
+			$Recambio[$x]['HtmlCruRecambio'] = $htmlRecamCru;
+			$x++;
+			// ======== AHORA REALIZAMOS ARRAY CRUCESVEHICULOS ============== //
+			$CrucesVehiculos = array();
+			$idVersiones = array();
+			$htmlCruceVehiculo='';
+			$tabla= 'cruces_vehiculos';
+			$idBusqueda ='RecambioID='.$fila['product_sku'];
+			$ResultadoCrucesVehiculos = $ObjRecambio->BusquedaIDUnico($BDRecambios,$idBusqueda,$tabla);
+			$consulta = "SELECT * FROM ".$tabla." WHERE ".$idBusqueda;
+			if (isset($ResultadoCrucesVehiculos)){
+				$TotalCrucesVehiculos = $ResultadoCrucesVehiculos->num_rows;
+					if ($TotalCrucesVehiculos > 0) {
+						// Si existe cruce entonces realizamos busquedas de cruces
+						$i = 0;
+						while ($cruce = $ResultadoCrucesVehiculos->fetch_assoc()) {
+							$idVersiones[$i]= $cruce['VersionVehiculoID'];
+							$i++;
+						};
+						 $CrucesVehiculos= $ObjRecambio->CrucesVehiculos($BDVehiculos,$idVersiones);
+						 $htmlCruceVehiculo = $ObjRecambio_Cruces->html_cruce_vehiculo($CrucesVehiculos,$TotalCrucesVehiculos);
+					};
+			};
+			// ======== AHORA PREPARAMOS PARA COPIAR LUEGO LAS DESCRIPCIONES ============== //
+			//Montamos los queremos copiar:
+			$DatosRefCruzadas = '<div class="col-md-3">'.$htmlRecamCru.'</div>'.'<div class="col-md-9">'.$htmlCruceVehiculo.'</div>';
+			$id = $fila['virtuemart_product_id'];
+			$respCopiar = $ObjRecambio->CopiarDescripcion($id,$DatosRefCruzadas,$prefijoJoomla,$BDWebJoomla);
+			$Recambio[$x]['descripcion'] = $respCopiar;
+			$x++;
+		
+		}
+		
+	}	
+	// debug
+	// Ahora tenemos los recambios que vamos tratar
+		// recambios 
+		// 		[$x]
+		//			['id'] = $fila['virtuemart_product_id']-> Id de producto virtuemart;
+		//			['idRecambio'] = $fila['product_sku']-> Id recambio
+		//			['RefFabriCru'] = $fila['product_gtin']-> Referencia cruzada de farbicante.
+		// 			['CruReamcbio']=> html de los recmabios con los que cruza.
+		//			['descripcion'] = descripcion que copiamos.
+	$respuesta['consulta'] = $consulta;
+	$respuesta['Recambio'] = $Recambio;
+	return $respuesta;
+
+
+}
+
+
+
 ?>
