@@ -2,16 +2,15 @@
 	/* Mostramos menu y realizamos comprobaciones comunes...
 	 * Si queremos volver debemo hacer esto con AJAX
 	 * */
-	$htmlError = '';
 	$Controlador = new ControladorComun;
 	$htmlError = $Controlador->VerConexiones($Conexiones);
 	// Revisamos conexiones
-	if ($htmlError == '' ){
+	if (isset($htmlError)){
 		// Comprobamos sincronizacion: parametros ( Base datos local y Bases datos web )
 		$DifVirtuemart= $Controlador->SincronizarWeb($BDRecambios,$BDWebJoomla,$prefijoJoomla);
 	} else {
 		// Quiere decir que hay error de conexiones
-		$htmlError .= $Controlador->VerConexiones($Conexiones);
+		$htmlError = $Controlador->VerConexiones($Conexiones);
 	}
 	
 	

@@ -221,13 +221,13 @@ function ComprobarRefVirtuemart(paso){
 				if (respuesta['VistaVirtuemart'] === false ) {
 					// Al pulsar el botton esta la variable respuesta['VistaVirtuemart'] == false , fijo.. 
 					// Ya que en la funcion vistas , la ponemos false si el limite final es 0.
-					LimiteFinal = LimiteActual + 100;
+					LimiteFinal = LimiteActual + 200;
 					if (LimiteFinal > TotalProductosVirtuemart) {
 						// Esto es para evitar enviar un limite mayor al numero registros.
 						LimiteFinal = TotalProductosVirtuemart
 					}
 					console.log('Nuevo valor de limiteFinal:'+LimiteFinal);
-					var limite = [LimiteActual,LimiteFinal ];
+					var limite = [LimiteActual,200 ];
 					var vistas = ["virtuemart"];
 					console.log(' Ahora creamos la vista Virtuemart pero con limite' + LimiteActual +','+ LimiteFinal);
 					CrearVistaInicio(vistas,limite );
@@ -403,7 +403,7 @@ function ObtenerDatosVirtuemart(){
 	console.log('limiteActual:'+LimiteActual);
 	console.log(' TotalRegistros :' + TotalProductosVirtuemart);
 	BarraProceso(LimiteActual,TotalProductosVirtuemart);
-	intervalo = 50;
+	intervalo = 100;
 	if (LimiteActual < TotalProductosVirtuemart){
 		LimiteFinal = LimiteActual + intervalo;
 		if (LimiteFinal > TotalProductosVirtuemart) {

@@ -28,7 +28,7 @@ class ControladorComun
 		// Hay que tener en cuenta que no produce ningún error... 
 		$Ntablas = $Bd->affected_rows   ;
 		if ($Ntablas == 0) {
-			$fila ['error'] = 'Error tabla no encontrada - '.$tablas;
+			$fila ['error'] = 'Error tabla no encontrada - '.$tabla;
 		} else {
 			$fila = $Queryinfo->fetch_assoc();
 		}
@@ -64,7 +64,6 @@ class ControladorComun
 		// Para corregir posibles errores
 		$DifVirtuemart[0] = $InfoProdVirt;
 		$DifVirtuemart[1] = $InfoNueVirt;
-
 		return $DifVirtuemart;	
 	}
     
@@ -72,14 +71,14 @@ class ControladorComun
    
 	function VerConexiones ($Conexiones){
 		// Objetivo comprobar si las conexiones son correctas.
-		$htmlError = '';
+		$respuesta= array();
 		foreach ($Conexiones as $conexion) {
-				if ($conexion['conexion'] == 'Error'){
-					$htmlError .= 	'Error de conexion en la BD '.$conexion['NombreBD'].'<br/>'
-									.'¡¡Revisa configuracion! <br/>';
-				}
+			if ($conexion['conexion'] == 'Error'){
+				$respuesta[$i]['ErrConexion'] = 	'Error de conexion en la BD '.$conexion['NombreBD'];
+			}
+				
 		}
-		return $htmlError ;
+		return $respuesta ;
 	}
 	
 	

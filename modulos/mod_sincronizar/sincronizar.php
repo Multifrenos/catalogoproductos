@@ -31,21 +31,49 @@
 	// 			-Estado correcto: 	$iconos[1]
 	//			-Estado incorrecto:	$iconos[2]
 	// 			-Estado pendiente:   .. No pongo Icon , para evitar malos entendimiento... 
+	// Debug
 	
 	
-	
-	// COMPROBAMOS SI NO SE MODIFICO LA TABLA VIRTUEMART_PRODUCT.
-	if (isset($DifVirtuemart['Rows'])){
-		$comprobaciones['virtuemart']['Estado'] ="Incorrecto"; // Id = EstadoSincro, ObservaSincro
-		$comprobaciones['virtuemart']['Icono'] = $iconos[2];
-		$mostrabtn = "display:none";
-	} else {
-		$comprobaciones['virtuemart']['Estado'] ="Correcto"; // Id = EstadoSincro, ObservaSincro
-		$comprobaciones['virtuemart']['Icono'] = $iconos[1];
-		$mostrabtn = "display:block";
-
+	// Comprobamos que existe tabla virtuemart en BDRecambio o BDJoomla
+	for ($i=0 ; $i<=1 ; $i++){
+		if (isset($DifVirtuemart[$i]['error'])){
+			if ($i === 0 ){
+				echo '<div class="alert alert-danger">';
+				echo $DifVirtuemart[$i]['error']." - Revisa la configuración de la conexion con la web.";
+				echo '</div>';
+				break;
+			} else {
+				$advertenciaError=$DifVirtuemart[$i]['error']; 
+			}
+			
+		}
 	}
+	// COMPROBAMOS SI NO SE MODIFICO LA TABLA VIRTUEMART_PRODUCT
 	
+	
+		// Quiere decir que no hay errores de conexion y existen las tablas.
+		if (isset($DifVirtuemart['Rows'])){
+			$comprobaciones['virtuemart']['Estado'] ="Incorrecto"; // Id = EstadoSincro, ObservaSincro
+			$comprobaciones['virtuemart']['Icono'] = $iconos[2];
+			$mostrarbtn2 = "display:none";
+			$capabtn="display:none";
+			if (isset($advertenciaError)) {
+				echo '<div class="alert alert-warning">';
+				echo $advertenciaError." - No existe,virtuemart en BD Recambios.";
+				echo '</div>';
+				$capabtn="display:block";
+				$mostrarbtn1 = "display:block";
+				// Mostramos botton de copiar virtuemart directamente sin eliminar.
+			}
+		} else {
+			$comprobaciones['virtuemart']['Estado'] ="Correcto"; // Id = EstadoSincro, ObservaSincro
+			$comprobaciones['virtuemart']['Icono'] = $iconos[1];
+			$capabtn= "display:block";
+			$mostrarbtn2= "display:block";
+			$mostrarbtn1 = "display:none";
+
+		}
+	 
 ?>
 <div class="container">
 	<h2>Sincronizacion y comprobacion de bases de datos ( Recambios con la WEB ).</h2>
@@ -125,9 +153,20 @@
 			</tbody>
 		</table>
 		<!-- Recuerda que entrada, si no es correcta varaible virtuemart-estado no se muestra -->
-		<div id="capa-botones" style="<?php echo $mostrabtn;?>">
+		<div id="capa-botones" style="<?php echo $capabtn;?>">
 			<p> Presentacion de botones acciones.</p>
-			<div class="col-md-4" id="f-revisarRef"  >
+			<div class="col-md-4" id="f-CrearTablaVituemart" style="<?php echo $mostrarbtn1;?>;">
+				<!-- Solo se presenta este botton si no existe la tabla virtuemart en BDRecambios -->
+				<form class="form" role="form" id="f-CreartablaVirtuemart" action="">
+				
+				<div class="form-group">
+					<button id="btn-CreartablaVirtuemart" type="submit" class="btn btn-warning btn-sm">Crear tabla</button>
+				</div>
+				
+				</form>
+			</div>
+			<div class="col-md-4" id="f-revisarRef" style="<?php echo $mostrarbtn2;?>;" >
+				<!-- Este bottom solo se muestra si la comprobaciones iniciales son correctas -->
 				<form class="form" role="form" id="f-referencias" action="javascript:ComprobarRefVirtuemart(1);">
 				
 				<div class="form-group">
@@ -137,6 +176,7 @@
 				</form>
 			</div>
 			<div class="col-md-4" id="f-erroresCsv" style="display:none;" >
+				<!-- Este bottom solo se muestra al comprobar referencias se encontro algún error -->
 				<form name="EnvioErrores" class="form" method="post"  action="./MostrarErrores.php">
 				<div class="form-group">
 					<button id="btn-Reescribir" type="submit" class="btn btn-warning btn-sm">Ver errores</button>
@@ -146,6 +186,7 @@
 				</form>
 			</div>
 			<div class="col-md-4" id="f-copiarDescrip" style="display:none;" >
+				<!-- Este bottom solo se muestra si al comporbar referencias no hay errores -->
 				<form name="CopiarDescripcion" class="form" method="post"  action="javascript:InicioCopiarDescripcion();">
 				<div class="form-group">
 					<button id="btn-CopiarDescripcion" type="submit" class="btn btn-danger">Copiar Descripciones</button>

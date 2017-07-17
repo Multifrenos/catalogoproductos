@@ -36,8 +36,16 @@
 	// Creamos la vista a ver .. debería controlar esto para que lo cree constantemente..
 	$vista = 'RecambiosTemporal'; // Vista temporal.
 	$CrearVista = $Crecambios->CrearVistaRecambios($BDRecambios,$vista);
+	if ($CrearVista['conexion'] === 'Error '){
+		// Quiere decir que hubo un error al crear la vista de recambios.
+		echo '<pre>';
+		echo ' Error en ListaRecambios al crear vista <br/>';
+		print_r($CrearVista);
+		echo '</pre>';
+		exit;
+	}
 	$CantidadRegistros = $Controler->contarRegistro($BDRecambios,$vista,$filtro);	
-	//~ echo '<pre>'.print_r($CantidadRegistros).'</pre>';
+	//~ echo '<pre>'.print_r($CrearVista).'</pre>';
 	$LinkBase = './ListaRecambios.php?';
 	$OtrosParametros = $palabraBuscar;
 	$htmlPG = paginado ($PgActual,$CantidadRegistros,$LimitePagina,$LinkBase,$OtrosParametros);
