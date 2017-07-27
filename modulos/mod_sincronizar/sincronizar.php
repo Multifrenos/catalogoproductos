@@ -78,11 +78,13 @@
 <div class="container">
 	<h2>Sincronizacion y comprobacion de bases de datos ( Recambios con la WEB ).</h2>
 	<div class="col-md-5">
-		<h4>Sincronizacion</h4>
-			<p> La sincronizacion de bases de datos ( Recambios con la WEB ) consiste en:</p>
+		<h4>Objetivo</h4>
+			<p> Sincronizacion de bases de datos ( Recambios con la WEB ) con la BD de la WEB, pasos as seguir:</p>
 		<ul>
 			<li>Copiar la tabla de BD de la web virtuemart_products en BD Recambios	</li>
-			<li>Comprobar que todos los productos que hay en la Web tiene referencia de Recambios</li>
+			<li>Comprobar que todos los productos de la WEB si tienen referencias de Recambios y referencia cruzada del fabricantes del recambio</li>
+			<li>Si no hay errores de referencias cruzadas, te permite copiar las descripciones en la Web, donde añade las referencias cruzadas y los vehiículos que utiliza</li>
+			<li>Si hay errores, entonces los muestra para se arreglen.</li>
 		</ul>
 		
 		<h4>Especificaciones Tecnicas</h4>
